@@ -437,5 +437,47 @@
     "description": "Move column PH_FIELD to position 8",
     "columnName": "PH_FIELD",
     "index": 8
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column METALIMNION",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "METALIMNION",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "B",
+          "B   "
+        ],
+        "to": "B"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column METALIMNION",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "METALIMNION",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "T",
+          "T   "
+        ],
+        "to": "T"
+      }
+    ]
   }
 ]
