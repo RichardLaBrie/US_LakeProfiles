@@ -191,5 +191,18 @@ write.table(nla.2012.profile.5,
 
 
 
+## 3. Merge data sets
+nla.2007.2012.profile = union(nla.2007.profile.5, nla.2012.profile.5)
 
+# Reorder obervations
+nla.2007.2012.profile.2 = nla.2007.2012.profile %>%
+  arrange(YEAR, SITE_ID, VISIT_NO, DEPTH)
+
+# Assign adequate class to SITE_ID
+nla.2007.2012.profile.2$SITE_ID = as.factor(nla.2007.2012.profile.2$SITE_ID)
+
+# Export merged data frame
+write.table(nla.2007.2012.profile.2,
+            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/lakes_profile/nla2007_2012_merged.tsv",
+            sep = "\t")
 
