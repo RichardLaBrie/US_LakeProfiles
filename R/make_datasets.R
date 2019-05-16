@@ -206,3 +206,6 @@ write.table(nla.2007.2012.profile.2,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/lakes_profile/nla2007_2012_merged.tsv",
             sep = "\t")
 
+
+
+
