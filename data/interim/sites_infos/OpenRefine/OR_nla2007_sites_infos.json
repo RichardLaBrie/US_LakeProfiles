@@ -1,0 +1,481 @@
+[
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SAMPLED",
+    "columnName": "SAMPLED"
+  },
+  {
+    "op": "core/column-split",
+    "description": "Split column DATE_COL by separator",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "DATE_COL",
+    "guessCellType": true,
+    "removeOriginalColumn": true,
+    "mode": "separator",
+    "separator": "/",
+    "regex": false,
+    "maxColumns": 0
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column DATE_COL 3 to YEAR",
+    "oldColumnName": "DATE_COL 3",
+    "newColumnName": "YEAR"
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column DATE_COL 2 to DAY",
+    "oldColumnName": "DATE_COL 2",
+    "newColumnName": "DAY"
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column DATE_COL 1 to MONTH",
+    "oldColumnName": "DATE_COL 1",
+    "newColumnName": "MONTH"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column REPEAT",
+    "columnName": "REPEAT"
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column LON_DD using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "LON_DD",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column LAT_DD using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "LAT_DD",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column ALBERS_X",
+    "columnName": "ALBERS_X"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column ALBERS_Y",
+    "columnName": "ALBERS_Y"
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column FLD_LON_DD using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "FLD_LON_DD",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column FLD_LAT_DD using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "FLD_LAT_DD",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column FLD_SRC",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "FLD_SRC",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Launch_site",
+          "Launch_Site"
+        ],
+        "to": "Launch_site"
+      }
+    ]
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column STATE_NAME",
+    "columnName": "STATE_NAME"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CNTYNAME",
+    "columnName": "CNTYNAME"
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column NHDNAME",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "NHDNAME",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Alice, Lake",
+          "Lake Alice"
+        ],
+        "to": "Alice Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Palestine",
+          "Palestine Lake"
+        ],
+        "to": "Palestine Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Lee",
+          "Lee Lake"
+        ],
+        "to": "Lee Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "McDonald Lake",
+          "McDonald, Lake"
+        ],
+        "to": "McDonald Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "James Lake",
+          "Lake James"
+        ],
+        "to": "James Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Monroe Lake",
+          "Monroe, Lake"
+        ],
+        "to": "Monroe Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Louise",
+          "Louise, Lake"
+        ],
+        "to": "Louise Lake"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column LAKENAME",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "LAKENAME",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Unnamed Lake",
+          "(Unnamed Lake)"
+        ],
+        "to": "Unnamed Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Alice Lake",
+          "Lake Alice"
+        ],
+        "to": "Alice Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Arrowhead Lake",
+          "Lake Arrowhead"
+        ],
+        "to": "Arrowhead Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Palestine",
+          "Palestine Lake"
+        ],
+        "to": "Palestine Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Blanchard Lake",
+          "Lake Blanchard"
+        ],
+        "to": "Blanchard Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Wood",
+          "Wood Lake"
+        ],
+        "to": "Wood Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Alpine Lake",
+          "Lake Alpine"
+        ],
+        "to": "Alpine Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "JAMES LAKE",
+          "James Lake"
+        ],
+        "to": "James Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Monroe",
+          "Monroe Lake"
+        ],
+        "to": "Lake Monroe"
+      }
+    ]
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column MDCATY using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "MDCATY",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column WGT using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "WGT",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column WGT_NLA using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "WGT_NLA",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column URBAN",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "URBAN",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "NO"
+        ],
+        "to": "FALSE"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column URBAN",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "URBAN",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "YES"
+        ],
+        "to": "TRUE"
+      }
+    ]
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column AREA_HA using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "AREA_HA",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column LAKEAREA using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "LAKEAREA",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column LAKEPERIM using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "LAKEPERIM",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column SLD using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "SLD",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column DEPTH_X using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "DEPTH_X",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column DEPTHMAX using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "DEPTHMAX",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column ELEV_PT using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "ELEV_PT",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column INDEX_SAMP",
+    "columnName": "INDEX_SAMP"
+  }
+]

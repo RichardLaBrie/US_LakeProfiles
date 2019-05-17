@@ -1,0 +1,483 @@
+[
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PUBLICATION_DATE",
+    "columnName": "PUBLICATION_DATE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column UID",
+    "columnName": "UID"
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column DATE_COL using expression value.toDate()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "DATE_COL",
+    "expression": "value.toDate()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column DATE_COL to DATE_PROFILE",
+    "oldColumnName": "DATE_COL",
+    "newColumnName": "DATE_PROFILE"
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column VISIT_NO using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "VISIT_NO",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column LINE",
+    "columnName": "LINE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column ARRIVAL_TIME",
+    "columnName": "ARRIVAL_TIME"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CAL_INST_ID",
+    "columnName": "CAL_INST_ID"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CAL_INST_MODEL",
+    "columnName": "CAL_INST_MODEL"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CAL_INST_OPERATOR",
+    "columnName": "CAL_INST_OPERATOR"
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column CALIBRATION_VERIFIED",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "CALIBRATION_VERIFIED",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "N"
+        ],
+        "to": "FALSE"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column CALIBRATION_VERIFIED",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "CALIBRATION_VERIFIED",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Y"
+        ],
+        "to": "TRUE"
+      }
+    ]
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CON_STD1_VALUE",
+    "columnName": "CON_STD1_VALUE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COND_QCS_DESC",
+    "columnName": "COND_QCS_DESC"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COND_QCS_MEASURED",
+    "columnName": "COND_QCS_MEASURED"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COND_QCS_TRUE",
+    "columnName": "COND_QCS_TRUE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COND_STD1_DESC",
+    "columnName": "COND_STD1_DESC"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COND_STD1_VALUE",
+    "columnName": "COND_STD1_VALUE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COND_STD2_DESC",
+    "columnName": "COND_STD2_DESC"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COND_STD2_VALUE",
+    "columnName": "COND_STD2_VALUE"
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column CONDUCTIVITY to COND_FIELD",
+    "oldColumnName": "CONDUCTIVITY",
+    "newColumnName": "COND_FIELD"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DEPTH_METHOD",
+    "columnName": "DEPTH_METHOD"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DO_BARO_PRESSURE",
+    "columnName": "DO_BARO_PRESSURE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DO_CALIBRATION_UNITS",
+    "columnName": "DO_CALIBRATION_UNITS"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DO_CALIBRATION_VALUE",
+    "columnName": "DO_CALIBRATION_VALUE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DO_DISPLAYED_UNITS",
+    "columnName": "DO_DISPLAYED_UNITS"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DO_DISPLAYED_VALUE",
+    "columnName": "DO_DISPLAYED_VALUE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DO_ELEVATION",
+    "columnName": "DO_ELEVATION"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CALIBRATION_VERIFIED",
+    "columnName": "CALIBRATION_VERIFIED"
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column COND_FIELD using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "COND_FIELD",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column DEPTH using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "DEPTH",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DO2_2M",
+    "columnName": "DO2_2M"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DUPLICATE_DO",
+    "columnName": "DUPLICATE_DO"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column E_FILE",
+    "columnName": "E_FILE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column INDEX_GPS_FIX",
+    "columnName": "INDEX_GPS_FIX"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column INDEX_LAT_DD",
+    "columnName": "INDEX_LAT_DD"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column INDEX_LON_DD",
+    "columnName": "INDEX_LON_DD"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column INDEX_SITE_DEPTH",
+    "columnName": "INDEX_SITE_DEPTH"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column ODOR",
+    "columnName": "ODOR"
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column OXYGEN using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "OXYGEN",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column PH using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "PH",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column PH to PH_FIELD",
+    "oldColumnName": "PH",
+    "newColumnName": "PH_FIELD"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PH_QCS_DESC",
+    "columnName": "PH_QCS_DESC"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PH_QCS_MEASURED",
+    "columnName": "PH_QCS_MEASURED"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PH_QCS_TRUE",
+    "columnName": "PH_QCS_TRUE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PH_STD1_DESC",
+    "columnName": "PH_STD1_DESC"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PH_STD1_VALUE",
+    "columnName": "PH_STD1_VALUE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PH_STD2_DESC",
+    "columnName": "PH_STD2_DESC"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PH_STD2_VALUE",
+    "columnName": "PH_STD2_VALUE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PRECIPITATION",
+    "columnName": "PRECIPITATION"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SCUM",
+    "columnName": "SCUM"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SCUM_DESC",
+    "columnName": "SCUM_DESC"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SURFACE_COND",
+    "columnName": "SURFACE_COND"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column TEMP_CORRECTED",
+    "columnName": "TEMP_CORRECTED"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column TEMP_SENSOR",
+    "columnName": "TEMP_SENSOR"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column TEMP_THERMOMETER",
+    "columnName": "TEMP_THERMOMETER"
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column OXYGEN to DO_FIELD",
+    "oldColumnName": "OXYGEN",
+    "newColumnName": "DO_FIELD"
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column TEMPERATURE using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "TEMPERATURE",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column TEMPERATURE to TEMP_FIELD",
+    "oldColumnName": "TEMPERATURE",
+    "newColumnName": "TEMP_FIELD"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column STATE",
+    "columnName": "STATE"
+  },
+  {
+    "op": "core/column-move",
+    "description": "Move column VISIT_NO to position 1",
+    "columnName": "VISIT_NO",
+    "index": 1
+  },
+  {
+    "op": "core/column-move",
+    "description": "Move column DEPTH to position 4",
+    "columnName": "DEPTH",
+    "index": 4
+  },
+  {
+    "op": "core/column-move",
+    "description": "Move column METALIMNION to position 5",
+    "columnName": "METALIMNION",
+    "index": 5
+  },
+  {
+    "op": "core/column-move",
+    "description": "Move column TEMP_FIELD to position 8",
+    "columnName": "TEMP_FIELD",
+    "index": 8
+  },
+  {
+    "op": "core/column-move",
+    "description": "Move column TEMP_FIELD to position 7",
+    "columnName": "TEMP_FIELD",
+    "index": 7
+  },
+  {
+    "op": "core/column-move",
+    "description": "Move column TEMP_FIELD to position 6",
+    "columnName": "TEMP_FIELD",
+    "index": 6
+  },
+  {
+    "op": "core/column-move",
+    "description": "Move column DO_FIELD to position 7",
+    "columnName": "DO_FIELD",
+    "index": 7
+  },
+  {
+    "op": "core/column-move",
+    "description": "Move column PH_FIELD to position 8",
+    "columnName": "PH_FIELD",
+    "index": 8
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column METALIMNION",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "METALIMNION",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "B",
+          "B   "
+        ],
+        "to": "B"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column METALIMNION",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "METALIMNION",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "T",
+          "T   "
+        ],
+        "to": "T"
+      }
+    ]
+  }
+]
