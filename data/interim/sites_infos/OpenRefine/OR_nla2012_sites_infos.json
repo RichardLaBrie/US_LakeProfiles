@@ -1,0 +1,673 @@
+[
+  {
+    "op": "core/column-split",
+    "description": "Split column DATE_COL by separator",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "DATE_COL",
+    "guessCellType": true,
+    "removeOriginalColumn": true,
+    "mode": "separator",
+    "separator": "/",
+    "regex": false,
+    "maxColumns": 0
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column DATE_COL 1 to MONTH",
+    "oldColumnName": "DATE_COL 1",
+    "newColumnName": "MONTH"
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column DATE_COL 2 to DAY",
+    "oldColumnName": "DATE_COL 2",
+    "newColumnName": "DAY"
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column DATE_COL 3 to YEAR",
+    "oldColumnName": "DATE_COL 3",
+    "newColumnName": "YEAR"
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column AREA_HA using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "AREA_HA",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column CH0712_WGT using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "CH0712_WGT",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CNTYNAME",
+    "columnName": "CNTYNAME"
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column ELEVATION using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "ELEVATION",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column EVAL_NAME",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "EVAL_NAME",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Wildwood",
+          "Wildwood Lake"
+        ],
+        "to": "Wildwood Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Alice",
+          "Alice Lake"
+        ],
+        "to": "Alice Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Surprise",
+          "SURPRISE LAKE"
+        ],
+        "to": "Surprise Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Fisher Lake",
+          "Lake Fisher"
+        ],
+        "to": "Lake Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Blue Lake",
+          "BLUE LAKE"
+        ],
+        "to": "Blue Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Kelso Lake",
+          "LAKE KELSO"
+        ],
+        "to": "Kelso Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "LAKE CHARLES",
+          "Lake Charles"
+        ],
+        "to": "Charles Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "West Lake",
+          "West lake"
+        ],
+        "to": "West Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "WILLOW LAKE",
+          "Willow Lake"
+        ],
+        "to": "Willow Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "George Lake",
+          "LAKE GEORGE"
+        ],
+        "to": "George Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Edna Lake",
+          "Lake Edna"
+        ],
+        "to": "Edna Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "PICKEREL LAKE",
+          "Pickerel Lake"
+        ],
+        "to": "Pickerel Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "PLEASANT LAKE",
+          "Pleasant Lake"
+        ],
+        "to": "Pleasant Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "SAND LAKE",
+          "Sand Lake"
+        ],
+        "to": "Sand Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Thomas",
+          "Thomas Lake"
+        ],
+        "to": "Thomas Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Canyon Lake",
+          "Lake Canyon Lake"
+        ],
+        "to": "Canyon Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Spring Lake",
+          "SPRING LAKE"
+        ],
+        "to": "Spring Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Washington",
+          "Washington Lake"
+        ],
+        "to": "Washington Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "WOLF LAKE",
+          "Wolf Lake"
+        ],
+        "to": "Wolf Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "ALPINE LAKE",
+          "Lake Alpine"
+        ],
+        "to": "Alpine Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "PICTURE LAKE",
+          "Picture Lake"
+        ],
+        "to": "Picture Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "James Lake",
+          "Lake James"
+        ],
+        "to": "James Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Monroe",
+          "Monroe Lake"
+        ],
+        "to": "Monroe Lake"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column GNIS_NAME",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "GNIS_NAME",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Surprise",
+          "Surprise Lake"
+        ],
+        "to": "Surprise Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Charles, Lake",
+          "Lake Charles"
+        ],
+        "to": "Charles Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "George Lake",
+          "Lake George"
+        ],
+        "to": "George Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Washington",
+          "Washington Lake"
+        ],
+        "to": "Washington Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Alpine Lake",
+          "Lake Alpine"
+        ],
+        "to": "Alpine Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Monroe Lake",
+          "Monroe, Lake"
+        ],
+        "to": "Monroe Lake"
+      }
+    ]
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column LAT_DD83 using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "LAT_DD83",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column LON_DD83 using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "LON_DD83",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column NARS_NAME",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "NARS_NAME",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Surprise",
+          "Surprise Lake"
+        ],
+        "to": "Surprise Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Charles, Lake",
+          "Lake Charles"
+        ],
+        "to": "Charles Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "George Lake",
+          "Lake George"
+        ],
+        "to": "George Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Lake Washington",
+          "Washington Lake"
+        ],
+        "to": "Washington Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Alpine Lake",
+          "Lake Alpine"
+        ],
+        "to": "Alpine Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "James Lake",
+          "Lake James"
+        ],
+        "to": "James Lake"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Monroe Lake",
+          "Monroe, Lake"
+        ],
+        "to": "Monroe Lake"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column OWNSHP",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "OWNSHP",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "Non-Federal"
+        ],
+        "to": "Non Federal"
+      }
+    ]
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column PERIM_KM using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "PERIM_KM",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column ST_WGT_ALL using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "ST_WGT_ALL",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column ST_WGT_DSGN using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "ST_WGT_DSGN",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column STATE_PCNT using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "STATE_PCNT",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column WGT_ALL using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "WGT_ALL",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column WGT_DSGN using expression value.toNumber()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "WGT_DSGN",
+    "expression": "value.toNumber()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column XCOORD",
+    "columnName": "XCOORD"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column YCOORD",
+    "columnName": "YCOORD"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column INDXSAMP_BENT",
+    "columnName": "INDXSAMP_BENT"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column INDXSAMP_CHEM",
+    "columnName": "INDXSAMP_CHEM"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column INDXSAMP_CHLA",
+    "columnName": "INDXSAMP_CHLA"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column INDXSAMP_CORE",
+    "columnName": "INDXSAMP_CORE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column INDXSAMP_ENTE",
+    "columnName": "INDXSAMP_ENTE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column INDXSAMP_MICR",
+    "columnName": "INDXSAMP_MICR"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column INDXSAMP_PHAB",
+    "columnName": "INDXSAMP_PHAB"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column INDXSAMP_SDHG",
+    "columnName": "INDXSAMP_SDHG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column INDXSAMP_ZOOP",
+    "columnName": "INDXSAMP_ZOOP"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SAMPLED_CORE",
+    "columnName": "SAMPLED_CORE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SAMPLED_ENTE",
+    "columnName": "SAMPLED_ENTE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SAMPLED_MICR",
+    "columnName": "SAMPLED_MICR"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SAMPLED_PHAB",
+    "columnName": "SAMPLED_PHAB"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SAMPLED_PHYT",
+    "columnName": "SAMPLED_PHYT"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SAMPLED_PROFILE",
+    "columnName": "SAMPLED_PROFILE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SAMPLED_SDHG",
+    "columnName": "SAMPLED_SDHG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SAMPLED_ZOCR",
+    "columnName": "SAMPLED_ZOCR"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SAMPLED_ZOFR",
+    "columnName": "SAMPLED_ZOFR"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SAMPLED_ZOOP",
+    "columnName": "SAMPLED_ZOOP"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PUBLICATION_DATE",
+    "columnName": "PUBLICATION_DATE"
+  }
+]
