@@ -477,5 +477,50 @@
     "op": "core/column-removal",
     "description": "Remove column INDEX_SAMP",
     "columnName": "INDEX_SAMP"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column FLD_FLAG",
+    "columnName": "FLD_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NHDNAME",
+    "columnName": "NHDNAME"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column LAKENAME",
+    "columnName": "LAKENAME"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column AREA_CAT7",
+    "columnName": "AREA_CAT7"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DSGN_CAT",
+    "columnName": "DSGN_CAT"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column ECO_L3_NAM",
+    "columnName": "ECO_L3_NAM"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NUTREG_NAME",
+    "columnName": "NUTREG_NAME"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column REFCLUS_NAME",
+    "columnName": "REFCLUS_NAME"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SIZE_CLASS",
+    "columnName": "SIZE_CLASS"
   }
 ]
