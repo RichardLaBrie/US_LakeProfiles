@@ -669,5 +669,40 @@
     "op": "core/column-removal",
     "description": "Remove column PUBLICATION_DATE",
     "columnName": "PUBLICATION_DATE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DES_FTYPE",
+    "columnName": "DES_FTYPE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column IM_COMMENT",
+    "columnName": "IM_COMMENT"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column AREACLS",
+    "columnName": "AREACLS"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column MDCATY",
+    "columnName": "MDCATY"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column RCHCODE",
+    "columnName": "RCHCODE"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SIZE_CLASS",
+    "columnName": "SIZE_CLASS"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column WGT_CAT",
+    "columnName": "WGT_CAT"
   }
 ]
