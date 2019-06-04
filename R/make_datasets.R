@@ -8,13 +8,15 @@ library("dplyr")
 library("ggplot2")
 library("tidyr")
 
-# Import the data sets 
+# Import the interim data sets 
 # The data sets are in the folder "interim"
 nla.2007.profile = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/lakes_profile/nla2007_profile_20091008.tsv", header = TRUE,  sep = '\t')
 nla.2012.profile = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/lakes_profile/nla2012_wide_profile_08232016.tsv", header = TRUE,  sep = '\t')
+nla.2007.infos = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/sites_infos/nla2007_sitesinfos.tsv", header = TRUE,  sep = '\t')
+nla.2012.infos = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/sites_infos/nla2012_sitesinfos.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
 
-## 1. Tidy the 2007 lake profiles data set
+#### 1.1 Tidy the 2007 lake profiles data set ####
 nla.2007.profile.2 = nla.2007.profile %>%
   # Only PROF observations are kept (we don't want calibration values)
   # Observations without site_id or depth values are removed 
@@ -106,7 +108,7 @@ write.table(nla.2007.profile.5,
 
 
 
-## 2. Tidy the 2012 lake profiles data set
+#### 1.2 Tidy the 2012 lake profiles data set ####
 nla.2012.profile.2 = nla.2012.profile %>%
   # Only PROF observations are kept (we don't want calibration values)
   # Observations without site_id or depth values are removed 
@@ -191,7 +193,7 @@ write.table(nla.2012.profile.5,
 
 
 
-## 3. Merge data sets
+#### 1.3 Merge data sets ####
 nla.2007.2012.profile = union(nla.2007.profile.5, nla.2012.profile.5)
 
 # Reorder obervations
@@ -207,5 +209,54 @@ write.table(nla.2007.2012.profile.2,
             sep = "\t")
 
 
+#### 2.1 Tidy the 2007 site infos data set ####
+
+nla.2007.infos.2 = nla.2007.infos %>%
+  select(SITE_ID, VISIT_NO, DAY, MONTH, YEAR, LON_DD, LAT_DD,
+         ST, EPA_REG, LAKE_ORIGIN, LAKEAREA, LAKEPERIM, SLD, 
+         DEPTHMAX, HUC_2, HUC_8, COM_ID)
 
 
+
+#### 2.2 Tidy the 2012 site infos data set ####
+
+
+
+
+
+
+
+
+#### 2.3 Merge data sets ####
+
+
+
+
+
+
+
+#### 3.1 Join sites ####
+
+nla.2012.infos.x = nla.2012.infos %>%
+  mutate(COM_ID = as.factor(COMIDS2007)) %>%
+  filter(COM_ID != "0", VISIT_NO == "1")
+nla.2007.infos.x = nla.2007.infos %>%
+  mutate(COM_ID = as.factor(COM_ID)) %>%
+  filter(COM_ID != "0", VISIT_NO == "1")
+
+nla.infos.test = inner_join(nla.2007.infos.x, nla.2012.infos.x, by = "COM_ID") %>%
+  mutate(diff.lat = abs(LAT_DD - LAT_DD83))
+dim(nla.infos.test)
+
+lat1 = nla.infos.test$LAT_DD[16]
+lon1 = nla.infos.test$LON_DD[16]
+lat2 = nla.infos.test$LAT_DD83[16]
+lon2 = nla.infos.test$LON_DD83[16]
+dim(nla.infos.test)
+
+diff.lat = abs(nla.infos.test$LAT_DD - nla.infos.test$LAT_DD83)
+max(diff.lat)
+hist(diff.lat)
+diff.lon = abs(nla.infos.test$LON_DD - nla.infos.test$LON_DD83)
+hist(diff.lon)
+nla.infos.test$CNTYNAME
