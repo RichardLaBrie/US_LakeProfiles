@@ -211,31 +211,85 @@ write.table(nla.2007.2012.profile.2,
 
 #### 2.1 Tidy the 2007 site infos data set ####
 
+# Select useful variables
 nla.2007.infos.2 = nla.2007.infos %>%
-  select(SITE_ID, VISIT_NO, DAY, MONTH, YEAR, LON_DD, LAT_DD,
-         ST, EPA_REG, LAKE_ORIGIN, LAKEAREA, LAKEPERIM, SLD, 
-         DEPTHMAX, HUC_2, HUC_8, COM_ID)
+  select(SITE_ID,  COM_ID, VISIT_NO, DAY, MONTH, YEAR, LAT_DD, LON_DD,
+         ST, EPA_REG, WSA_ECO9, HUC_2, HUC_8, LAKE_ORIGIN, 
+         LAKEAREA, LAKEPERIM, ELEV_PT, DEPTHMAX, SLD,
+         WGT_NLA)
+
+# Rename columns 
+colnames(nla.2007.infos.2) = c("SITE_ID", "COM_ID", "VISIT_NO", "DAY", "MONTH", "YEAR", "LAT", "LON",
+                               "STATE", "EPA_REG", "ECO9", "HUC2", "HUC8", "LAKE_ORIGIN", 
+                               "AREA_KM2", "PERIM_KM", "ELEVATION_M", "DEPTHMAX_M", "SLD",
+                               "WGT")
+
+# Change the variables' class
+nla.2007.infos.3  = nla.2007.infos.2 %>%
+  mutate(SITE_ID = as.factor(SITE_ID), COM_ID = as.factor(COM_ID), 
+         VISIT_NO = as.numeric(VISIT_NO), 
+         DAY = as.numeric(DAY), MONTH = as.numeric(MONTH), YEAR = as.numeric(YEAR),
+         LAT = as.numeric(LAT), LON = as.numeric(LON), 
+         STATE = as.factor(STATE),
+         EPA_REG = as.factor(EPA_REG), ECO9 = as.factor(ECO9),
+         HUC2 = as.factor(HUC2), HUC8 = as.factor(HUC8),
+         LAKE_ORIGIN = as.factor(LAKE_ORIGIN), 
+         AREA_KM2 = as.numeric(AREA_KM2), PERIM_KM = as.numeric(PERIM_KM), 
+         ELEVATION_M = as.numeric(ELEVATION_M), 
+         DEPTHMAX_M = as.numeric(DEPTHMAX_M), SLD = as.numeric(SLD), 
+         WGT = as.numeric(WGT))
 
 
+# Export the processed data set
+write.table(nla.2007.infos.3,
+            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/sites_infos/nla2007_infos.tsv",
+            sep = "\t")
 
 #### 2.2 Tidy the 2012 site infos data set ####
 
+# Select useful variables
+# The 2012 data set does not have information on maximum depth nor on shoreline development (SLD)
+nla.2012.infos.2 = nla.2012.infos %>%
+  select(SITE_ID, COMIDS2007, VISIT_NO, DAY, MONTH, YEAR, LAT_DD83, LON_DD83,
+         STATE, EPA_REG, FW_ECO9, HUC2, HUC8, LAKE_ORIGIN, 
+         AREA_HA, PERIM_KM, ELEVATION, 
+         WGT_ALL) 
+
+# Rename columns according to the ones of the 2007 data set
+colnames(nla.2012.infos.2) = c("SITE_ID", "COM_ID", "VISIT_NO", "DAY", "MONTH", "YEAR", "LAT", "LON",
+                               "STATE", "EPA_REG", "ECO9", "HUC2", "HUC8", "LAKE_ORIGIN", 
+                               "AREA_KM2", "PERIM_KM", "ELEVATION_M",
+                               "WGT")
+
+# Change the variables' class
+nla.2012.infos.3  = nla.2012.infos.2 %>%
+  mutate(SITE_ID = as.factor(SITE_ID), COM_ID = as.factor(COM_ID), 
+         VISIT_NO = as.numeric(VISIT_NO), 
+         DAY = as.numeric(DAY), MONTH = as.numeric(MONTH), YEAR = as.numeric(YEAR),
+         LAT = as.numeric(LAT), LON = as.numeric(LON), 
+         STATE = as.factor(STATE),
+         EPA_REG = as.factor(EPA_REG), ECO9 = as.factor(ECO9),
+         HUC2 = as.factor(HUC2), HUC8 = as.factor(HUC8),
+         LAKE_ORIGIN = as.factor(LAKE_ORIGIN), 
+         AREA_KM2 = as.numeric(AREA_KM2) / 100, PERIM_KM = as.numeric(PERIM_KM), 
+         ELEVATION_M = as.numeric(ELEVATION_M), 
+         WGT = as.numeric(WGT))
 
 
-
-
-
-
-
-#### 2.3 Merge data sets ####
-
-
-
+# Export the processed data set
+write.table(nla.2012.infos.3,
+            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/sites_infos/nla2012_infos.tsv",
+            sep = "\t")
 
 
 
 
 #### 3.1 Join sites ####
+
+
+testest = inner_join(nla.2007.infos.2, nla.2012.infos.2, by = "COM_ID") %>%
+  filter(VISIT_NO.x == "1", VISIT_NO.y == "1", DSGN12 == "Included")
+dim(testest)
 
 nla.2012.infos.x = nla.2012.infos %>%
   mutate(COM_ID = as.factor(COMIDS2007)) %>%
