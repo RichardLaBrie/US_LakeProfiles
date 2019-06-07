@@ -287,30 +287,48 @@ write.table(nla.2012.infos.3,
 #### 3.1 Join sites ####
 
 
-testest = inner_join(nla.2007.infos.2, nla.2012.infos.2, by = "COM_ID") %>%
-  filter(VISIT_NO.x == "1", VISIT_NO.y == "1", DSGN12 == "Included")
-dim(testest)
+# Data table to link sites from 2007 to those of 2012
 
-nla.2012.infos.x = nla.2012.infos %>%
-  mutate(COM_ID = as.factor(COMIDS2007)) %>%
-  filter(COM_ID != "0", VISIT_NO == "1")
-nla.2007.infos.x = nla.2007.infos %>%
-  mutate(COM_ID = as.factor(COM_ID)) %>%
-  filter(COM_ID != "0", VISIT_NO == "1")
+common.sites = inner_join(nla.2007.infos.3, nla.2012.infos.3, by = "COM_ID") %>%
+  mutate(SITE_ID_2007 = SITE_ID.x, SITE_ID_2012 = SITE_ID.y) %>%
+  select(SITE_ID_2007, SITE_ID_2012, COM_ID) %>%
+  distinct(SITE_ID_2007, SITE_ID_2012, .keep_all = TRUE)
+# dim(common.sites)
 
-nla.infos.test = inner_join(nla.2007.infos.x, nla.2012.infos.x, by = "COM_ID") %>%
-  mutate(diff.lat = abs(LAT_DD - LAT_DD83))
-dim(nla.infos.test)
 
-lat1 = nla.infos.test$LAT_DD[16]
-lon1 = nla.infos.test$LON_DD[16]
-lat2 = nla.infos.test$LAT_DD83[16]
-lon2 = nla.infos.test$LON_DD83[16]
-dim(nla.infos.test)
+# Join the data set infos and only keep the sites repeated in 2007 and 2012
+nla.2007.2012.infos = inner_join(nla.2007.infos.3, nla.2012.infos.3, by = "COM_ID")
 
-diff.lat = abs(nla.infos.test$LAT_DD - nla.infos.test$LAT_DD83)
-max(diff.lat)
-hist(diff.lat)
-diff.lon = abs(nla.infos.test$LON_DD - nla.infos.test$LON_DD83)
-hist(diff.lon)
-nla.infos.test$CNTYNAME
+# 2007 data table of sites repeated in 2012
+nla.2007.infos.repeated = nla.2007.2012.infos %>%
+  select(COM_ID, ends_with("x"), DEPTHMAX_M, SLD)
+colnames(nla.2007.infos.repeated) = c("COM_ID", "SITE_ID", "VISIT_NO", "DAY", "MONTH", "YEAR", "LAT", "LON",
+                                "STATE", "EPA_REG", "ECO9", "HUC2", "HUC8", "LAKE_ORIGIN", 
+                                "AREA_KM2", "PERIM_KM", "ELEVATION_M", "WGT", "DEPTHMAX_M", "SLD")
+
+# 2012 data table of sites also sampled in 2007
+nla.2012.infos.repeated = nla.2007.2012.infos %>%
+  select(COM_ID, ends_with("y"))
+colnames(nla.2012.infos.repeated) = c("COM_ID", "SITE_ID", "VISIT_NO", "DAY", "MONTH", "YEAR", "LAT", "LON",
+                                "STATE", "EPA_REG", "ECO9", "HUC2", "HUC8", "LAKE_ORIGIN", 
+                                "AREA_KM2", "PERIM_KM", "ELEVATION_M", "WGT")
+
+# Join the 2 preceding data tables
+nla.2007.2012.infos.repeated = bind_rows(nla.2007.infos.repeated, nla.2012.infos.repeated)
+
+# Change the sites id. of 2012 to those of 2007
+for (i in 1:nrow(test)) {
+  if (nla.2007.2012.infos.repeated$SITE_ID[i] %in% common.sites$SITE_ID_2012)
+  {
+    k = which(common.sites$SITE_ID_2012 == nla.2007.2012.infos.repeated $SITE_ID[i])
+    nla.2007.2012.infos.repeated $SITE_ID[i] = as.character(common.sites$SITE_ID_2007[k])
+  }
+}
+
+write.table(nla.2007.2012.infos.repeated,
+            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/sites_infos/nla2007_2012_infos_repeated.tsv",
+            sep = "\t")
+
+
+
+
