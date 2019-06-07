@@ -284,7 +284,7 @@ write.table(nla.2012.infos.3,
 
 
 
-#### 3.1 Join sites ####
+#### 3.1 Repeated sites ####
 
 
 # Data table to link sites from 2007 to those of 2012
@@ -317,18 +317,48 @@ colnames(nla.2012.infos.repeated) = c("COM_ID", "SITE_ID", "VISIT_NO", "DAY", "M
 nla.2007.2012.infos.repeated = bind_rows(nla.2007.infos.repeated, nla.2012.infos.repeated)
 
 # Change the sites id. of 2012 to those of 2007
-for (i in 1:nrow(test)) {
+for (i in 1:nrow(nla.2007.2012.infos.repeated)) {
   if (nla.2007.2012.infos.repeated$SITE_ID[i] %in% common.sites$SITE_ID_2012)
   {
-    k = which(common.sites$SITE_ID_2012 == nla.2007.2012.infos.repeated $SITE_ID[i])
-    nla.2007.2012.infos.repeated $SITE_ID[i] = as.character(common.sites$SITE_ID_2007[k])
+    k = which(common.sites$SITE_ID_2012 == nla.2007.2012.infos.repeated$SITE_ID[i])
+    nla.2007.2012.infos.repeated$SITE_ID[i] = as.character(common.sites$SITE_ID_2007[k])
   }
 }
 
+# Correctly order observations
+nla.2007.2012.infos.repeated = nla.2007.2012.infos.repeated %>%
+  arrange(SITE_ID, YEAR, VISIT_NO) 
+
+
+# Export the processed data set
 write.table(nla.2007.2012.infos.repeated,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/sites_infos/nla2007_2012_infos_repeated.tsv",
             sep = "\t")
 
 
 
+#### 3.2 Complete site infos data set ####
 
+# Append data sets as new rows
+nla.2007.2012.infos.all = bind_rows(nla.2007.2012.infos.repeated, nla.2007.infos.3) %>%
+  bind_rows(nla.2012.infos.3)
+
+# Change the sites id. of 2012 repeated sites to those of 2007
+for (i in 1:nrow(nla.2007.2012.infos.all)) {
+  if (nla.2007.2012.infos.all$SITE_ID[i] %in% common.sites$SITE_ID_2012)
+  {
+    k = which(common.sites$SITE_ID_2012 == nla.2007.2012.infos.all$SITE_ID[i])[1]
+    nla.2007.2012.infos.all$SITE_ID[i] = as.character(common.sites$SITE_ID_2007[k])
+  }
+}
+
+# Correctly order observations and remove identical rows
+nla.2007.2012.infos.all = nla.2007.2012.infos.all %>%
+  arrange(SITE_ID, YEAR, VISIT_NO) %>%
+  distinct()
+
+
+# Export the processed data set
+write.table(nla.2007.2012.infos.all,
+            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/sites_infos/nla2007_2012_infos_all.tsv",
+            sep = "\t")
