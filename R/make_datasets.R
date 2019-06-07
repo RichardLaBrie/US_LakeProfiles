@@ -203,10 +203,6 @@ nla.2007.2012.profile.2 = nla.2007.2012.profile %>%
 # Assign adequate class to SITE_ID
 nla.2007.2012.profile.2$SITE_ID = as.factor(nla.2007.2012.profile.2$SITE_ID)
 
-# Export merged data frame
-write.table(nla.2007.2012.profile.2,
-            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/lakes_profile/nla2007_2012_merged.tsv",
-            sep = "\t")
 
 
 #### 2.1 Tidy the 2007 site infos data set ####
@@ -284,7 +280,7 @@ write.table(nla.2012.infos.3,
 
 
 
-#### 3.1 Repeated sites ####
+#### 3.1 Repeated sites infos ####
 
 
 # Data table to link sites from 2007 to those of 2012
@@ -329,6 +325,11 @@ for (i in 1:nrow(nla.2007.2012.infos.repeated)) {
 nla.2007.2012.infos.repeated = nla.2007.2012.infos.repeated %>%
   arrange(SITE_ID, YEAR, VISIT_NO) 
 
+# All NA years are in 2012
+# Change those NAs to 2012
+which.NA.2012 = which(is.na(nla.2007.2012.infos.repeated$YEAR)) 
+nla.2007.2012.infos.repeated[which.NA.2012, "YEAR"] = 2012
+
 
 # Export the processed data set
 write.table(nla.2007.2012.infos.repeated,
@@ -357,8 +358,25 @@ nla.2007.2012.infos.all = nla.2007.2012.infos.all %>%
   arrange(SITE_ID, YEAR, VISIT_NO) %>%
   distinct()
 
+# All NA years are in 2012
+# Change those NAs to 2012
+which.NA.2012 = which(is.na(nla.2007.2012.infos.all$YEAR)) 
+nla.2007.2012.infos.all[which.NA.2012, "YEAR"] = 2012
+
 
 # Export the processed data set
 write.table(nla.2007.2012.infos.all,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/sites_infos/nla2007_2012_infos_all.tsv",
             sep = "\t")
+
+
+
+#### 3.3 Repeated lake profiles ####
+
+
+
+
+#### 3.4 Complete lake profiles data set ####
+
+# nla.2007.2012.profile.2 
+
