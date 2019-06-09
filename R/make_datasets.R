@@ -193,16 +193,6 @@ write.table(nla.2012.profile.5,
 
 
 
-#### 1.3 Merge data sets ####
-nla.2007.2012.profile = union(nla.2007.profile.5, nla.2012.profile.5)
-
-# Reorder obervations
-nla.2007.2012.profile.2 = nla.2007.2012.profile %>%
-  arrange(YEAR, SITE_ID, VISIT_NO, DEPTH)
-
-# Assign adequate class to SITE_ID
-nla.2007.2012.profile.2$SITE_ID = as.factor(nla.2007.2012.profile.2$SITE_ID)
-
 
 
 #### 2.1 Tidy the 2007 site infos data set ####
@@ -371,12 +361,87 @@ write.table(nla.2007.2012.infos.all,
 
 
 
-#### 3.3 Repeated lake profiles ####
+
+#### 3.3 Complete lake profiles data set ####
+
+# Merge lake profiles data set
+nla.2007.2012.profile = union(nla.2007.profile.5, nla.2012.profile.5)
+
+# Assign adequate class to SITE_ID
+nla.2007.2012.profile.2$SITE_ID = as.factor(nla.2007.2012.profile.2$SITE_ID)
+
+
+# Change the sites id. of 2012 to those of 2007 when resampled
+for (i in 1:nrow(nla.2007.2012.profile.2)) {
+  if (nla.2007.2012.profile.2$SITE_ID[i] %in% common.sites$SITE_ID_2012)
+  {
+    k = which(as.character(common.sites$SITE_ID_2012) == as.character(nla.2007.2012.profile.2$SITE_ID[i]))
+    nla.2007.2012.profile.2$SITE_ID[i] = as.character(common.sites$SITE_ID_2007[k])
+  }
+}
+
+# Reorder obervations
+nla.2007.2012.profile.2 = nla.2007.2012.profile %>%
+  arrange(YEAR, SITE_ID, VISIT_NO, DEPTH)
+
+# Export the processed data set
+write.table(nla.2007.2012.profile.2,
+            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/lakes_profile/nla2007_2012_profile_all.tsv",
+            sep = "\t")
 
 
 
 
-#### 3.4 Complete lake profiles data set ####
+#### 3.4 Repeated lake profiles ####
 
-# nla.2007.2012.profile.2 
+# Start by keeping sites whom infos was taken in 2007 and 2012
+# (from common.sites)
+nla.2007.2012.profile.repeated = nla.2007.2012.profile.2 %>% filter(SITE_ID %in% common.sites$SITE_ID_2007 | 
+                                                                      SITE_ID %in% common.sites$SITE_ID_2012)
+
+# Then, from the remaining sites, get rid of those whom profile was not sampled in 2007 or 2012
+# If the site_id is in 2007, check if its corresponding 2012 site_id was sampled
+# If the site_id is in 2012, check if its corresponding 2007 site_id was sampled
+# If neither of those conditions are respected, note the corresponding index in the data set
+count = 0
+indices = c()
+for (i in 1:nrow(nla.2007.2012.profile.repeated)) {
+  site.i = as.character(nla.2007.2012.profile.repeated$SITE_ID[i])
+  if (site.i %in% common.sites$SITE_ID_2007) {
+    k = which(as.character(common.sites$SITE_ID_2007) == site.i)
+    if (!(common.sites$SITE_ID_2012[k] %in% nla.2007.2012.profile.repeated$SITE_ID))
+    { count = count + 1
+    indices[count] = i
+    }
+  }
+  else if (site.i %in% common.sites$SITE_ID_2012) {
+    k = which(as.character(common.sites$SITE_ID_2012) == site.i)
+    if (!(common.sites$SITE_ID_2007[k] %in% nla.2007.2012.profile.repeated$SITE_ID))
+    { count = count + 1
+    indices[count] = i
+    }
+  }
+}
+
+# Get rid of the observations that were not repeated in 2007 and 2012 
+# (noted in indices)
+nla.2007.2012.profile.repeated = nla.2007.2012.profile.repeated[-indices, ]
+
+# Change the sites id. of 2012 to those of 2007
+for (i in 1:nrow(nla.2007.2012.profile.repeated)) {
+  if (nla.2007.2012.profile.repeated$SITE_ID[i] %in% common.sites$SITE_ID_2012)
+  {
+    k = which(as.character(common.sites$SITE_ID_2012) == as.character(nla.2007.2012.profile.repeated$SITE_ID[i]))
+    nla.2007.2012.profile.repeated$SITE_ID[i] = as.character(common.sites$SITE_ID_2007[k])
+  }
+}
+
+
+# Export the processed data set
+write.table(nla.2007.2012.profile.repeated,
+            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/lakes_profile/nla2007_2012_profile_repeated.tsv",
+            sep = "\t")
+
+
+
 
