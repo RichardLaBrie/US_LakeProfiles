@@ -199,20 +199,20 @@ write.table(nla.2012.profile.5,
 
 # Select useful variables
 nla.2007.infos.2 = nla.2007.infos %>%
-  select(SITE_ID,  COM_ID, VISIT_NO, DAY, MONTH, YEAR, LAT_DD, LON_DD,
+  select(SITE_ID, VISIT_NO, DAY, MONTH, YEAR, LAT_DD, LON_DD,
          ST, EPA_REG, WSA_ECO9, HUC_2, HUC_8, LAKE_ORIGIN, 
          LAKEAREA, LAKEPERIM, ELEV_PT, DEPTHMAX, SLD,
          WGT_NLA)
 
 # Rename columns 
-colnames(nla.2007.infos.2) = c("SITE_ID", "COM_ID", "VISIT_NO", "DAY", "MONTH", "YEAR", "LAT", "LON",
+colnames(nla.2007.infos.2) = c("SITEID_07", "VISIT_NO", "DAY", "MONTH", "YEAR", "LAT", "LON",
                                "STATE", "EPA_REG", "ECO9", "HUC2", "HUC8", "LAKE_ORIGIN", 
                                "AREA_KM2", "PERIM_KM", "ELEVATION_M", "DEPTHMAX_M", "SLD",
                                "WGT")
 
 # Change the variables' class
 nla.2007.infos.3  = nla.2007.infos.2 %>%
-  mutate(SITE_ID = as.factor(SITE_ID), COM_ID = as.factor(COM_ID), 
+  mutate(SITEID_07 = as.factor(SITEID_07),
          VISIT_NO = as.numeric(VISIT_NO), 
          DAY = as.numeric(DAY), MONTH = as.numeric(MONTH), YEAR = as.numeric(YEAR),
          LAT = as.numeric(LAT), LON = as.numeric(LON), 
@@ -236,21 +236,22 @@ write.table(nla.2007.infos.3,
 # Select useful variables
 # The 2012 data set does not have information on maximum depth nor on shoreline development (SLD)
 nla.2012.infos.2 = nla.2012.infos %>%
-  select(SITE_ID, COMIDS2007, VISIT_NO, DAY, MONTH, YEAR, LAT_DD83, LON_DD83,
+  select(SITE_ID, SITEID_07, SITESAMP, VISIT_NO, DAY, MONTH, YEAR, LAT_DD83, LON_DD83,
          STATE, EPA_REG, FW_ECO9, HUC2, HUC8, LAKE_ORIGIN, 
          AREA_HA, PERIM_KM, ELEVATION, 
          WGT_ALL) 
 
 # Rename columns according to the ones of the 2007 data set
-colnames(nla.2012.infos.2) = c("SITE_ID", "COM_ID", "VISIT_NO", "DAY", "MONTH", "YEAR", "LAT", "LON",
+colnames(nla.2012.infos.2) = c("SITEID_12", "SITEID_07", "SITESAMP", "VISIT_NO", "DAY", "MONTH", "YEAR", "LAT", "LON",
                                "STATE", "EPA_REG", "ECO9", "HUC2", "HUC8", "LAKE_ORIGIN", 
                                "AREA_KM2", "PERIM_KM", "ELEVATION_M",
                                "WGT")
 
 # Change the variables' class
+# Filter for sampled sites only
 nla.2012.infos.3  = nla.2012.infos.2 %>%
-  mutate(SITE_ID = as.factor(SITE_ID), COM_ID = as.factor(COM_ID), 
-         VISIT_NO = as.numeric(VISIT_NO), 
+  mutate(SITEID_12 = as.factor(SITEID_12), SITEID_07 = as.factor(SITEID_07), 
+         SITESAMP = as.factor(SITESAMP), VISIT_NO = as.numeric(VISIT_NO), 
          DAY = as.numeric(DAY), MONTH = as.numeric(MONTH), YEAR = as.numeric(YEAR),
          LAT = as.numeric(LAT), LON = as.numeric(LON), 
          STATE = as.factor(STATE),
@@ -259,7 +260,8 @@ nla.2012.infos.3  = nla.2012.infos.2 %>%
          LAKE_ORIGIN = as.factor(LAKE_ORIGIN), 
          AREA_KM2 = as.numeric(AREA_KM2) / 100, PERIM_KM = as.numeric(PERIM_KM), 
          ELEVATION_M = as.numeric(ELEVATION_M), 
-         WGT = as.numeric(WGT))
+         WGT = as.numeric(WGT)) %>% 
+  filter(SITESAMP == "Y")
 
 
 # Export the processed data set
@@ -275,45 +277,36 @@ write.table(nla.2012.infos.3,
 
 # Data table to link sites from 2007 to those of 2012
 
-common.sites = inner_join(nla.2007.infos.3, nla.2012.infos.3, by = "COM_ID") %>%
-  mutate(SITE_ID_2007 = SITE_ID.x, SITE_ID_2012 = SITE_ID.y) %>%
-  select(SITE_ID_2007, SITE_ID_2012, COM_ID) %>%
-  distinct(SITE_ID_2007, SITE_ID_2012, .keep_all = TRUE)
-# dim(common.sites)
+common.sites = inner_join(nla.2007.infos.3, nla.2012.infos.3, by = "SITEID_07") %>%
+  select(SITEID_07, SITEID_12) %>%
+  distinct(SITEID_07, SITEID_12, .keep_all = TRUE)
+dim(common.sites)
 
 
-# Join the data set infos and only keep the sites repeated in 2007 and 2012
-nla.2007.2012.infos = inner_join(nla.2007.infos.3, nla.2012.infos.3, by = "COM_ID")
+# Join the infos data set and only keep the sites repeated in 2007 and 2012
+nla.2007.2012.infos = inner_join(nla.2007.infos.3, nla.2012.infos.3, by = "SITEID_07")
 
 # 2007 data table of sites repeated in 2012
 nla.2007.infos.repeated = nla.2007.2012.infos %>%
-  select(COM_ID, ends_with("x"), DEPTHMAX_M, SLD)
-colnames(nla.2007.infos.repeated) = c("COM_ID", "SITE_ID", "VISIT_NO", "DAY", "MONTH", "YEAR", "LAT", "LON",
+  select(SITEID_07, ends_with("x"), DEPTHMAX_M, SLD)
+colnames(nla.2007.infos.repeated) = c("SITEID_07", "VISIT_NO", "DAY", "MONTH", "YEAR", "LAT", "LON",
                                 "STATE", "EPA_REG", "ECO9", "HUC2", "HUC8", "LAKE_ORIGIN", 
                                 "AREA_KM2", "PERIM_KM", "ELEVATION_M", "WGT", "DEPTHMAX_M", "SLD")
 
 # 2012 data table of sites also sampled in 2007
 nla.2012.infos.repeated = nla.2007.2012.infos %>%
-  select(COM_ID, ends_with("y"))
-colnames(nla.2012.infos.repeated) = c("COM_ID", "SITE_ID", "VISIT_NO", "DAY", "MONTH", "YEAR", "LAT", "LON",
+  select(SITEID_07, SITEID_12, ends_with("y"))
+colnames(nla.2012.infos.repeated) = c("SITEID_07", "SITEID_12", "VISIT_NO", "DAY", "MONTH", "YEAR", "LAT", "LON",
                                 "STATE", "EPA_REG", "ECO9", "HUC2", "HUC8", "LAKE_ORIGIN", 
                                 "AREA_KM2", "PERIM_KM", "ELEVATION_M", "WGT")
 
 # Join the 2 preceding data tables
 nla.2007.2012.infos.repeated = bind_rows(nla.2007.infos.repeated, nla.2012.infos.repeated)
 
-# Change the sites id. of 2012 to those of 2007
-for (i in 1:nrow(nla.2007.2012.infos.repeated)) {
-  if (nla.2007.2012.infos.repeated$SITE_ID[i] %in% common.sites$SITE_ID_2012)
-  {
-    k = which(common.sites$SITE_ID_2012 == nla.2007.2012.infos.repeated$SITE_ID[i])
-    nla.2007.2012.infos.repeated$SITE_ID[i] = as.character(common.sites$SITE_ID_2007[k])
-  }
-}
 
 # Correctly order observations
 nla.2007.2012.infos.repeated = nla.2007.2012.infos.repeated %>%
-  arrange(SITE_ID, YEAR, VISIT_NO) 
+  arrange(SITEID_07, YEAR, VISIT_NO) 
 
 # All NA years are in 2012
 # Change those NAs to 2012
@@ -368,21 +361,21 @@ write.table(nla.2007.2012.infos.all,
 nla.2007.2012.profile = union(nla.2007.profile.5, nla.2012.profile.5)
 
 # Assign adequate class to SITE_ID
-nla.2007.2012.profile.2$SITE_ID = as.factor(nla.2007.2012.profile.2$SITE_ID)
+nla.2007.2012.profile$SITE_ID = as.factor(nla.2007.2012.profile$SITE_ID)
 
 
 # Change the sites id. of 2012 to those of 2007 when resampled
-for (i in 1:nrow(nla.2007.2012.profile.2)) {
-  if (nla.2007.2012.profile.2$SITE_ID[i] %in% common.sites$SITE_ID_2012)
+for (i in 1:nrow(nla.2007.2012.profile)) {
+  if (nla.2007.2012.profile$SITE_ID[i] %in% common.sites$SITEID_12)
   {
-    k = which(as.character(common.sites$SITE_ID_2012) == as.character(nla.2007.2012.profile.2$SITE_ID[i]))
-    nla.2007.2012.profile.2$SITE_ID[i] = as.character(common.sites$SITE_ID_2007[k])
+    k = which(as.character(common.sites$SITEID_12) == as.character(nla.2007.2012.profile$SITE_ID[i]))
+    nla.2007.2012.profile$SITE_ID[i] = as.character(common.sites$SITEID_07[k])
   }
 }
 
 # Reorder obervations
 nla.2007.2012.profile.2 = nla.2007.2012.profile %>%
-  arrange(YEAR, SITE_ID, VISIT_NO, DEPTH)
+  arrange(SITE_ID, YEAR, VISIT_NO, DEPTH)
 
 # Export the processed data set
 write.table(nla.2007.2012.profile.2,
@@ -391,57 +384,32 @@ write.table(nla.2007.2012.profile.2,
 
 
 
-
 #### 3.4 Repeated lake profiles ####
 
-# Start by keeping sites whom infos was taken in 2007 and 2012
-# (from common.sites)
-nla.2007.2012.profile.repeated = nla.2007.2012.profile.2 %>% filter(SITE_ID %in% common.sites$SITE_ID_2007 | 
-                                                                      SITE_ID %in% common.sites$SITE_ID_2012)
+# Keeping sites whom infos was taken in 2007 and 2012
+# (from SITEID_07)
+nla.2007.2012.profile.repeated = nla.2007.2012.profile.2 %>% filter(SITE_ID %in% common.sites$SITEID_07 | 
+                                                                      SITE_ID %in% common.sites$SITEID_12)
 
-# Then, from the remaining sites, get rid of those whom profile was not sampled in 2007 or 2012
-# If the site_id is in 2007, check if its corresponding 2012 site_id was sampled
-# If the site_id is in 2012, check if its corresponding 2007 site_id was sampled
-# If neither of those conditions are respected, note the corresponding index in the data set
-count = 0
-indices = c()
-for (i in 1:nrow(nla.2007.2012.profile.repeated)) {
-  site.i = as.character(nla.2007.2012.profile.repeated$SITE_ID[i])
-  if (site.i %in% common.sites$SITE_ID_2007) {
-    k = which(as.character(common.sites$SITE_ID_2007) == site.i)
-    if (!(common.sites$SITE_ID_2012[k] %in% nla.2007.2012.profile.repeated$SITE_ID))
-    { count = count + 1
-    indices[count] = i
-    }
-  }
-  else if (site.i %in% common.sites$SITE_ID_2012) {
-    k = which(as.character(common.sites$SITE_ID_2012) == site.i)
-    if (!(common.sites$SITE_ID_2007[k] %in% nla.2007.2012.profile.repeated$SITE_ID))
-    { count = count + 1
-    indices[count] = i
-    }
-  }
-}
-
-# Get rid of the observations that were not repeated in 2007 and 2012 
-# (noted in indices)
-nla.2007.2012.profile.repeated = nla.2007.2012.profile.repeated[-indices, ]
 
 # Change the sites id. of 2012 to those of 2007
 for (i in 1:nrow(nla.2007.2012.profile.repeated)) {
-  if (nla.2007.2012.profile.repeated$SITE_ID[i] %in% common.sites$SITE_ID_2012)
+  if (nla.2007.2012.profile.repeated$SITE_ID[i] %in% common.sites$SITEID_12)
   {
-    k = which(as.character(common.sites$SITE_ID_2012) == as.character(nla.2007.2012.profile.repeated$SITE_ID[i]))
-    nla.2007.2012.profile.repeated$SITE_ID[i] = as.character(common.sites$SITE_ID_2007[k])
+    k = which(as.character(common.sites$SITEID_12) == as.character(nla.2007.2012.profile.repeated$SITE_ID[i]))
+    nla.2007.2012.profile.repeated$SITE_ID[i] = as.character(common.sites$SITEID_07[k])
   }
 }
 
+
+# Reorder obervations
+nla.2007.2012.profile.repeated = nla.2007.2012.profile.repeated %>%
+  arrange(SITE_ID, YEAR, VISIT_NO, DEPTH)
 
 # Export the processed data set
 write.table(nla.2007.2012.profile.repeated,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/lakes_profile/nla2007_2012_profile_repeated.tsv",
             sep = "\t")
-
 
 
 

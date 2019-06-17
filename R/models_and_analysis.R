@@ -133,3 +133,10 @@ count.epi
 (b = length(unique(nla.2007.2012.profile.all.p$SITE_ID)))
 count.epi / b
 
+
+#### 2.  rLakeAnalyser ####
+?meta.depths
+View(nla.2007.2012.profile.repeated.p)
+test = nla.2007.2012.profile.repeated.p %>%
+  group_by(SITE_ID, YEAR, VISIT_NO) 
+meta.depths(wtr = test$TEMP_FIELD, depths = test$DEPTH)
