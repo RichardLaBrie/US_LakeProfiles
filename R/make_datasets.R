@@ -231,6 +231,7 @@ write.table(nla.2007.infos.3,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/sites_infos/nla2007_infos.tsv",
             sep = "\t")
 
+
 #### 2.2 Tidy the 2012 site infos data set ####
 
 # Select useful variables
@@ -276,7 +277,6 @@ write.table(nla.2012.infos.3,
 
 
 # Data table to link sites from 2007 to those of 2012
-
 common.sites = inner_join(nla.2007.infos.3, nla.2012.infos.3, by = "SITEID_07") %>%
   select(SITEID_07, SITEID_12) %>%
   distinct(SITEID_07, SITEID_12, .keep_all = TRUE)
@@ -304,14 +304,30 @@ colnames(nla.2012.infos.repeated) = c("SITEID_07", "SITEID_12", "VISIT_NO", "DAY
 nla.2007.2012.infos.repeated = bind_rows(nla.2007.infos.repeated, nla.2012.infos.repeated)
 
 
+# Change the sites id. of 2012 to those of 2007
+for (i in 1:nrow(nla.2007.2012.infos.repeated)) {
+  if (nla.2007.2012.infos.repeated$SITEID_12[i] %in% common.sites$SITEID_12)
+  {
+    k = which(as.character(common.sites$SITEID_12) == as.character(nla.2007.2012.profile$SITEID_12[i]))
+    nla.2007.2012.profile$SITEID_07[i] = as.character(common.sites$SITEID_07[k])
+  }
+}
+
+# Keep a single column for SITE_ID
+nla.2007.2012.infos.repeated = nla.2007.2012.infos.repeated %>%
+  mutate(SITE_ID = SITEID_07) %>%
+  select(-SITEID_07, -SITEID_12)
+
 # Correctly order observations
 nla.2007.2012.infos.repeated = nla.2007.2012.infos.repeated %>%
-  arrange(SITEID_07, YEAR, VISIT_NO) 
+  arrange(SITE_ID, YEAR, VISIT_NO) %>%
+  distinct()
 
 # All NA years are in 2012
 # Change those NAs to 2012
 which.NA.2012 = which(is.na(nla.2007.2012.infos.repeated$YEAR)) 
 nla.2007.2012.infos.repeated[which.NA.2012, "YEAR"] = 2012
+
 
 
 # Export the processed data set
@@ -327,24 +343,28 @@ write.table(nla.2007.2012.infos.repeated,
 nla.2007.2012.infos.all = bind_rows(nla.2007.2012.infos.repeated, nla.2007.infos.3) %>%
   bind_rows(nla.2012.infos.3)
 
-# Change the sites id. of 2012 repeated sites to those of 2007
-for (i in 1:nrow(nla.2007.2012.infos.all)) {
-  if (nla.2007.2012.infos.all$SITE_ID[i] %in% common.sites$SITE_ID_2012)
-  {
-    k = which(common.sites$SITE_ID_2012 == nla.2007.2012.infos.all$SITE_ID[i])[1]
-    nla.2007.2012.infos.all$SITE_ID[i] = as.character(common.sites$SITE_ID_2007[k])
-  }
-}
-
-# Correctly order observations and remove identical rows
-nla.2007.2012.infos.all = nla.2007.2012.infos.all %>%
-  arrange(SITE_ID, YEAR, VISIT_NO) %>%
-  distinct()
-
 # All NA years are in 2012
 # Change those NAs to 2012
 which.NA.2012 = which(is.na(nla.2007.2012.infos.all$YEAR)) 
 nla.2007.2012.infos.all[which.NA.2012, "YEAR"] = 2012
+
+for (i in 1:nrow(nla.2007.2012.infos.all)) {
+  if (is.na(nla.2007.2012.infos.all$SITE_ID[i])) {
+    if (nla.2007.2012.infos.all$YEAR[i] == 2007) {
+      nla.2007.2012.infos.all$SITE_ID[i] = as.character(nla.2007.2012.infos.all$SITEID_07[i])
+    }
+    if (nla.2007.2012.infos.all$YEAR[i] == 2012) {
+      nla.2007.2012.infos.all$SITE_ID[i] = as.character(nla.2007.2012.infos.all$SITEID_12[i])
+    }
+  }
+}
+
+
+# Correctly order observations and remove identical rows
+nla.2007.2012.infos.all = nla.2007.2012.infos.all %>%
+  select(-SITEID_07, -SITEID_12, -SITESAMP) %>%
+  arrange(SITE_ID, YEAR, VISIT_NO) %>%
+  distinct()
 
 
 # Export the processed data set
@@ -410,6 +430,5 @@ nla.2007.2012.profile.repeated = nla.2007.2012.profile.repeated %>%
 write.table(nla.2007.2012.profile.repeated,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/lakes_profile/nla2007_2012_profile_repeated.tsv",
             sep = "\t")
-
 
 
