@@ -10,15 +10,14 @@ library("tidyr")
 
 # Import the interim data sets 
 # The data sets are in the folder "interim"
-nla.2007.profile = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/lakes_profile/nla2007_profile_20091008.tsv", header = TRUE,  sep = '\t')
-nla.2012.profile = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/lakes_profile/nla2012_wide_profile_08232016.tsv", header = TRUE,  sep = '\t')
+nla.2007.profile = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/lakes_profile/nla2007_profile", header = TRUE,  sep = '\t')
+nla.2012.profile = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/lakes_profile/nla2012_profile.tsv", header = TRUE,  sep = '\t')
 nla.2007.infos = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/sites_infos/nla2007_sitesinfos.tsv", header = TRUE,  sep = '\t')
 nla.2012.infos = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/sites_infos/nla2012_sitesinfos.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
 
 #### 1.1 Tidy the 2007 lake profiles data set ####
 nla.2007.profile.2 = nla.2007.profile %>%
-  # Only PROF observations are kept (we don't want calibration values)
   # Observations without site_id or depth values are removed 
   filter(SITE_ID != "", !is.na(DEPTH)) %>%
   # Unuseful variables are also removed
@@ -26,7 +25,7 @@ nla.2007.profile.2 = nla.2007.profile %>%
   # Extract the year, month and day of the sample event
   separate(DATE_PROFILE, into = c("YEAR", "MONTH", "DAY"), sep = "-") %>%
   mutate(DAY = substr(DAY, start = 1, stop = 2)) %>%
-  # Sort by depth for each site
+  # Sort by site_id, visit_no and depth for each site
   arrange(SITE_ID, VISIT_NO, DEPTH)
 
 
@@ -54,7 +53,7 @@ nla.2007.profile.4 = nla.2007.profile.3 %>%
 nla.2007.profile.4$LAYER[1] = "E"
 
 for (i in 2:nrow(nla.2007.profile.4)) {
-  # an observation that is at the top or bottom of the metalimnionit is in the metalimnion
+  # an observation that is at the top or bottom of the metalimnion is in the metalimnion
   if (nla.2007.profile.4$METALIMNION[i] == "T" | 
       nla.2007.profile.4$METALIMNION[i] == "B")
   { nla.2007.profile.4$LAYER[i] = "M" }
@@ -104,7 +103,7 @@ write.table(nla.2007.profile.5,
             sep = "\t")
 
 
-
+View(nla.2007.profile.5)
 
 
 
@@ -191,6 +190,7 @@ write.table(nla.2012.profile.5,
             sep = "\t")
 
 
+View(nla.2012.profile.5)
 
 
 
@@ -232,6 +232,7 @@ write.table(nla.2007.infos.3,
             sep = "\t")
 
 
+
 #### 2.2 Tidy the 2012 site infos data set ####
 
 # Select useful variables
@@ -270,7 +271,7 @@ write.table(nla.2012.infos.3,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/sites_infos/nla2012_infos.tsv",
             sep = "\t")
 
-
+View(nla.2012.infos.3)
 
 
 #### 3.1 Repeated sites infos ####
@@ -336,7 +337,6 @@ write.table(nla.2007.2012.infos.repeated,
             sep = "\t")
 
 
-
 #### 3.2 Complete site infos data set ####
 
 # Append data sets as new rows
@@ -348,6 +348,7 @@ nla.2007.2012.infos.all = bind_rows(nla.2007.2012.infos.repeated, nla.2007.infos
 which.NA.2012 = which(is.na(nla.2007.2012.infos.all$YEAR)) 
 nla.2007.2012.infos.all[which.NA.2012, "YEAR"] = 2012
 
+# Assign adequate ID for sites
 for (i in 1:nrow(nla.2007.2012.infos.all)) {
   if (is.na(nla.2007.2012.infos.all$SITE_ID[i])) {
     if (nla.2007.2012.infos.all$YEAR[i] == 2007) {
@@ -373,7 +374,7 @@ write.table(nla.2007.2012.infos.all,
             sep = "\t")
 
 
-
+View(nla.2007.2012.infos.all)
 
 #### 3.3 Complete lake profiles data set ####
 
@@ -402,7 +403,7 @@ write.table(nla.2007.2012.profile.2,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/lakes_profile/nla2007_2012_profile_all.tsv",
             sep = "\t")
 
-
+View(nla.2007.2012.profile.2)
 
 #### 3.4 Repeated lake profiles ####
 

@@ -1,27 +1,80 @@
-## Tidying of the 2007 and 2012 lake profiles data sets using OpenRefine
+## Tidying of the 2007 and 2012 site infos data sets using R 
+## See file "make_datasets.R"
 
-Operation histories were extracted in JSON format and were added in the folder named "OpenRefine".
+We made 4 processed data sets for site infos (metadata):
+- nla2007_infos.tsv
+- nla2012_infos.tsv
+- nla2007_2012_infos_repeated.tsv
+- nla2007_2012_infos_all.tsv
 
-We kept every variable that were present in both data sets:
-- **SITE_ID**: Lake Site Identification Code	
-- **YEAR** AND/OR **DATE_PROFILE** (named DATE_COL in raw 2012 data set): Date of lake profile
-- **VISIT_NO**:	Within-year Sample Visit Number	
-- **DEPTH**:	Profile Depth (m)		
-- **METALIMNION**:	Field Crew Flag for Depth of Top (T) and Bottom (B) of Metalimnion
-- **TEMP_FIELD** (named TEMPERATURE in raw 2012 data set):	Field Water Temperature (oC)	
-- **DO_FIELD** (named OXYGEN in raw 2012 data set):	Field Dissolved Oxygen (mg/L)	
-- **PH_FIELD** (named PH in raw 2012 data set):	Field pH		
-- **COND_FIELD** (named CONDUCTIVITY in raw 2012 data set):	Field Conductivity (uS at 25 oC assuming 2.2%/oC)	
 
-It is worth noting that the former variable "OXYGEN" of the 2012 data set was considered as dissolved oxygen only so that it corresponds to the "DO-FIELD" variable of the 2007 data set. Also, the former "CONDUCTIVITY" variable of the 2012 data set was expressed in uS/cm, whereas the "DO_FIELD" variable of the 2007 data set was expressed in uS (at 25°C assuming 2.2%/°C). We don't know if conductivity was measured similarly in 2007 and 2012. 
+## nla2007_infos.tsv ##
 
-Also, other variables were kept for future filtering purposes:
-In the 2007 data set:
-- **SAMPLED_PROFILE**: SAMPLED variable from profile data
-- **FLAG_PROFILE**	Data flag from lake profile form	
-- **COMMENT_PROFILE**	Comment and flag explanation
+Tidy data set of site infos in 2007. We cleaned the interim data set "nla2007_sitesinfos" previously obtained with Open Refine. We changed the class of selected and renamed variables. 
 
-In the 2012 data set:
-**SAMPLE_TYPE**: Sample type
+Our processed data set contained those variables:
+_SITEID 07_: ID assigned to each site in 2007
+_VISIT NO_: sequential visit number within year
+_DAY_: day of sample collection
+_MONTH_: month of sample collection
+_YEAR_: year of sample collection (always 2007)
+_LAT_: latitude (decimal degrees) obtained from NHD (NAD83)
+_LON_: longitude (decimal degrees) obtained from NHD (NAD83)
+_STATE_: state two letter code
+_EPA REG_: EPA region
+_ECO9_: Wadeable Stream Assessment nine aggregrated Omernik level 3 ecoregions
+_HUC2_: Hydrologic region (2-digit)
+_HUC8_: Hydrologic region (8-digit)
+_LAKE ORIGIN_: lake origin (MAN-MADE, NATURAL )which includes natural lakes augmented by dams))
+_AREA KM2_: Lake polygon area (km^2) from NHD 
+_PERIM KM_: Lake polygon perimeter (km) from NHD
+_ELEVATION M_: Site elevation (m) from the National Elevation Dataset
+_DEPTHMAX M_: Maximum Observed Lake Depth (m)
+_SLD_: Shoreline development index (=LAKEPERIM/(2sqrt(LAKEAREA * pi))
+_WGT_: Adjusted site weight. To be used for population estimation
 
-The remaining variables were excluded because they referred to calibration only or were not comparable between the two data sets. 
+
+
+
+## nla2012_infos.tsv ##
+
+Tidy data set of site infos in 2007. We cleaned the interim data set "nla2007_sitesinfos" previously obtained with Open Refine. We changed the class of selected and renamed variables. We filtered for sampled sites only (SITESAMP = Y).
+
+Our processed data set contained those variables:
+_SITEID 12_: Identification code for site assigned in 2012
+_SITEID 07_: Site ID assigned in 2007 NLA
+_SITESAMP_: Did you sample this site (Y/N)
+_VISIT NO_: Sequential number of visit to site
+_DAY_: day of sample collection
+_MONTH_: month of sample collection
+_YEAR_: year of sample collection (always 2007)
+_LAT_: latitude (based on NAD83 datum) assigned to lake during site selection from NHD-based sample frame. Generally, but not always, represents centroid of lake polygon in NHD
+_LON_: longitude (based on NAD83 datum) assigned to lake during site selection from NHD-based sample frame. Generally, but not always represents centroid of lake polygon in NHD
+_STATE_: State lake is assigned to for sampling in NLA 2012	
+_EPA REG_: EPA region
+_ECO9_: NARS 9-level reporting region (2015), based on aggregated Omernik Level III ecoregions
+_HUC2_: USGS Level 2 Hydrologic Unit Code where lake is located			
+_HUC8_: USGS Level 8 Hydrologic Unit Code where lake is located		
+_LAKE ORIGIN_: Lake origin based on codes used in NLA 2007
+_AREA KM2_: Surface area of lake based on NHD polygon (km2)
+_PERIM KM_: NHD lake polygon perimeter (km)
+_ELEVATION M_: Elevation (m) at lake coordinates (LAT, LON) from NHD Digital Elevation Map layer
+_WGT_: Adjusted weight for site. To be used for NLA national population estimation	
+
+Sites of 2012 don't have information on maximum depth or shoreline development index. 
+
+
+## nla2007_2012_infos_repeated.tsv ##
+
+Tidy data set of repeated site infos in 2007 and 2012. We first identified the sites that were sampled in both 2007 and 2012 using the variable SITEID_07. We found 401 sites sampled in both years. We joined the two preceding data sets concerving rows that appeared in either or both of them (bind_rows), while only keeping the sites sampeld in both years. We changed the ID of the 2012 sites that had also been sampled in 2007 into the ID it first had in 2007. We correctly assigned the year of observations when it was missing (when the year was missing, it happened to always be in 2012). 
+
+The resulting processed data set has every variable listed above, except SITESAMP. The variables SITEID_07 and SITEID_12 were replaced with SITE_ID.
+
+_SITE ID_: Site ID assigned in 2007 NLA
+
+
+## nla2007_2012_infos_all.tsv ##
+
+Tidy data set of all site infos in 2007 and 2012. We combined the data set of the sites sampled in both 2007 and 2012 to those of the sites sampled in 2007 and of the sites sampled in 2012 (appended as new rows). We changed the ID of the 2012 sites that had also been sampled in 2007 into the ID it first had in 2007. We correctly assigned the year of observations when it was missing (when the year was missing, it happened to always be in 2012). 
+
+The resulting processed data set has the same variables as the ones of the nla2007_2012_infos_repeated data set. 
