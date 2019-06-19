@@ -7,7 +7,7 @@ library(dplyr)
 library(rLakeAnalyzer)
 
 # Required R code (make_datasets.R)
-source("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/R/make_datasets.R")
+# source("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/R/make_datasets.R")
 
 
 # Import the processed (.p) data sets 
@@ -19,7 +19,7 @@ nla.2007.2012.infos.all.p = read.table("C:/Users/Francis Banville/Documents/Biol
 nla.2007.2012.infos.repeated.p = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/sites_infos/nla2007_2012_infos_repeated.tsv", header = TRUE,  sep = '\t')
 
 
-
+View(nla.2007.2012.profile.all.p)
 #### 1. Exploratory analysis ####
 ### Some exploratory analysis are first done on the processed data frames
 
@@ -134,9 +134,102 @@ count.epi
 count.epi / b
 
 
-#### 2.  rLakeAnalyser ####
-?meta.depths
-View(nla.2007.2012.profile.repeated.p)
-test = nla.2007.2012.profile.repeated.p %>%
-  group_by(SITE_ID, YEAR, VISIT_NO) 
-meta.depths(wtr = test$TEMP_FIELD, depths = test$DEPTH)
+#### 2.  meta.depths() ####
+
+
+## Get the depths of the top and bottom of metalimnions using meta.depths()
+## NaN is returned when difference of temperatures are below the threshold value of mixed.cutoff (1 0C by default)
+## The bottom depth is returned when no distinct metalimnion top and bottom were found
+## Only one metalimnion was found for each combination of site, year and visit no
+
+top.bottom.meta = nla.2007.2012.profile.all.p %>% 
+  filter(!is.na(TEMP_FIELD)) %>%
+  group_by(SITE_ID, VISIT_NO, YEAR) %>%
+  summarize(top_depth = meta.depths(TEMP_FIELD, DEPTH)[1],
+            bottom_depth = meta.depths(TEMP_FIELD, DEPTH)[2],
+            max_depth = max(DEPTH))
+
+
+# Change top and bottom depths to NaN when no distinct metalimnion was found
+for (i in 1:nrow(top.bottom.meta)) {
+  if (!is.na(top.bottom.meta$top_depth[i]) &
+      !is.na(top.bottom.meta$bottom_depth[i])) {
+  
+  if (top.bottom.meta$top_depth[i] == 0 &
+    top.bottom.meta$bottom_depth[i] == top.bottom.meta$max_depth[i])
+  {
+    top.bottom.meta$top_depth[i] = NaN
+    top.bottom.meta$bottom_depth[i] = NaN
+  } else if (top.bottom.meta$top_depth[i] == top.bottom.meta$max_depth[i] &
+            top.bottom.meta$bottom_depth[i] == top.bottom.meta$max_depth[i])
+           {
+             top.bottom.meta$top_depth[i] = NaN
+             top.bottom.meta$bottom_depth[i] = NaN
+  } else if (top.bottom.meta$top_depth[i] == 0 &
+      top.bottom.meta$bottom_depth[i] == 0)
+  {
+    top.bottom.meta$top_depth[i] = NaN
+    top.bottom.meta$bottom_depth[i] = NaN
+  }
+}
+}
+
+
+# Create a layer2 variable: each observation will be assigned to the layer found using rLakeAnalyser
+# e = epilimnion or no stratification
+# m = metalimnion
+# h = hypolimnion
+
+nla.2007.2012.profile.all.p.2 = nla.2007.2012.profile.all.p %>%
+  mutate(LAYER2 = 0)
+
+# Warning: The for loop make take some time
+# When the top and bottom of the metalimnion are at the same depth, we considered that the metalimnion 
+# thickness was very small and we thus only identified the epilimnion and hypolimnion of those lakes
+for (i in 1:nrow(nla.2007.2012.profile.all.p.2)) {
+  site.id = nla.2007.2012.profile.all.p.2$SITE_ID[i]
+  visit.no = nla.2007.2012.profile.all.p.2$VISIT_NO[i]
+  year = nla.2007.2012.profile.all.p.2$YEAR[i]
+  depth = nla.2007.2012.profile.all.p.2$DEPTH[i]
+  
+  k = which(top.bottom.meta$SITE_ID == site.id &
+              top.bottom.meta$VISIT_NO == visit.no &
+              top.bottom.meta$YEAR == year)
+  
+  top.depth = top.bottom.meta$top_depth[k]
+  bottom.depth = top.bottom.meta$bottom_depth[k]
+  
+  if (length(k) == 0) {
+    nla.2007.2012.profile.all.p.2$LAYER2[i] = "E"
+  } else if (is.na(top.depth) | is.na(bottom.depth)) {
+    nla.2007.2012.profile.all.p.2$LAYER2[i] = "E"
+  } else if (depth < top.depth) {
+    nla.2007.2012.profile.all.p.2$LAYER2[i] = "E"
+  } else if (depth >= top.depth & depth <= bottom.depth) {
+    nla.2007.2012.profile.all.p.2$LAYER2[i] = "M"
+  } else if (depth > bottom.depth) {
+    nla.2007.2012.profile.all.p.2$LAYER2[i] = "H"
+  }
+}
+
+# top.bottom.meta %>% filter(top_depth == bottom_depth)
+# View(nla.2007.2012.profile.all.p.2)
+# View(top.bottom.meta)
+
+# How many layers rLakeAnalyser identified differently from the NLA?
+# Number of sampling event (site x year x visit no) where at least one depth have been differently layered
+different = nla.2007.2012.profile.all.p.2 %>% filter(LAYER != LAYER2) %>%
+  group_by(SITE_ID, VISIT_NO, YEAR) %>%
+  count() %>%
+  nrow()
+
+# Total number of sampling event
+total = nla.2007.2012.profile.all.p.2 %>% group_by(SITE_ID, VISIT_NO, YEAR) %>%
+  count() %>%
+  nrow()
+
+# Proportion of sampling event where at least one depth have been differently layered
+different / total # 59,7 %
+
+
+
