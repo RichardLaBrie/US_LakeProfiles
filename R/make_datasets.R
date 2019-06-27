@@ -60,7 +60,7 @@ for (i in 2:nrow(nla.2007.profile.4)) {
   
   # observations below the bottom of the metalimnion is in the hypolimnion
   else if (nla.2007.profile.4$SITE_ID[i-1] == nla.2007.profile.4$SITE_ID[i] &
-           nla.2007.profile.4$VISIT_NO[i-1] == nla.2007.profile.4$VISIT_NO[i-1] &
+           nla.2007.profile.4$VISIT_NO[i-1] == nla.2007.profile.4$VISIT_NO[i] &
            nla.2007.profile.4$METALIMNION[i-1] == "B")
   { nla.2007.profile.4$LAYER[i] = "H" }
   
@@ -151,7 +151,7 @@ for (i in 2:nrow(nla.2012.profile.4)) {
   
   # observations below the bottom of the metalimnion is in the hypolimnion
   else if (nla.2012.profile.4$SITE_ID[i-1] == nla.2012.profile.4$SITE_ID[i] &
-           nla.2012.profile.4$VISIT_NO[i-1] == nla.2012.profile.4$VISIT_NO[i-1] &
+           nla.2012.profile.4$VISIT_NO[i-1] == nla.2012.profile.4$VISIT_NO[i] &
            nla.2012.profile.4$METALIMNION[i-1] == "B")
   { nla.2012.profile.4$LAYER[i] = "H" }
   

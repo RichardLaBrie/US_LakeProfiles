@@ -19,7 +19,7 @@ nla.2007.2012.infos.all.p = read.table("C:/Users/Francis Banville/Documents/Biol
 nla.2007.2012.infos.repeated.p = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/sites_infos/nla2007_2012_infos_repeated.tsv", header = TRUE,  sep = '\t')
 
 
-View(nla.2007.2012.profile.all.p)
+# View(nla.2007.2012.profile.all.p)
 #### 1. Exploratory analysis ####
 ### Some exploratory analysis are first done on the processed data frames
 
@@ -134,7 +134,7 @@ count.epi
 count.epi / b
 
 
-#### 2.  meta.depths() ####
+#### 2.  meta.depths() (all) ####
 
 
 ## Get the depths of the top and bottom of metalimnions using meta.depths()
@@ -149,9 +149,9 @@ top.bottom.meta = nla.2007.2012.profile.all.p %>%
             bottom_depth = meta.depths(TEMP_FIELD, DEPTH)[2],
             max_depth = max(DEPTH))
 
-
 # Change top and bottom depths to NaN when no distinct metalimnion was found
 for (i in 1:nrow(top.bottom.meta)) {
+  
   if (!is.na(top.bottom.meta$top_depth[i]) &
       !is.na(top.bottom.meta$bottom_depth[i])) {
   
@@ -171,7 +171,8 @@ for (i in 1:nrow(top.bottom.meta)) {
     top.bottom.meta$top_depth[i] = NaN
     top.bottom.meta$bottom_depth[i] = NaN
   }
-}
+  }
+  
 }
 
 
@@ -230,6 +231,253 @@ total = nla.2007.2012.profile.all.p.2 %>% group_by(SITE_ID, VISIT_NO, YEAR) %>%
 
 # Proportion of sampling event where at least one depth have been differently layered
 different / total # 59,7 %
+
+
+
+
+
+
+#### 2.  meta.depths() (repeated) ####
+
+
+## Get the depths of the top and bottom of metalimnions using meta.depths()
+## NaN is returned when difference of temperatures are below the threshold value of mixed.cutoff (1 0C by default)
+## The bottom depth is returned when no distinct metalimnion top and bottom were found
+## Only one metalimnion was found for each combination of site, year and visit no
+
+top.bottom.meta.repeated = nla.2007.2012.profile.repeated.p %>% 
+  filter(!is.na(TEMP_FIELD)) %>%
+  group_by(SITE_ID, VISIT_NO, YEAR) %>%
+  summarize(top_depth = meta.depths(TEMP_FIELD, DEPTH)[1],
+            bottom_depth = meta.depths(TEMP_FIELD, DEPTH)[2],
+            max_depth = max(DEPTH))
+
+# Change top and bottom depths to NaN when no distinct metalimnion was found
+for (i in 1:nrow(top.bottom.meta.repeated)) {
+  
+  if (!is.na(top.bottom.meta.repeated$top_depth[i]) &
+      !is.na(top.bottom.meta.repeated$bottom_depth[i])) {
+    
+    if (top.bottom.meta.repeated$top_depth[i] == 0 &
+        top.bottom.meta.repeated$bottom_depth[i] == top.bottom.meta.repeated$max_depth[i])
+    {
+      top.bottom.meta.repeated$top_depth[i] = NaN
+      top.bottom.meta.repeated$bottom_depth[i] = NaN
+    } else if (top.bottom.meta.repeated$top_depth[i] == top.bottom.meta.repeated$max_depth[i] &
+               top.bottom.meta.repeated$bottom_depth[i] == top.bottom.meta.repeated$max_depth[i])
+    {
+      top.bottom.meta.repeated$top_depth[i] = NaN
+      top.bottom.meta.repeated$bottom_depth[i] = NaN
+    } else if (top.bottom.meta.repeated$top_depth[i] == 0 &
+               top.bottom.meta.repeated$bottom_depth[i] == 0)
+    {
+      top.bottom.meta.repeated$top_depth[i] = NaN
+      top.bottom.meta.repeated$bottom_depth[i] = NaN
+    }
+  }
+  
+}
+
+
+# Create a layer2 variable: each observation will be assigned to the layer found using rLakeAnalyser
+# e = epilimnion or no stratification
+# m = metalimnion
+# h = hypolimnion
+
+nla.2007.2012.profile.repeated.p.2 = nla.2007.2012.profile.repeated.p %>%
+  mutate(LAYER2 = 0)
+
+# Warning: The for loop may take some time
+# When the top and bottom of the metalimnion are at the same depth, we considered that the metalimnion 
+# thickness was very small and we thus only identified the epilimnion and hypolimnion of those lakes
+for (i in 1:nrow(nla.2007.2012.profile.repeated.p.2)) {
+  site.id = nla.2007.2012.profile.repeated.p.2$SITE_ID[i]
+  visit.no = nla.2007.2012.profile.repeated.p.2$VISIT_NO[i]
+  year = nla.2007.2012.profile.repeated.p.2$YEAR[i]
+  depth = nla.2007.2012.profile.repeated.p.2$DEPTH[i]
+  
+  k = which(top.bottom.meta.repeated$SITE_ID == site.id &
+              top.bottom.meta.repeated$VISIT_NO == visit.no &
+              top.bottom.meta.repeated$YEAR == year)
+  
+  top.depth = top.bottom.meta.repeated$top_depth[k]
+  bottom.depth = top.bottom.meta.repeated$bottom_depth[k]
+  
+  if (length(k) == 0) {
+    nla.2007.2012.profile.repeated.p.2$LAYER2[i] = "E"
+  } else if (is.na(top.depth) | is.na(bottom.depth)) {
+    nla.2007.2012.profile.repeated.p.2$LAYER2[i] = "E"
+  } else if (depth < top.depth) {
+    nla.2007.2012.profile.repeated.p.2$LAYER2[i] = "E"
+  } else if (depth >= top.depth & depth <= bottom.depth) {
+    nla.2007.2012.profile.repeated.p.2$LAYER2[i] = "M"
+  } else if (depth > bottom.depth) {
+    nla.2007.2012.profile.repeated.p.2$LAYER2[i] = "H"
+  }
+}
+
+top.bottom.meta.repeated %>% filter(top_depth == bottom_depth)
+# View(nla.2007.2012.profile.repeated.p.2)
+# View(top.bottom.meta.repeated)
+
+
+# How many layers rLakeAnalyser identified differently from the NLA?
+# Number of sampling event (site x year x visit no) where at least one depth have been differently layered
+different = nla.2007.2012.profile.repeated.p.2 %>% filter(LAYER != LAYER2) %>%
+  group_by(SITE_ID, VISIT_NO, YEAR) %>%
+  count() %>%
+  nrow()
+
+# Total number of sampling event
+total = nla.2007.2012.profile.repeated.p.2 %>% group_by(SITE_ID, VISIT_NO, YEAR) %>%
+  count() %>%
+  nrow()
+
+# Proportion of sampling event where at least one depth have been differently layered
+different / total # 60,3 %
+
+
+
+
+
+
+
+#### 3. approx.bathy  (cone method) (all) ####
+
+# Maximum sampled depths (m)
+max.sampled.depth.all = nla.2007.2012.profile.all.p %>% 
+  group_by(SITE_ID, YEAR, VISIT_NO) %>%
+  summarise(max.sampled = max(DEPTH))
+
+# Maximum observed depths (m)
+max.observed.depth.all = nla.2007.2012.infos.all.p %>%
+  mutate(max.observed = DEPTHMAX_M) %>%
+  select(SITE_ID, YEAR, VISIT_NO, max.observed) 
+
+# Join maximum sampled and observed depths
+max.sampled.observed.depth.all = left_join(max.sampled.depth.all, max.observed.depth.all, 
+                                       by = c("SITE_ID", "YEAR", "VISIT_NO"))
+
+# If no maximum depth is given for a specific sampling event, the maximum sampled depth will be taken
+max.sampled.observed.depth.all = max.sampled.observed.depth.all %>%
+  mutate(max.depth = max.observed) 
+
+for (i in 1:nrow(max.sampled.observed.depth.all)) {
+  
+  if(is.na(max.sampled.observed.depth.all$max.depth[i])) {
+    max.sampled.observed.depth.all$max.depth[i] = max.sampled.observed.depth.all$max.sampled[i]
+  }
+}
+
+# Get rid of observations where max.depth = 0
+max.sampled.observed.depth.all = max.sampled.observed.depth.all %>%
+  filter(max.depth != 0)
+
+
+# Lake areas (has to be in m2)
+# 1 km2 = 1000^2 m2
+lake.area.all = nla.2007.2012.infos.all.p %>% 
+  mutate(lake.area = AREA_KM2 * 1000^2) %>%
+  select(SITE_ID, YEAR, VISIT_NO, lake.area) 
+
+# Join lake areas and maximum depths
+max.depth.lake.area.all = left_join(max.sampled.observed.depth.all, lake.area.all,
+                                by = c("SITE_ID", "YEAR", "VISIT_NO"))
+
+# Estimate hypsography curves (list format)
+hypsography.curves.all = list()
+
+for (i in 1:nrow(max.depth.lake.area.all)) {
+
+hypsography.curves.all[[i]] = approx.bathy(Zmax = max.depth.lake.area.all$max.depth[i],
+                                       lkeArea = max.depth.lake.area.all$lake.area[i],
+                                       method = "cone")
+
+hypsography.curves.all[[i]]$SITE_ID = max.depth.lake.area.all$SITE_ID[i]
+hypsography.curves.all[[i]]$YEAR = max.depth.lake.area.all$YEAR[i]
+hypsography.curves.all[[i]]$VISIT_NO = max.depth.lake.area.all$VISIT_NO[i]
+
+}
+
+# Unlist the hypsography curves 
+hypsography.curves.all = Reduce(bind_rows, hypsography.curves.all) %>%
+  select(SITE_ID, YEAR, VISIT_NO, depths, Area.at.z)
+
+
+# View(hypsography.curves.all)
+
+
+
+
+
+
+
+
+
+
+#### 3. approx.bathy  (cone method) (repeated) ####
+
+# Maximum sampled depths (m)
+max.sampled.depth.repeated = nla.2007.2012.profile.repeated.p.2 %>% 
+  group_by(SITE_ID, YEAR, VISIT_NO) %>%
+  summarise(max.sampled = max(DEPTH))
+
+# Maximum observed depths (m)
+max.observed.depth.repeated = nla.2007.2012.infos.repeated.p %>%
+  mutate(max.observed = DEPTHMAX_M) %>%
+  select(SITE_ID, YEAR, VISIT_NO, max.observed) 
+
+# Join maximum sampled and observed depths
+max.sampled.observed.depth.repeated = left_join(max.sampled.depth.repeated, max.observed.depth.repeated, 
+                                           by = c("SITE_ID", "YEAR", "VISIT_NO"))
+
+# If no maximum depth is given for a specific sampling event, the maximum sampled depth will be taken
+max.sampled.observed.depth.repeated = max.sampled.observed.depth.repeated %>%
+  mutate(max.depth = max.observed) 
+
+for (i in 1:nrow(max.sampled.observed.depth.repeated)) {
+  
+  if(is.na(max.sampled.observed.depth.repeated$max.depth[i])) {
+    max.sampled.observed.depth.repeated$max.depth[i] = max.sampled.observed.depth.repeated$max.sampled[i]
+  }
+}
+
+# Get rid of observations where max.depth = 0
+max.sampled.observed.depth.repeated = max.sampled.observed.depth.repeated %>%
+  filter(max.depth != 0)
+
+
+# Lake areas (has to be in m2)
+# 1 km2 = 1000^2 m2
+lake.area.repeated = nla.2007.2012.infos.repeated.p %>% 
+  mutate(lake.area = AREA_KM2 * 1000^2) %>%
+  select(SITE_ID, YEAR, VISIT_NO, lake.area) 
+
+# Join lake areas and maximum depths
+max.depth.lake.area.repeated = left_join(max.sampled.observed.depth.repeated, lake.area.repeated,
+                                    by = c("SITE_ID", "YEAR", "VISIT_NO"))
+
+# Estimate hypsography curves (list format)
+hypsography.curves.repeated = list()
+
+for (i in 1:nrow(max.depth.lake.area.repeated)) {
+  
+  hypsography.curves.repeated[[i]] = approx.bathy(Zmax = max.depth.lake.area.repeated$max.depth[i],
+                                             lkeArea = max.depth.lake.area.repeated$lake.area[i],
+                                             method = "cone")
+  
+  hypsography.curves.repeated[[i]]$SITE_ID = max.depth.lake.area.repeated$SITE_ID[i]
+  hypsography.curves.repeated[[i]]$YEAR = max.depth.lake.area.repeated$YEAR[i]
+  hypsography.curves.repeated[[i]]$VISIT_NO = max.depth.lake.area.repeated$VISIT_NO[i]
+  
+}
+
+# Unlist the hypsography curves 
+hypsography.curves.repeated = Reduce(bind_rows, hypsography.curves.repeated) %>%
+  select(SITE_ID, YEAR, VISIT_NO, depths, Area.at.z)
+
+
+# View(hypsography.curves.repeated)
 
 
 
