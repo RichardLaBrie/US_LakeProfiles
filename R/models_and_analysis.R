@@ -461,10 +461,10 @@ max.depth.lake.area.repeated = left_join(max.sampled.observed.depth.repeated, la
 hypsography.curves.repeated = list()
 
 for (i in 1:nrow(max.depth.lake.area.repeated)) {
-  
   hypsography.curves.repeated[[i]] = approx.bathy(Zmax = max.depth.lake.area.repeated$max.depth[i],
                                              lkeArea = max.depth.lake.area.repeated$lake.area[i],
-                                             method = "cone")
+                                             method = "cone",
+                                             zinterval = 0.2)
   
   hypsography.curves.repeated[[i]]$SITE_ID = max.depth.lake.area.repeated$SITE_ID[i]
   hypsography.curves.repeated[[i]]$YEAR = max.depth.lake.area.repeated$YEAR[i]
@@ -480,4 +480,104 @@ hypsography.curves.repeated = Reduce(bind_rows, hypsography.curves.repeated) %>%
 # View(hypsography.curves.repeated)
 
 
+
+
+
+
+#### 4. Other metrics ####
+
+# Unique sampling event 
+nla.2007.2012.profile.all.u = nla.2007.2012.profile.all.p.2 %>%
+  unite(col = "SAMPLING_EVENT", SITE_ID, YEAR, VISIT_NO, sep = "_")
+
+nla.2007.2012.profile.repeated.u = nla.2007.2012.profile.repeated.p.2 %>%
+  unite(col = "SAMPLING_EVENT", SITE_ID, YEAR, VISIT_NO, sep = "_")
+
+hypsography.curves.all.u = hypsography.curves.all %>%
+  unite(col = "SAMPLING_EVENT", SITE_ID, YEAR, VISIT_NO, sep = "_")
+
+hypsography.curves.repeated.u = hypsography.curves.repeated %>%
+  unite(col = "SAMPLING_EVENT", SITE_ID, YEAR, VISIT_NO, sep = "_")
+
+sampling.event.all = unique(nla.2007.2012.profile.all.u$SAMPLING_EVENT)
+sampling.event.repeated = unique(nla.2007.2012.profile.repeated.u$SAMPLING_EVENT)
+
+
+# Data frame of lake metrics
+nvar = 2 # Number of metrics
+metrics.all = data.frame(matrix(nrow = length(sampling.event.all), ncol = nvar))
+metrics.repeated = data.frame(matrix(nrow = length(sampling.event.repeated), ncol = nvar))
+
+metrics.names = c("sampling_event", "epi_temp")
+colnames(metrics.all) = metrics.names
+colnames(metrics.repeated) = metrics.names
+
+# Sampling events inside data frame
+metrics.all$sampling_event = sampling.event.all
+metrics.repeated$sampling_event = sampling.event.repeated
+
+
+# Volumetrically averaged epilimnion temp
+# All sampling events
+
+
+for (i in 1:length(sampling.event.all)) {
+
+    sampling.event = metrics.all$sampling_event[i]
+    
+    wtr.depths = nla.2007.2012.profile.all.u %>% 
+      filter(SAMPLING_EVENT == sampling.event, !is.na(TEMP_FIELD)) 
+
+    wtr = wtr.depths$TEMP_FIELD
+    depths = wtr.depths$DEPTH
+    
+    bthA.bthD = hypsography.curves.all.u %>%
+      filter(SAMPLING_EVENT == sampling.event)
+
+    bthA = bthA.bthD$Area.at.z
+    bthD = bthA.bthD$depths
+
+    if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+      
+      metrics.all$epi_temp[i] = epi.temperature(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
+    
+    }
+}
+
+# Some volumetrically averaged epiliminion temperatures are identical to those at depth 0
+# even if the lake is not stratified. Why so??
+
+
+
+
+
+
+# Volumetrically averaged epilimnion temp
+# Repeated sampling events
+
+
+for (i in 1:length(sampling.event.repeated)) {
+
+  sampling.event = metrics.repeated$sampling_event[i]
+  
+  wtr.depths = nla.2007.2012.profile.repeated.u %>% 
+    filter(SAMPLING_EVENT == sampling.event, !is.na(TEMP_FIELD)) 
+  
+  wtr = wtr.depths$TEMP_FIELD
+  depths = wtr.depths$DEPTH
+  
+  bthA.bthD = hypsography.curves.repeated.u %>%
+    filter(SAMPLING_EVENT == sampling.event)
+  
+  bthA = bthA.bthD$Area.at.z
+  bthD = bthA.bthD$depths
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+    
+    metrics.repeated$epi_temp[i] = epi.temperature(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
+    
+  }
+}
+
+View(metrics.repeated)
 
