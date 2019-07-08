@@ -19,7 +19,6 @@ nla.2007.2012.infos.all.p = read.table("C:/Users/Francis Banville/Documents/Biol
 nla.2007.2012.infos.repeated.p = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/sites_infos/nla2007_2012_infos_repeated.tsv", header = TRUE,  sep = '\t')
 
 
-# View(nla.2007.2012.profile.all.p)
 
 #### 1. Exploratory analysis ####
 ### Some exploratory analysis are first done on the processed data frames
@@ -150,7 +149,7 @@ top.bottom.meta = nla.2007.2012.profile.all.p %>%
   summarize(top_depth = meta.depths(TEMP_FIELD, DEPTH)[1],
             bottom_depth = meta.depths(TEMP_FIELD, DEPTH)[2],
             max_depth = max(DEPTH))
-View(top.bottom.meta)
+
 
 # Create a layer2 variable: each observation will be assigned to the layer found using rLakeAnalyser
 # e = epilimnion or no stratification
@@ -190,8 +189,7 @@ for (i in 1:nrow(nla.2007.2012.profile.all.p.2)) {
 }
 
 # top.bottom.meta %>% filter(top_depth == bottom_depth)
-# View(nla.2007.2012.profile.all.p.2)
-# View(top.bottom.meta)
+
 
 # How many layers rLakeAnalyser identified differently from the NLA?
 # Number of sampling event (site x year x visit no) where at least one depth have been differently layered
@@ -293,8 +291,7 @@ for (i in 1:nrow(nla.2007.2012.profile.repeated.p.2)) {
 }
 
 top.bottom.meta.repeated %>% filter(top_depth == bottom_depth)
-# View(nla.2007.2012.profile.repeated.p.2)
-# View(top.bottom.meta.repeated)
+
 
 
 # How many layers rLakeAnalyser identified differently from the NLA?
@@ -316,9 +313,118 @@ different / total # 59,95 %
 
 
 
+##### 3. Lake types according to their layers #####
+
+# Every sampling event will be classified related to their layers
+# The types are : 
+# 1 - epi - meta - hypo
+# 2 - epi - meta
+# 3 - meta - hypo
+# 4 - epi - hypo (mini meta)
+# 5 - epi 
+# 6 - meta
+# 7 - hypo 
 
 
-#### 3. approx.bathy  (cone method) (all) ####
+
+# Unique sampling event 
+nla.2007.2012.infos.all.u = nla.2007.2012.infos.all.p %>%
+  unite(col = "SAMPLING_EVENT", SITE_ID, YEAR, VISIT_NO, sep = "_", remove = FALSE)
+
+nla.2007.2012.infos.repeated.u = nla.2007.2012.infos.repeated.p %>%
+  unite(col = "SAMPLING_EVENT", SITE_ID, YEAR, VISIT_NO, sep = "_", remove = FALSE)
+
+top.bottom.meta.all.u = top.bottom.meta %>%
+  unite(col = "SAMPLING_EVENT", SITE_ID, YEAR, VISIT_NO, sep = "_")
+
+top.bottom.meta.repeated.u = top.bottom.meta.repeated %>%
+  unite(col = "SAMPLING_EVENT", SITE_ID, YEAR, VISIT_NO, sep = "_")
+
+sampling.event.all = unique(nla.2007.2012.infos.all.u$SAMPLING_EVENT)
+sampling.event.repeated = unique(nla.2007.2012.infos.repeated.u$SAMPLING_EVENT)
+
+
+top.bottom.meta.all.u = top.bottom.meta.all.u %>% 
+  mutate(type = NA)
+
+top.bottom.meta.repeated.u = top.bottom.meta.repeated.u %>%
+  mutate(type = NA)
+
+# Assign a type to all sampling event according to their layers
+
+for (i in 1:nrow(top.bottom.meta.all.u)) {
+  
+  top.meta = top.bottom.meta.all.u$top_depth[i]
+  bottom.meta = top.bottom.meta.all.u$bottom_depth[i]
+  max.depth = top.bottom.meta.all.u$max_depth[i]
+  
+  if (is.na(top.meta) & is.na(bottom.meta)) {
+    top.bottom.meta.all.u$type[i] = 5 # the lake is not stratified (below minimum slope, epi only)
+  }
+  else if (top.meta == max.depth && bottom.meta == max.depth) {
+    top.bottom.meta.all.u$type[i] = 5 # the lake is not stratified (no meta found, epi only)
+  }
+  else if (top.meta == 0 & bottom.meta == 0) {
+    top.bottom.meta.all.u$type[i] = 7 # the meta is super small at the top of the lake (hypo only)
+  }
+  else if (top.meta == 0 & bottom.meta == max.depth) {
+    top.bottom.meta.all.u$type[i] = 6 # meta only 
+  }
+  else if (top.meta != 0 & top.meta == bottom.meta & bottom.meta != max.depth) {
+    top.bottom.meta.all.u$type[i] = 4 # the meta is super small (epi and hypo)
+  }
+  else if (top.meta == 0 & bottom.meta != max.depth) {
+    top.bottom.meta.all.u$type[i] = 3 # meta and hypo 
+  }
+  else if (top.meta != 0 & bottom.meta == max.depth) {
+    top.bottom.meta.all.u$type[i] = 2 # epi and meta
+  }
+  else if (top.meta != 0 & bottom.meta != max.depth & top.meta != bottom.meta) {
+    top.bottom.meta.all.u$type[i] = 1 # classic stratification (epi - meta - hypo)
+  }
+}
+
+
+
+
+# Assign a type to repeated sampling event according to their layers
+
+for (i in 1:nrow(top.bottom.meta.repeated.u)) {
+  
+  top.meta = top.bottom.meta.repeated.u$top_depth[i]
+  bottom.meta = top.bottom.meta.repeated.u$bottom_depth[i]
+  max.depth = top.bottom.meta.repeated.u$max_depth[i]
+  
+  if (is.na(top.meta) & is.na(bottom.meta)) {
+    top.bottom.meta.repeated.u$type[i] = 5 # the lake is not stratified (below minimum slope, epi only)
+  }
+  else if (top.meta == max.depth && bottom.meta == max.depth) {
+    top.bottom.meta.repeated.u$type[i] = 5 # the lake is not stratified (no meta found, epi only)
+  }
+  else if (top.meta == 0 & bottom.meta == 0) {
+    top.bottom.meta.repeated.u$type[i] = 7 # the meta is super small at the top of the lake (hypo only)
+  }
+  else if (top.meta == 0 & bottom.meta == max.depth) {
+    top.bottom.meta.repeated.u$type[i] = 6 # meta only 
+  }
+  else if (top.meta != 0 & top.meta == bottom.meta & bottom.meta != max.depth) {
+    top.bottom.meta.repeated.u$type[i] = 4 # the meta is super small (epi and hypo)
+  }
+  else if (top.meta == 0 & bottom.meta != max.depth) {
+    top.bottom.meta.repeated.u$type[i] = 3 # meta and hypo 
+  }
+  else if (top.meta != 0 & bottom.meta == max.depth) {
+    top.bottom.meta.repeated.u$type[i] = 2 # epi and meta
+  }
+  else if (top.meta != 0 & bottom.meta != max.depth & top.meta != bottom.meta) {
+    top.bottom.meta.repeated.u$type[i] = 1 # classic stratification (epi - meta - hypo)
+  }
+}
+
+
+
+
+#### 4. approx.bathy  (cone method) (all) ####
 
 # Maximum sampled depths (m)
 max.sampled.depth.all = nla.2007.2012.profile.all.p %>% 
@@ -380,7 +486,6 @@ hypsography.curves.all = Reduce(bind_rows, hypsography.curves.all) %>%
   select(SITE_ID, YEAR, VISIT_NO, depths, Area.at.z)
 
 
-# View(hypsography.curves.all)
 
 
 
@@ -391,7 +496,7 @@ hypsography.curves.all = Reduce(bind_rows, hypsography.curves.all) %>%
 
 
 
-#### 3. approx.bathy  (cone method) (repeated) ####
+#### 4. approx.bathy  (cone method) (repeated) ####
 
 # Maximum sampled depths (m)
 max.sampled.depth.repeated = nla.2007.2012.profile.repeated.p.2 %>% 
@@ -453,14 +558,13 @@ hypsography.curves.repeated = Reduce(bind_rows, hypsography.curves.repeated) %>%
   select(SITE_ID, YEAR, VISIT_NO, depths, Area.at.z)
 
 
-# View(hypsography.curves.repeated)
 
 
 
 
 
 
-#### 4. Other metrics ####
+#### 5. Other metrics ####
 
 # Unique sampling event 
 nla.2007.2012.profile.all.u = nla.2007.2012.profile.all.p.2 %>%
@@ -494,7 +598,7 @@ metrics.repeated$sampling_event = sampling.event.repeated
 
 
 
-##### 4.1 Volumetrically averaged epilimnion temp #####
+##### 5.1 Volumetrically averaged epilimnion temp #####
 
 
 # All sampling events
@@ -521,7 +625,7 @@ for (i in 1:length(sampling.event.all)) {
     }
 }
 
-# View(metrics.all)
+
 
 
 
@@ -529,7 +633,7 @@ for (i in 1:length(sampling.event.all)) {
 
 
 
-View(metrics.repeated)
+
 
 
 for (i in 1:length(sampling.event.repeated)) {
@@ -555,6 +659,6 @@ for (i in 1:length(sampling.event.repeated)) {
     
 }
 
-# View(metrics.repeated)
+
 
 
