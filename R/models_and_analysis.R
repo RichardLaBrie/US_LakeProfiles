@@ -20,6 +20,7 @@ nla.2007.2012.infos.repeated.p = read.table("C:/Users/Francis Banville/Documents
 
 
 # View(nla.2007.2012.profile.all.p)
+
 #### 1. Exploratory analysis ####
 ### Some exploratory analysis are first done on the processed data frames
 
@@ -142,39 +143,14 @@ count.epi / b
 ## The bottom depth is returned when no distinct metalimnion top and bottom were found
 ## Only one metalimnion was found for each combination of site, year and visit no
 
+
 top.bottom.meta = nla.2007.2012.profile.all.p %>% 
   filter(!is.na(TEMP_FIELD)) %>%
   group_by(SITE_ID, VISIT_NO, YEAR) %>%
   summarize(top_depth = meta.depths(TEMP_FIELD, DEPTH)[1],
             bottom_depth = meta.depths(TEMP_FIELD, DEPTH)[2],
             max_depth = max(DEPTH))
-
-# Change top and bottom depths to NaN when no distinct metalimnion was found
-for (i in 1:nrow(top.bottom.meta)) {
-  
-  if (!is.na(top.bottom.meta$top_depth[i]) &
-      !is.na(top.bottom.meta$bottom_depth[i])) {
-  
-  if (top.bottom.meta$top_depth[i] == 0 &
-    top.bottom.meta$bottom_depth[i] == top.bottom.meta$max_depth[i])
-  {
-    top.bottom.meta$top_depth[i] = NaN
-    top.bottom.meta$bottom_depth[i] = NaN
-  } else if (top.bottom.meta$top_depth[i] == top.bottom.meta$max_depth[i] &
-            top.bottom.meta$bottom_depth[i] == top.bottom.meta$max_depth[i])
-           {
-             top.bottom.meta$top_depth[i] = NaN
-             top.bottom.meta$bottom_depth[i] = NaN
-  } else if (top.bottom.meta$top_depth[i] == 0 &
-      top.bottom.meta$bottom_depth[i] == 0)
-  {
-    top.bottom.meta$top_depth[i] = NaN
-    top.bottom.meta$bottom_depth[i] = NaN
-  }
-  }
-  
-}
-
+View(top.bottom.meta)
 
 # Create a layer2 variable: each observation will be assigned to the layer found using rLakeAnalyser
 # e = epilimnion or no stratification
@@ -230,7 +206,7 @@ total = nla.2007.2012.profile.all.p.2 %>% group_by(SITE_ID, VISIT_NO, YEAR) %>%
   nrow()
 
 # Proportion of sampling event where at least one depth have been differently layered
-different / total # 59,7 %
+different / total # 66,24 %
 
 
 
@@ -334,7 +310,7 @@ total = nla.2007.2012.profile.repeated.p.2 %>% group_by(SITE_ID, VISIT_NO, YEAR)
   nrow()
 
 # Proportion of sampling event where at least one depth have been differently layered
-different / total # 60,3 %
+different / total # 59,95 %
 
 
 
@@ -517,67 +493,68 @@ metrics.all$sampling_event = sampling.event.all
 metrics.repeated$sampling_event = sampling.event.repeated
 
 
-# Volumetrically averaged epilimnion temp
-# All sampling events
 
+##### 4.1 Volumetrically averaged epilimnion temp #####
+
+
+# All sampling events
 
 for (i in 1:length(sampling.event.all)) {
 
-    sampling.event = metrics.all$sampling_event[i]
-    
-    wtr.depths = nla.2007.2012.profile.all.u %>% 
-      filter(SAMPLING_EVENT == sampling.event, !is.na(TEMP_FIELD)) 
-
-    wtr = wtr.depths$TEMP_FIELD
-    depths = wtr.depths$DEPTH
-    
-    bthA.bthD = hypsography.curves.all.u %>%
-      filter(SAMPLING_EVENT == sampling.event)
-
-    bthA = bthA.bthD$Area.at.z
-    bthD = bthA.bthD$depths
-
-    if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
-      
-      metrics.all$epi_temp[i] = epi.temperature(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
-    
-    }
-}
-
-# Some volumetrically averaged epiliminion temperatures are identical to those at depth 0
-# even if the lake is not stratified. Why so??
-
-
-
-
-
-
-# Volumetrically averaged epilimnion temp
-# Repeated sampling events
-
-
-for (i in 1:length(sampling.event.repeated)) {
-
-  sampling.event = metrics.repeated$sampling_event[i]
+  sampling.event = metrics.all$sampling_event[i]
   
-  wtr.depths = nla.2007.2012.profile.repeated.u %>% 
+  wtr.depths = nla.2007.2012.profile.all.u %>% 
     filter(SAMPLING_EVENT == sampling.event, !is.na(TEMP_FIELD)) 
-  
+
   wtr = wtr.depths$TEMP_FIELD
   depths = wtr.depths$DEPTH
-  
-  bthA.bthD = hypsography.curves.repeated.u %>%
-    filter(SAMPLING_EVENT == sampling.event)
-  
+
+  bthA.bthD = hypsography.curves.all.u %>%
+     filter(SAMPLING_EVENT == sampling.event)
+
   bthA = bthA.bthD$Area.at.z
   bthD = bthA.bthD$depths
   
   if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
     
-    metrics.repeated$epi_temp[i] = epi.temperature(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
-    
-  }
+      metrics.all$epi_temp[i] = epi.temperature(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
+    }
 }
 
+# View(metrics.all)
+
+
+
+# Repeated sampling events
+
+
+
 View(metrics.repeated)
+
+
+for (i in 1:length(sampling.event.repeated)) {
+
+  sampling.event = metrics.repeated$sampling_event[i]
+
+  wtr.depths = nla.2007.2012.profile.repeated.u %>% 
+  filter(SAMPLING_EVENT == sampling.event, !is.na(TEMP_FIELD)) 
+  
+  wtr = wtr.depths$TEMP_FIELD
+  depths = wtr.depths$DEPTH
+
+  bthA.bthD = hypsography.curves.repeated.u %>%
+  filter(SAMPLING_EVENT == sampling.event)
+  
+  bthA = bthA.bthD$Area.at.z
+  bthD = bthA.bthD$depths
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+  
+    metrics.repeated$epi_temp[i] = epi.temperature(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
+  }
+    
+}
+
+# View(metrics.repeated)
+
 
