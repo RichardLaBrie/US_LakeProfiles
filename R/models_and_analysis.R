@@ -422,6 +422,21 @@ for (i in 1:nrow(top.bottom.meta.repeated.u)) {
 }
 
 
+# Lake types as factor levels
+top.bottom.meta.all.u$type = as.factor(top.bottom.meta.all.u$type)
+top.bottom.meta.repeated.u$type = as.factor(top.bottom.meta.repeated.u$type)
+
+
+# Add lake type to lake infos data set 
+
+nla.2007.2012.infos.all.u.2 = left_join(nla.2007.2012.infos.all.u, top.bottom.meta.all.u, 
+                                      by = "SAMPLING_EVENT") %>%
+  select(-max_depth, -top_depth, -bottom_depth)
+
+
+nla.2007.2012.infos.repeated.u.2 = left_join(nla.2007.2012.infos.repeated.u, top.bottom.meta.repeated.u, 
+                                        by = "SAMPLING_EVENT") %>%
+  select(-max_depth, -top_depth, -bottom_depth)
 
 
 #### 4. approx.bathy  (cone method) (all) ####

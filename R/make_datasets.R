@@ -10,7 +10,7 @@ library("tidyr")
 
 # Import the interim data sets 
 # The data sets are in the folder "interim"
-nla.2007.profile = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/lakes_profile/nla2007_profile", header = TRUE,  sep = '\t')
+nla.2007.profile = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/lakes_profile/nla2007_profile.tsv", header = TRUE,  sep = '\t')
 nla.2012.profile = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/lakes_profile/nla2012_profile.tsv", header = TRUE,  sep = '\t')
 nla.2007.infos = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/sites_infos/nla2007_sitesinfos.tsv", header = TRUE,  sep = '\t')
 nla.2012.infos = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/sites_infos/nla2012_sitesinfos.tsv", header = TRUE,  sep = '\t', quote = "\\")
@@ -75,7 +75,6 @@ for (i in 2:nrow(nla.2007.profile.4)) {
 }
 
 
-# View(tail(nla.2007.profile.4,200))
 
 # Remove unuseful variable
 nla.2007.profile.5 = nla.2007.profile.4 %>%
@@ -103,7 +102,6 @@ write.table(nla.2007.profile.5,
             sep = "\t")
 
 
-View(nla.2007.profile.5)
 
 
 
@@ -166,7 +164,6 @@ for (i in 2:nrow(nla.2012.profile.4)) {
 }
   
 
-# View(tail(nla.2012.profile.4,200))
 
 # Remove unuseful variable
 nla.2012.profile.5 = nla.2012.profile.4 %>%
@@ -190,7 +187,6 @@ write.table(nla.2012.profile.5,
             sep = "\t")
 
 
-View(nla.2012.profile.5)
 
 
 
@@ -271,7 +267,6 @@ write.table(nla.2012.infos.3,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/sites_infos/nla2012_infos.tsv",
             sep = "\t")
 
-View(nla.2012.infos.3)
 
 
 #### 3.1 Repeated sites infos ####
@@ -374,7 +369,6 @@ write.table(nla.2007.2012.infos.all,
             sep = "\t")
 
 
-View(nla.2007.2012.infos.all)
 
 #### 3.3 Complete lake profiles data set ####
 
@@ -403,7 +397,6 @@ write.table(nla.2007.2012.profile.2,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/lakes_profile/nla2007_2012_profile_all.tsv",
             sep = "\t")
 
-View(nla.2007.2012.profile.2)
 
 #### 3.4 Repeated lake profiles ####
 
