@@ -479,5 +479,52 @@
         "to": "T"
       }
     ]
+  },
+  {
+    "op": "core/column-split",
+    "description": "Split column DATE_PROFILE by separator",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "DATE_PROFILE",
+    "guessCellType": true,
+    "removeOriginalColumn": true,
+    "mode": "separator",
+    "separator": "-",
+    "regex": false,
+    "maxColumns": 0
+  },
+  {
+    "op": "core/column-split",
+    "description": "Split column DATE_PROFILE 3 by separator",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "DATE_PROFILE 3",
+    "guessCellType": true,
+    "removeOriginalColumn": true,
+    "mode": "separator",
+    "separator": "T",
+    "regex": false,
+    "maxColumns": 0
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DATE_PROFILE 3 2",
+    "columnName": "DATE_PROFILE 3 2"
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column DATE_PROFILE 3 1 to DAY",
+    "oldColumnName": "DATE_PROFILE 3 1",
+    "newColumnName": "DAY"
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column DATE_PROFILE 2 to MONTH",
+    "oldColumnName": "DATE_PROFILE 2",
+    "newColumnName": "MONTH"
   }
 ]

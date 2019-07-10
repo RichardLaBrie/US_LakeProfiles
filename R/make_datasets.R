@@ -17,11 +17,8 @@ library("tidyr")
 
 
 # Import the interim data sets 
-# The data sets are in the folder "interim"
-nla.2007.profile = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/lakes_profile/nla2007_profile.tsv", header = TRUE,  sep = '\t')
-nla.2012.profile = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/lakes_profile/nla2012_profile.tsv", header = TRUE,  sep = '\t')
-nla.2007.infos = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/sites_infos/nla2007_sitesinfos.tsv", header = TRUE,  sep = '\t')
-nla.2012.infos = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/sites_infos/nla2012_sitesinfos.tsv", header = TRUE,  sep = '\t', quote = "\\")
+profile.07 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/water_chemistry/nla2007_profile_20091008.tsv", header = TRUE,  sep = '\t')
+profile.12 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/water_chemistry/nla2007_profile_20091008.tsv", header = TRUE,  sep = '\t')
 
 
 #### 1.1 Tidy the 2007 lake profiles data set ####
@@ -30,9 +27,6 @@ nla.2007.profile.2 = nla.2007.profile %>%
   filter(SITE_ID != "", !is.na(DEPTH)) %>%
   # Unuseful variables are also removed
   select(-YEAR, -SAMPLED_PROFILE, -FLAG_PROFILE, -COMMENT_PROFILE) %>%
-  # Extract the year, month and day of the sample event
-  separate(DATE_PROFILE, into = c("YEAR", "MONTH", "DAY"), sep = "-") %>%
-  mutate(DAY = substr(DAY, start = 1, stop = 2)) %>%
   # Sort by site_id, visit_no and depth for each site
   arrange(SITE_ID, VISIT_NO, DEPTH)
 
@@ -200,6 +194,12 @@ write.table(nla.2012.profile.5,
 
 
 #### 2.1 Tidy the 2007 site infos data set ####
+
+
+# Import the interim data sets 
+nla.2007.infos = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/sites_infos/nla2007_sitesinfos.tsv", header = TRUE,  sep = '\t')
+nla.2012.infos = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/sites_infos/nla2012_sitesinfos.tsv", header = TRUE,  sep = '\t', quote = "\\")
+
 
 # Select useful variables
 nla.2007.infos.2 = nla.2007.infos %>%
