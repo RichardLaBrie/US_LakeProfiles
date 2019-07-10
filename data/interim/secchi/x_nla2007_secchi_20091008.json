@@ -1,0 +1,55 @@
+[
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SAMPLED_SECCHI",
+    "columnName": "SAMPLED_SECCHI"
+  },
+  {
+    "op": "core/column-split",
+    "description": "Split column DATE_SECCHI by separator",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "DATE_SECCHI",
+    "guessCellType": true,
+    "removeOriginalColumn": true,
+    "mode": "separator",
+    "separator": "/",
+    "regex": false,
+    "maxColumns": 0
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column DATE_SECCHI 1 to MONTH",
+    "oldColumnName": "DATE_SECCHI 1",
+    "newColumnName": "MONTH"
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column DATE_SECCHI 2 to DAY",
+    "oldColumnName": "DATE_SECCHI 2",
+    "newColumnName": "DAY"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DATE_SECCHI 3",
+    "columnName": "DATE_SECCHI 3"
+  },
+  {
+    "op": "core/column-rename",
+    "description": "Rename column SECMEAN to SECMEAN_m",
+    "oldColumnName": "SECMEAN",
+    "newColumnName": "SECMEAN_m"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column FLAG_SECCHI",
+    "columnName": "FLAG_SECCHI"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COMMENT_SECCHI",
+    "columnName": "COMMENT_SECCHI"
+  }
+]

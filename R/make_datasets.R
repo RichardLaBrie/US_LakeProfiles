@@ -1,12 +1,20 @@
 ### Francis Banville - Université de Montréal
-### May 14th 2019
+### July 10th 2019
 
-### The interim 2007 and 2012 lake profiles data sets, obtained from Open Refine, are here filtered and merged to form a final processed data set
+### The interim data sets, obtained from OpenRefine, are here tidied and merged to form processed data sets
+### The sections of our script first refer to the indicators identified by the NARS 
+### Then they represent the merging of data sets and the disctinction between repeated and non repeated sites
+
 
 # Libraries
 library("dplyr")
-library("ggplot2")
 library("tidyr")
+
+
+
+
+#### 1. Water chemisty (profiles) ####
+
 
 # Import the interim data sets 
 # The data sets are in the folder "interim"
