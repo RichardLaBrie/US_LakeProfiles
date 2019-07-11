@@ -333,9 +333,9 @@ secchi.07$clear_to_bottom = replace(secchi.07$clear_to_bottom, which(!is.na(secc
 secchi.07 = secchi.07 %>% mutate(
   siteid_07 = as.factor(siteid_07), 
   year = as.numeric(year), visit_no = as.numeric(visit_no), 
-  month = as.numeric(month), day = as.numeric(day), 
   secchi_m = as.numeric(secchi_m), clear_to_bottom = as.numeric(clear_to_bottom)
-)
+) %>%
+  select(-day, -month)
 
 
 
@@ -364,9 +364,9 @@ secchi.12$clear_to_bottom = replace(secchi.12$clear_to_bottom, which(!is.na(secc
 secchi.12 = secchi.12 %>% mutate(
   siteid_12 = as.factor(siteid_12), 
   year = as.numeric(year), visit_no = as.numeric(visit_no), 
-  month = as.numeric(month), day = as.numeric(day), 
   secchi_m = as.numeric(secchi_m), clear_to_bottom = as.numeric(clear_to_bottom)
-)
+) %>%
+  select(-day, -month)
 
 
 
@@ -381,7 +381,26 @@ secchi.12 = secchi.12 %>% mutate(
 
 
 
-#### JE REPRENDS ICI DEMAIN ###### X Merged data sets ####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### X Merged data sets ####
 
 
 #### X.1 Merged site information
@@ -389,160 +408,72 @@ secchi.12 = secchi.12 %>% mutate(
 
 # Join site information with Secchi depths
 
-info.07u = full_join(info.07, secchi.07, by = c("siteid_07", "day", "month", "year", "visit_no")) 
-info.12u = full_join(info.12, secchi.12, by = c("siteid_12", "day", "month", "year", "visit_no")) 
+info.07u = full_join(info.07, secchi.07, by = c("siteid_07", "year", "visit_no")) 
+info.12u = full_join(info.12, secchi.12, by = c("siteid_12", "year", "visit_no")) 
 
 
 # Join the 2007 and 2012 sampling events
-info.0712u = bind_rows(info.07u, info.12u)
+info.0712 = bind_rows(info.07u, info.12u)
 
 
-# All NA years are in 2012
-# Change those NAs to 2012
-info.0712u$year = replace(info.0712u$year, which(is.na(info.0712u$year)), 2012)
+# The NA year is in 2012
+# Change this NA to 2012
+info.0712$year = replace(info.0712$year, which(is.na(info.0712$year)), 2012)
 
-info.0712$site_id_07 = as.character(info.0712$site_id_07)
-info.0712$site_id_12 = as.character(info.0712$site_id_12)
 
 
 # Assign adequate ID for sites
 # If a site sampled in 2012 was also sampled in 2007, we will keep its 2007 id
-info.0712u = info.0712u %>% mutate(site_id = NA)
+# The variable siteid thus represent a site unique identifier
+info.0712 = info.0712 %>% mutate(site_id = NA)
 
-for (i in 1:nrow(info.0712u)) {
-  if (is.na(info.0712$site_id_07[i])) {
-    info.0712$site_id[i] = info.0712$site_id_12[i]
+for (i in 1:nrow(info.0712)) {
+  if (info.0712$siteid_07[i] == "") {
+    info.0712$site_id[i] = info.0712$siteid_12[i]
   } else {
-    info.0712$site_id[i] = info.0712$site_id_07[i]
+    info.0712$site_id[i] = info.0712$siteid_07[i]
   }
 
 }
-   
 
 
 
-info.0712 = bind_rows(nla.2007.2012.infos.repeated, nla.2007.infos.3) %>%
-  bind_rows(nla.2012.infos.3)
+# Assign a unique identifier for every sampling event 
+info.0712 = info.0712 %>% unite("sampling_event", site_id, year, visit_no, sep = "-", remove = FALSE)
 
 
-# Assign adequate ID for sites
-
-
-
-# Correctly order observations and remove identical rows
-nla.2007.2012.infos.all = nla.2007.2012.infos.all %>%
-  select(-SITEID_07, -SITEID_12, -SITESAMP) %>%
-  arrange(SITE_ID, YEAR, VISIT_NO) %>%
-  distinct()
-
-
-# Export the processed data set
-write.table(nla.2007.2012.infos.all,
-            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/sites_infos/nla2007_2012_infos_all.tsv",
-            sep = "\t")
-
-
-#### X Complete lake profiles data set ####
-
-# Merge lake profiles data set
-nla.2007.2012.profile = union(nla.2007.profile.5, nla.2012.profile.5)
-
-# Assign adequate class to SITE_ID
-nla.2007.2012.profile$SITE_ID = as.factor(nla.2007.2012.profile$SITE_ID)
-
-
-# Change the sites id. of 2012 to those of 2007 when resampled
-for (i in 1:nrow(nla.2007.2012.profile)) {
-  if (nla.2007.2012.profile$SITE_ID[i] %in% common.sites$SITEID_12)
-  {
-    k = which(as.character(common.sites$SITEID_12) == as.character(nla.2007.2012.profile$SITE_ID[i]))
-    nla.2007.2012.profile$SITE_ID[i] = as.character(common.sites$SITEID_07[k])
-  }
-}
-
-# Reorder obervations
-nla.2007.2012.profile.2 = nla.2007.2012.profile %>%
-  arrange(SITE_ID, YEAR, VISIT_NO, DEPTH)
-
-# Export the processed data set
-write.table(nla.2007.2012.profile.2,
-            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/lakes_profile/nla2007_2012_profile_all.tsv",
-            sep = "\t")
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### X. Resampled sites ####
-######  JE VEUX UNE COLONNE AVEC RESAMPLED 1/0
-
-
-# Data table to link sites sampled in 2007 to those sampled in 2012 (from site_information)
-common.sites = inner_join(info.07, info.12, by = "site_id_07") %>%
-  select(site_id_07, site_id_12) %>%
-  distinct(site_id_07, site_id_12, .keep_all = TRUE)
+# Identify sites sampled in both 2007 and 2012
+common.sites = inner_join(info.07, info.12, by = "siteid_07") %>%
+  select(siteid_07, siteid_12) %>%
+  distinct(siteid_07, siteid_12, .keep_all = TRUE)
 dim(common.sites) # 401 repeated sites
 
 
-# Join the infos data set and only keep the sites repeated in 2007 and 2012
-info.0712 = inner_join(info.07, info.12, by = "site_id_07")
+# The variable 'resampled' indicates whether or not the sites were sampled in both 2007 ans 2012
+info.0712 = info.0712 %>% mutate(resampled = NA)
 
-
-# 2007 data table of sites repeated in 2012
-nla.2007.infos.repeated = nla.2007.2012.infos %>%
-  select(SITEID_07, ends_with("x"), DEPTHMAX_M, SLD)
-colnames(nla.2007.infos.repeated) = c("SITEID_07", "VISIT_NO", "DAY", "MONTH", "YEAR", "LAT", "LON",
-                                "STATE", "EPA_REG", "ECO9", "HUC2", "HUC8", "LAKE_ORIGIN", 
-                                "AREA_KM2", "PERIM_KM", "ELEVATION_M", "WGT", "DEPTHMAX_M", "SLD")
-
-# 2012 data table of sites also sampled in 2007
-nla.2012.infos.repeated = nla.2007.2012.infos %>%
-  select(SITEID_07, SITEID_12, ends_with("y"))
-colnames(nla.2012.infos.repeated) = c("SITEID_07", "SITEID_12", "VISIT_NO", "DAY", "MONTH", "YEAR", "LAT", "LON",
-                                "STATE", "EPA_REG", "ECO9", "HUC2", "HUC8", "LAKE_ORIGIN", 
-                                "AREA_KM2", "PERIM_KM", "ELEVATION_M", "WGT")
-
-# Join the 2 preceding data tables
-nla.2007.2012.infos.repeated = bind_rows(nla.2007.infos.repeated, nla.2012.infos.repeated)
-
-
-# Change the sites id. of 2012 to those of 2007
-for (i in 1:nrow(nla.2007.2012.infos.repeated)) {
-  if (nla.2007.2012.infos.repeated$SITEID_12[i] %in% common.sites$SITEID_12)
-  {
-    k = which(as.character(common.sites$SITEID_12) == as.character(nla.2007.2012.profile$SITEID_12[i]))
-    nla.2007.2012.profile$SITEID_07[i] = as.character(common.sites$SITEID_07[k])
+for (i in 1:nrow(info.0712)) {
+  if (info.0712$siteid_07[i] %in% common.sites$siteid_07) {
+    info.0712$resampled[i] = 1
+  } else {
+    info.0712$resampled[i] = 0
   }
 }
 
-# Keep a single column for SITE_ID
-nla.2007.2012.infos.repeated = nla.2007.2012.infos.repeated %>%
-  mutate(SITE_ID = SITEID_07) %>%
-  select(-SITEID_07, -SITEID_12)
 
-# Correctly order observations
-nla.2007.2012.infos.repeated = nla.2007.2012.infos.repeated %>%
-  arrange(SITE_ID, YEAR, VISIT_NO) %>%
-  distinct()
 
-# All NA years are in 2012
-# Change those NAs to 2012
-which.NA.2012 = which(is.na(nla.2007.2012.infos.repeated$YEAR)) 
-nla.2007.2012.infos.repeated[which.NA.2012, "YEAR"] = 2012
+# Correctly order observations 
+info.0712 = info.0712 %>% arrange(site_id, year, visit_no) 
 
+# Assign adequate class to site_id
+info.0712$site_id = as.factor(info.0712$site_id)
+info.0712$siteid_07 = as.factor(info.0712$siteid_07)
+info.0712$siteid_12 = as.factor(info.0712$siteid_12)
 
 
 # Export the processed data set
-write.table(nla.2007.2012.infos.repeated,
-            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/sites_infos/nla2007_2012_infos_repeated.tsv",
+write.table(info.0712,
+            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/info_0712.tsv",
             sep = "\t")
 
 
@@ -551,31 +482,58 @@ write.table(nla.2007.2012.infos.repeated,
 
 
 
-#### X Repeated lake profiles ####
 
-# Keeping sites whom infos was taken in 2007 and 2012
-# (from SITEID_07)
-nla.2007.2012.profile.repeated = nla.2007.2012.profile.2 %>% filter(SITE_ID %in% common.sites$SITEID_07 | 
-                                                                      SITE_ID %in% common.sites$SITEID_12)
+#### X.2  Merged profile data sets 
 
 
-# Change the sites id. of 2012 to those of 2007
-for (i in 1:nrow(nla.2007.2012.profile.repeated)) {
-  if (nla.2007.2012.profile.repeated$SITE_ID[i] %in% common.sites$SITEID_12)
-  {
-    k = which(as.character(common.sites$SITEID_12) == as.character(nla.2007.2012.profile.repeated$SITE_ID[i]))
-    nla.2007.2012.profile.repeated$SITE_ID[i] = as.character(common.sites$SITEID_07[k])
+# Merge profiles data set
+profile.0712 = union(profile.07, profile.12)
+
+
+
+# The variable 'resampled' indicates whether or not the sites were sampled in both 2007 ans 2012
+profile.0712 = profile.0712 %>% mutate(resampled = NA)
+
+for (i in 1:nrow(profile.0712)) {
+  if (profile.0712$site_id[i] %in% common.sites$siteid_07 | 
+      profile.0712$site_id[i] %in% common.sites$siteid_12) {
+    profile.0712$resampled[i] = 1
+  } else {
+    profile.0712$resampled[i] = 0
   }
 }
+
+
+# Change the site id to the site unique identifier defined above
+# In other words, change the id of the sites sampled in 2012 to the id they had in 
+# 2007 when they were also sampled in 2007
+
+
+for (i in 1:nrow(profile.0712)) {
+  if (profile.0712$resampled[i] == 1 & profile.0712$year[i] == 2012) {
+    k = which(common.sites$siteid_12 == profile.0712$site_id[i])
+    profile.0712$site_id[i] = common.sites$siteid_07[k]
+  }
+}
+
+
+
+# Assign adequate class to site_id
+profile.0712$site_id = as.factor(profile.0712$site_id)
+
+
+# Assign a unique identifier for every sampling event 
+profile.0712 = profile.0712 %>% unite("sampling_event", site_id, year, visit_no, sep = "-", remove = FALSE)
 
 
 # Reorder obervations
-nla.2007.2012.profile.repeated = nla.2007.2012.profile.repeated %>%
-  arrange(SITE_ID, YEAR, VISIT_NO, DEPTH)
+profile.0712 = profile.0712 %>%
+  arrange(site_id, year, visit_no, depth)
+
+
 
 # Export the processed data set
-write.table(nla.2007.2012.profile.repeated,
-            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/lakes_profile/nla2007_2012_profile_repeated.tsv",
+write.table(profile.0712,
+            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/profile_0712.tsv",
             sep = "\t")
-
 
