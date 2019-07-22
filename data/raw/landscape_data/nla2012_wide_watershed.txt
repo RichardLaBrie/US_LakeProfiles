@@ -1,0 +1,508 @@
+COLUMN_NAME	TABLE_NAME	SAMPLE_TYPE	LABEL	LEGAL_VALUES	RANGE_HIGH	RANGE_LOW	REFERENCE	UNITS
+DAMCNT_BSN	tblLANDSCAPE	LANDSCAPE	Dam count in Basin					
+DAMDEN_BSN	tblLANDSCAPE	LANDSCAPE	Dam Density in Basin (dams/sqkm)					
+DAMDEN_MISSINGDATA	tblLANDSCAPE	LANDSCAPE	n/a					
+DOMGEOL_BSN	tblLANDSCAPE	LANDSCAPE	"SDMNTRY or \GNEISS\"" or \""GRANITIC\"" or \""MAFUL\"" or \""QTRNRY\"" or \""VOLCANIC\"" or \""WATERBODY\"""""					
+ELEV_MISSINGDATA	tblLANDSCAPE	LANDSCAPE	% of Basin not covered by Elevation					percent
+ELEV_SITE	tblLANDSCAPE	LANDSCAPE	Maximim Elevation (cm)					cm
+ELEVMAX_BSN	tblLANDSCAPE	LANDSCAPE	Maximim Elevation (cm)					cm
+ELEVMEAN_BSN	tblLANDSCAPE	LANDSCAPE	Mean Elevation (cm)					cm
+ELEVMIN_BSN	tblLANDSCAPE	LANDSCAPE	Minimum Elevation (cm)					cm
+GEOL_MISSDATA	tblLANDSCAPE	LANDSCAPE	Percent of basin not covered by geology raster					percent
+GNEISSAREA_BSN	tblLANDSCAPE	LANDSCAPE	Area of Basin with the designated geology (sq km)					
+GNEISSPCT_BSN	tblLANDSCAPE	LANDSCAPE	Percent of Basin with the designated geology					
+GRANITICAREA_BSN	tblLANDSCAPE	LANDSCAPE	Area of Basin with the designated geology (sq km)					
+GRANITICPCT_BSN	tblLANDSCAPE	LANDSCAPE	Percent of Basin with the designated geology					
+HOUSEDEN_1000	tblLANDSCAPE	LANDSCAPE	Housing Density in 1000m-Clipped Buffer (housing units/sqmi)					
+HOUSEDEN_200	tblLANDSCAPE	LANDSCAPE	Housing Density in 200m-Clipped Buffer (housing units/sqmi)					
+HOUSEDEN_500	tblLANDSCAPE	LANDSCAPE	Housing Density in 200m-Clipped Buffer (housing units/sqmi)					
+HOUSEDEN_BSN	tblLANDSCAPE	LANDSCAPE	Housing Density in Basin (housing units/sqmi)					
+HOUSEDEN_MISSINGDATA_1000	tblLANDSCAPE	LANDSCAPE	% of 1000m-clipped buffer not covered by Housing Density Raster					percent
+HOUSEDEN_MISSINGDATA_200	tblLANDSCAPE	LANDSCAPE	% of 200m-clipped buffer not covered by Housing Density Raster					percent
+HOUSEDEN_MISSINGDATA_500	tblLANDSCAPE	LANDSCAPE	% of 500m-clipped buffer not covered by Housing Density Raster					percent
+HOUSEDEN_MISSINGDATA_BSN	tblLANDSCAPE	LANDSCAPE	% of Basin not covered by Housing Density Raster					percent
+MAFULAREA_BSN	tblLANDSCAPE	LANDSCAPE	Area of Basin with the designated geology (sq km)					
+MAFULPCT_BSN	tblLANDSCAPE	LANDSCAPE	Percent of Basin with the designated geology					
+MERCDEP_BSN	tblLANDSCAPE	LANDSCAPE	Average Mercury Deposition in Basin (micrograms/sq meter)					
+MERCDEP_MISSINGDATA_BSN	tblLANDSCAPE	LANDSCAPE	% of Basin not covered by Mercury Raster					percent
+MERCDEP_MISSINGDATA_SITE	tblLANDSCAPE	LANDSCAPE	"Value of 100 if mercury deposition data, 0 if not."			0		percent
+MERCDEP_SITE	tblLANDSCAPE	LANDSCAPE	Mercury deposition at site (micrograms/sq meter)					
+MINECNT_1000	tblLANDSCAPE	LANDSCAPE	Mine count in 1000m-clipped buffer					
+MINECNT_200	tblLANDSCAPE	LANDSCAPE	Mine count in 200m-clipped buffer					
+MINECNT_500	tblLANDSCAPE	LANDSCAPE	Mine count in 500m-clipped buffer					
+MINECNT_BSN	tblLANDSCAPE	LANDSCAPE	Mine count in Basin					
+MINEDEN_1000	tblLANDSCAPE	LANDSCAPE	Mine Density in 1000m-Clipped Buffer (mines/sqkm)					
+MINEDEN_200	tblLANDSCAPE	LANDSCAPE	Mine Density in 200m-Clipped Buffer (mines/sqkm)					
+MINEDEN_500	tblLANDSCAPE	LANDSCAPE	Mine Density in 500m-Clipped Buffer (mines/sqkm)					
+MINEDEN_BSN	tblLANDSCAPE	LANDSCAPE	Mine Density in Basin (mines/sqkm)					
+MINEDEN_MISSINGDATA_1000	tblLANDSCAPE	LANDSCAPE	n/a					
+MINEDEN_MISSINGDATA_200	tblLANDSCAPE	LANDSCAPE	n/a					
+MINEDEN_MISSINGDATA_500	tblLANDSCAPE	LANDSCAPE	n/a					
+MINEDEN_MISSINGDATA_BSN	tblLANDSCAPE	LANDSCAPE	n/a					
+NADP_MISSINGDATA_BSN	tblLANDSCAPE	LANDSCAPE	% of Basin not covered by NADP Rasters					percent
+NADP_MISSINGDATA_SITE	tblLANDSCAPE	LANDSCAPE	"0, if site has NADP data.  Otherwise 100."					
+NADP_NH4_BSN	tblLANDSCAPE	LANDSCAPE	Average annual NH4 deposition (2007 - 2011) in Basin (kg/ha)					kg/ha
+NADP_NH4_SITE	tblLANDSCAPE	LANDSCAPE	Average annual NH4 deposition (2007 - 2011) at site (kg/ha)					kg/ha
+NADP_NO3_BSN	tblLANDSCAPE	LANDSCAPE	Average annual NO3 deposition (2007 - 2011) in Basin (kg/ha)					kg/ha
+NADP_NO3_SITE	tblLANDSCAPE	LANDSCAPE	Average annual NO3 deposition (2007 - 2011) at site (kg/ha)					kg/ha
+NADP_SN_BSN	tblLANDSCAPE	LANDSCAPE	Average annual Sulfer and Nitrogen deposition (2007 - 2011) in Basin (kg/ha)					kg/ha
+NADP_SN_SITE	tblLANDSCAPE	LANDSCAPE	Average annual Sulfer and Nitrogen deposition (2007 - 2011) at site (kg/ha)					kg/ha
+NADP_TOTALN_BSN	tblLANDSCAPE	LANDSCAPE	Average annual Total Inorganic Nitrogen deposition (2007 - 2011) in Basin (kg/ha)					kg/ha
+NADP_TOTALN_SITE	tblLANDSCAPE	LANDSCAPE	Average annual Total Inorganic Nitrogen deposition (2007 - 2011) at site (kg/ha)					kg/ha
+NLCD2001_11AREA_1000	tblLANDSCAPE	LANDSCAPE	open water (Meters Area in 1000m-clipped buffer)					
+NLCD2001_11AREA_200	tblLANDSCAPE	LANDSCAPE	open water (Meters Area in 200m-clipped buffer)					
+NLCD2001_11AREA_500	tblLANDSCAPE	LANDSCAPE	open water (Meters Area in 500m-clipped buffer)					
+NLCD2001_11AREA_BSN	tblLANDSCAPE	LANDSCAPE	open water (Area in basin in meters)					
+NLCD2001_11PCT_1000	tblLANDSCAPE	LANDSCAPE	open water (% of 1000m-clipped buffer)					percent
+NLCD2001_11PCT_200	tblLANDSCAPE	LANDSCAPE	open water (% of 200m-clipped buffer)					percent
+NLCD2001_11PCT_500	tblLANDSCAPE	LANDSCAPE	open water (% of 500m-clipped buffer)					percent
+NLCD2001_11PCT_BSN	tblLANDSCAPE	LANDSCAPE	open water (% of basin area)					percent
+NLCD2001_12AREA_1000	tblLANDSCAPE	LANDSCAPE	perennial ice (Meters Area in 1000m-clipped buffer)					
+NLCD2001_12AREA_200	tblLANDSCAPE	LANDSCAPE	perennial ice (Meters Area in 200m-clipped buffer)					
+NLCD2001_12AREA_500	tblLANDSCAPE	LANDSCAPE	perennial ice (Meters Area in 500m-clipped buffer)					
+NLCD2001_12AREA_BSN	tblLANDSCAPE	LANDSCAPE	perennial ice (Area in basin in meters)					
+NLCD2001_12PCT_1000	tblLANDSCAPE	LANDSCAPE	perennial ice (% of 1000m-clipped buffer)					percent
+NLCD2001_12PCT_200	tblLANDSCAPE	LANDSCAPE	perennial ice (% of 200m-clipped buffer)					percent
+NLCD2001_12PCT_500	tblLANDSCAPE	LANDSCAPE	perennial ice (% of 500m-clipped buffer)					percent
+NLCD2001_12PCT_BSN	tblLANDSCAPE	LANDSCAPE	perennial ice (% of basin area)					percent
+NLCD2001_21AREA_1000	tblLANDSCAPE	LANDSCAPE	"developed, open space (Meters Area in 1000m-clipped buffer)"					
+NLCD2001_21AREA_200	tblLANDSCAPE	LANDSCAPE	"developed, open space (Meters Area in 200m-clipped buffer)"					
+NLCD2001_21AREA_500	tblLANDSCAPE	LANDSCAPE	"developed, open space (Meters Area in 500m-clipped buffer)"					
+NLCD2001_21AREA_BSN	tblLANDSCAPE	LANDSCAPE	"developed, open space (Area in basin in meters)"					
+NLCD2001_21PCT_1000	tblLANDSCAPE	LANDSCAPE	"developed, open space (% of 1000m-clipped buffer)"					percent
+NLCD2001_21PCT_200	tblLANDSCAPE	LANDSCAPE	"developed, open space (% of 200m-clipped buffer)"					percent
+NLCD2001_21PCT_500	tblLANDSCAPE	LANDSCAPE	"developed, open space (% of 500m-clipped buffer)"					percent
+NLCD2001_21PCT_BSN	tblLANDSCAPE	LANDSCAPE	"developed, open space (% of basin area)"					percent
+NLCD2001_22AREA_1000	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (Meters Area in 1000m-clipped buffer)"					
+NLCD2001_22AREA_200	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (Meters Area in 200m-clipped buffer)"					
+NLCD2001_22AREA_500	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (Meters Area in 500m-clipped buffer)"					
+NLCD2001_22AREA_BSN	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (Area in basin in meters)"					
+NLCD2001_22PCT_1000	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (% of 1000m-clipped buffer)"					percent
+NLCD2001_22PCT_200	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (% of 200m-clipped buffer)"					percent
+NLCD2001_22PCT_500	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (% of 500m-clipped buffer)"					percent
+NLCD2001_22PCT_BSN	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (% of basin area)"					percent
+NLCD2001_23AREA_1000	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (Meters Area in 1000m-clipped buffer)"					
+NLCD2001_23AREA_200	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (Meters Area in 200m-clipped buffer)"					
+NLCD2001_23AREA_500	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (Meters Area in 500m-clipped buffer)"					
+NLCD2001_23AREA_BSN	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (Area in basin in meters)"					
+NLCD2001_23PCT_1000	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (% of 1000m-clipped buffer)"					percent
+NLCD2001_23PCT_200	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (% of 200m-clipped buffer)"					percent
+NLCD2001_23PCT_500	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (% of 500m-clipped buffer)"					percent
+NLCD2001_23PCT_BSN	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (% of basin area)"					percent
+NLCD2001_24AREA_1000	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (Meters Area in 1000m-clipped buffer)"					
+NLCD2001_24AREA_200	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (Meters Area in 200m-clipped buffer)"					
+NLCD2001_24AREA_500	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (Meters Area in 500m-clipped buffer)"					
+NLCD2001_24AREA_BSN	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (Area in basin in meters)"					
+NLCD2001_24PCT_1000	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (% of 1000m-clipped buffer)"					percent
+NLCD2001_24PCT_200	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (% of 200m-clipped buffer)"					percent
+NLCD2001_24PCT_500	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (% of 500m-clipped buffer)"					percent
+NLCD2001_24PCT_BSN	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (% of basin area)"					percent
+NLCD2001_31AREA_1000	tblLANDSCAPE	LANDSCAPE	barren land (Meters Area in 1000m-clipped buffer)					
+NLCD2001_31AREA_200	tblLANDSCAPE	LANDSCAPE	barren land (Meters Area in 200m-clipped buffer)					
+NLCD2001_31AREA_500	tblLANDSCAPE	LANDSCAPE	barren land (Meters Area in 500m-clipped buffer)					
+NLCD2001_31AREA_BSN	tblLANDSCAPE	LANDSCAPE	barren land (Area in basin in meters)					
+NLCD2001_31PCT_1000	tblLANDSCAPE	LANDSCAPE	barren land (% of 1000m-clipped buffer)					percent
+NLCD2001_31PCT_200	tblLANDSCAPE	LANDSCAPE	barren land (% of 200m-clipped buffer)					percent
+NLCD2001_31PCT_500	tblLANDSCAPE	LANDSCAPE	barren land (% of 500m-clipped buffer)					percent
+NLCD2001_31PCT_BSN	tblLANDSCAPE	LANDSCAPE	barren land (% of basin area)					percent
+NLCD2001_41AREA_1000	tblLANDSCAPE	LANDSCAPE	deciduous forest (Meters Area in 1000m-clipped buffer)					
+NLCD2001_41AREA_200	tblLANDSCAPE	LANDSCAPE	deciduous forest (Meters Area in 200m-clipped buffer)					
+NLCD2001_41AREA_500	tblLANDSCAPE	LANDSCAPE	deciduous forest (Meters Area in 500m-clipped buffer)					
+NLCD2001_41AREA_BSN	tblLANDSCAPE	LANDSCAPE	deciduous forest (Area in basin in meters)					
+NLCD2001_41PCT_1000	tblLANDSCAPE	LANDSCAPE	deciduous forest (% of 1000m-clipped buffer)					percent
+NLCD2001_41PCT_200	tblLANDSCAPE	LANDSCAPE	deciduous forest (% of 200m-clipped buffer)					percent
+NLCD2001_41PCT_500	tblLANDSCAPE	LANDSCAPE	deciduous forest (% of 500m-clipped buffer)					percent
+NLCD2001_41PCT_BSN	tblLANDSCAPE	LANDSCAPE	deciduous forest (% of basin area)					percent
+NLCD2001_42AREA_1000	tblLANDSCAPE	LANDSCAPE	evergreen forest (Meters Area in 1000m-clipped buffer)					
+NLCD2001_42AREA_200	tblLANDSCAPE	LANDSCAPE	evergreen forest (Meters Area in 200m-clipped buffer)					
+NLCD2001_42AREA_500	tblLANDSCAPE	LANDSCAPE	evergreen forest (Meters Area in 500m-clipped buffer)					
+NLCD2001_42AREA_BSN	tblLANDSCAPE	LANDSCAPE	evergreen forest (Area in basin in meters)					
+NLCD2001_42PCT_1000	tblLANDSCAPE	LANDSCAPE	evergreen forest (% of 1000m-clipped buffer)					percent
+NLCD2001_42PCT_200	tblLANDSCAPE	LANDSCAPE	evergreen forest (% of 200m-clipped buffer)					percent
+NLCD2001_42PCT_500	tblLANDSCAPE	LANDSCAPE	evergreen forest (% of 500m-clipped buffer)					percent
+NLCD2001_42PCT_BSN	tblLANDSCAPE	LANDSCAPE	evergreen forest (% of basin area)					percent
+NLCD2001_43AREA_1000	tblLANDSCAPE	LANDSCAPE	mixed forest (Meters Area in 1000m-clipped buffer)					
+NLCD2001_43AREA_200	tblLANDSCAPE	LANDSCAPE	mixed forest (Meters Area in 200m-clipped buffer)					
+NLCD2001_43AREA_500	tblLANDSCAPE	LANDSCAPE	mixed forest (Meters Area in 500m-clipped buffer)					
+NLCD2001_43AREA_BSN	tblLANDSCAPE	LANDSCAPE	mixed forest (Area in basin in meters)					
+NLCD2001_43PCT_1000	tblLANDSCAPE	LANDSCAPE	mixed forest (% of 1000m-clipped buffer)					percent
+NLCD2001_43PCT_200	tblLANDSCAPE	LANDSCAPE	mixed forest (% of 200m-clipped buffer)					percent
+NLCD2001_43PCT_500	tblLANDSCAPE	LANDSCAPE	mixed forest (% of 500m-clipped buffer)					percent
+NLCD2001_43PCT_BSN	tblLANDSCAPE	LANDSCAPE	mixed forest (% of basin area)					percent
+NLCD2001_51AREA_1000	tblLANDSCAPE	LANDSCAPE	dwarf scrub (Meters Area in 1000m-clipped buffer)					
+NLCD2001_51AREA_200	tblLANDSCAPE	LANDSCAPE	dwarf scrub (Meters Area in 200m-clipped buffer)					
+NLCD2001_51AREA_500	tblLANDSCAPE	LANDSCAPE	dwarf scrub (Meters Area in 500m-clipped buffer)					
+NLCD2001_51AREA_BSN	tblLANDSCAPE	LANDSCAPE	dwarf scrub (Area in basin in meters)					
+NLCD2001_51PCT_1000	tblLANDSCAPE	LANDSCAPE	dwarf scrub (% of 1000m-clipped buffer)					percent
+NLCD2001_51PCT_200	tblLANDSCAPE	LANDSCAPE	dwarf scrub (% of 200m-clipped buffer)					percent
+NLCD2001_51PCT_500	tblLANDSCAPE	LANDSCAPE	dwarf scrub (% of 500m-clipped buffer)					percent
+NLCD2001_51PCT_BSN	tblLANDSCAPE	LANDSCAPE	dwarf scrub (% of basin area)					percent
+NLCD2001_52AREA_1000	tblLANDSCAPE	LANDSCAPE	shrub/scrub (Meters Area in 1000m-clipped buffer)					
+NLCD2001_52AREA_200	tblLANDSCAPE	LANDSCAPE	shrub/scrub (Meters Area in 200m-clipped buffer)					
+NLCD2001_52AREA_500	tblLANDSCAPE	LANDSCAPE	shrub/scrub (Meters Area in 500m-clipped buffer)					
+NLCD2001_52AREA_BSN	tblLANDSCAPE	LANDSCAPE	shrub/scrub (Area in basin in meters)					
+NLCD2001_52PCT_1000	tblLANDSCAPE	LANDSCAPE	shrub/scrub (% of 1000m-clipped buffer)					percent
+NLCD2001_52PCT_200	tblLANDSCAPE	LANDSCAPE	shrub/scrub (% of 200m-clipped buffer)					percent
+NLCD2001_52PCT_500	tblLANDSCAPE	LANDSCAPE	shrub/scrub (% of 500m-clipped buffer)					percent
+NLCD2001_52PCT_BSN	tblLANDSCAPE	LANDSCAPE	shrub/scrub (% of basin area)					percent
+NLCD2001_71AREA_1000	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (Meters Area in 1000m-clipped buffer)					
+NLCD2001_71AREA_200	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (Meters Area in 200m-clipped buffer)					
+NLCD2001_71AREA_500	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (Meters Area in 500m-clipped buffer)					
+NLCD2001_71AREA_BSN	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (Area in basin in meters)					
+NLCD2001_71PCT_1000	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (% of 1000m-clipped buffer)					percent
+NLCD2001_71PCT_200	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (% of 200m-clipped buffer)					percent
+NLCD2001_71PCT_500	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (% of 500m-clipped buffer)					percent
+NLCD2001_71PCT_BSN	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (% of basin area)					percent
+NLCD2001_72AREA_1000	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (Meters Area in 1000m-clipped buffer)					
+NLCD2001_72AREA_200	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (Meters Area in 200m-clipped buffer)					
+NLCD2001_72AREA_500	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (Meters Area in 500m-clipped buffer)					
+NLCD2001_72AREA_BSN	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (Area in basin in meters)					
+NLCD2001_72PCT_1000	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (% of 1000m-clipped buffer)					percent
+NLCD2001_72PCT_200	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (% of 200m-clipped buffer)					percent
+NLCD2001_72PCT_500	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (% of 500m-clipped buffer)					percent
+NLCD2001_72PCT_BSN	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (% of basin area)					percent
+NLCD2001_73AREA_1000	tblLANDSCAPE	LANDSCAPE	lichens (Meters Area in 1000m-clipped buffer)					
+NLCD2001_73AREA_200	tblLANDSCAPE	LANDSCAPE	lichens (Meters Area in 200m-clipped buffer)					
+NLCD2001_73AREA_500	tblLANDSCAPE	LANDSCAPE	lichens (Meters Area in 500m-clipped buffer)					
+NLCD2001_73AREA_BSN	tblLANDSCAPE	LANDSCAPE	lichens (Area in basin in meters)					
+NLCD2001_73PCT_1000	tblLANDSCAPE	LANDSCAPE	lichens (% of 1000m-clipped buffer)					percent
+NLCD2001_73PCT_200	tblLANDSCAPE	LANDSCAPE	lichens (% of 200m-clipped buffer)					percent
+NLCD2001_73PCT_500	tblLANDSCAPE	LANDSCAPE	lichens (% of 500m-clipped buffer)					percent
+NLCD2001_73PCT_BSN	tblLANDSCAPE	LANDSCAPE	lichens (% of basin area)					percent
+NLCD2001_74AREA_1000	tblLANDSCAPE	LANDSCAPE	moss (Meters Area in 1000m-clipped buffer)					
+NLCD2001_74AREA_200	tblLANDSCAPE	LANDSCAPE	moss (Meters Area in 200m-clipped buffer)					
+NLCD2001_74AREA_500	tblLANDSCAPE	LANDSCAPE	moss (Meters Area in 500m-clipped buffer)					
+NLCD2001_74AREA_BSN	tblLANDSCAPE	LANDSCAPE	moss (Area in basin in meters)					
+NLCD2001_74PCT_1000	tblLANDSCAPE	LANDSCAPE	moss (% of 1000m-clipped buffer)					percent
+NLCD2001_74PCT_200	tblLANDSCAPE	LANDSCAPE	moss (% of 200m-clipped buffer)					percent
+NLCD2001_74PCT_500	tblLANDSCAPE	LANDSCAPE	moss (% of 500m-clipped buffer)					percent
+NLCD2001_74PCT_BSN	tblLANDSCAPE	LANDSCAPE	moss (% of basin area)					percent
+NLCD2001_81AREA_1000	tblLANDSCAPE	LANDSCAPE	pasture/hay (Meters Area in 1000m-clipped buffer)					
+NLCD2001_81AREA_200	tblLANDSCAPE	LANDSCAPE	pasture/hay (Meters Area in 200m-clipped buffer)					
+NLCD2001_81AREA_500	tblLANDSCAPE	LANDSCAPE	pasture/hay (Meters Area in 500m-clipped buffer)					
+NLCD2001_81AREA_BSN	tblLANDSCAPE	LANDSCAPE	pasture/hay (Area in basin in meters)					
+NLCD2001_81PCT_1000	tblLANDSCAPE	LANDSCAPE	pasture/hay (% of 1000m-clipped buffer)					percent
+NLCD2001_81PCT_200	tblLANDSCAPE	LANDSCAPE	pasture/hay (% of 200m-clipped buffer)					percent
+NLCD2001_81PCT_500	tblLANDSCAPE	LANDSCAPE	pasture/hay (% of 500m-clipped buffer)					percent
+NLCD2001_81PCT_BSN	tblLANDSCAPE	LANDSCAPE	pasture/hay (% of basin area)					percent
+NLCD2001_82AREA_1000	tblLANDSCAPE	LANDSCAPE	cultivated crops (Meters Area in 1000m-clipped buffer)					
+NLCD2001_82AREA_200	tblLANDSCAPE	LANDSCAPE	cultivated crops (Meters Area in 200m-clipped buffer)					
+NLCD2001_82AREA_500	tblLANDSCAPE	LANDSCAPE	cultivated crops (Meters Area in 500m-clipped buffer)					
+NLCD2001_82AREA_BSN	tblLANDSCAPE	LANDSCAPE	cultivated crops (Area in basin in meters)					
+NLCD2001_82PCT_1000	tblLANDSCAPE	LANDSCAPE	cultivated crops (% of 1000m-clipped buffer)					percent
+NLCD2001_82PCT_200	tblLANDSCAPE	LANDSCAPE	cultivated crops (% of 200m-clipped buffer)					percent
+NLCD2001_82PCT_500	tblLANDSCAPE	LANDSCAPE	cultivated crops (% of 500m-clipped buffer)					percent
+NLCD2001_82PCT_BSN	tblLANDSCAPE	LANDSCAPE	cultivated crops (% of basin area)					percent
+NLCD2001_90AREA_1000	tblLANDSCAPE	LANDSCAPE	woody wetlands (Meters Area in 1000m-clipped buffer)					
+NLCD2001_90AREA_200	tblLANDSCAPE	LANDSCAPE	woody wetlands (Meters Area in 200m-clipped buffer)					
+NLCD2001_90AREA_500	tblLANDSCAPE	LANDSCAPE	woody wetlands (Meters Area in 500m-clipped buffer)					
+NLCD2001_90AREA_BSN	tblLANDSCAPE	LANDSCAPE	woody wetlands (Area in basin in meters)					
+NLCD2001_90PCT_1000	tblLANDSCAPE	LANDSCAPE	woody wetlands (% of 1000m-clipped buffer)					percent
+NLCD2001_90PCT_200	tblLANDSCAPE	LANDSCAPE	woody wetlands (% of 200m-clipped buffer)					percent
+NLCD2001_90PCT_500	tblLANDSCAPE	LANDSCAPE	woody wetlands (% of 500m-clipped buffer)					percent
+NLCD2001_90PCT_BSN	tblLANDSCAPE	LANDSCAPE	woody wetlands (% of basin area)					percent
+NLCD2001_95AREA_1000	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (Meters Area in 1000m-clipped buffer)					
+NLCD2001_95AREA_200	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (Meters Area in 200m-clipped buffer)					
+NLCD2001_95AREA_500	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (Meters Area in 500m-clipped buffer)					
+NLCD2001_95AREA_BSN	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (Area in basin in meters)					
+NLCD2001_95PCT_1000	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (% of 1000m-clipped buffer)					percent
+NLCD2001_95PCT_200	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (% of 200m-clipped buffer)					percent
+NLCD2001_95PCT_500	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (% of 500m-clipped buffer)					percent
+NLCD2001_95PCT_BSN	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (% of basin area)					percent
+NLCD2001_AGRICPCT_1000	tblLANDSCAPE	LANDSCAPE	planted/cultivated - NLCD81 + 82 (% of 1000m-clipped buffer)					percent
+NLCD2001_AGRICPCT_200	tblLANDSCAPE	LANDSCAPE	planted/cultivated - NLCD81 + 82 (% of 200m-clipped buffer)					percent
+NLCD2001_AGRICPCT_500	tblLANDSCAPE	LANDSCAPE	planted/cultivated - NLCD81 + 82 (% of 500m-clipped buffer)					percent
+NLCD2001_AGRICPCT_BSN	tblLANDSCAPE	LANDSCAPE	planted/cultivated - NLCD81 + 82 (% of basin area)					percent
+NLCD2001_ASSIGNEDAREA_1000	tblLANDSCAPE	LANDSCAPE	Area within 1000 m buffer with NLCD 2001 value assigned					sq km
+NLCD2001_ASSIGNEDAREA_200	tblLANDSCAPE	LANDSCAPE	Area within 200 m buffer with NLCD 2001value assigned					sq km
+NLCD2001_ASSIGNEDAREA_500	tblLANDSCAPE	LANDSCAPE	Area within 500 m buffer with NLCD 2001 value assigned					sq km
+NLCD2001_ASSIGNEDAREA_BSN	tblLANDSCAPE	LANDSCAPE	Area within basin with NLCD 2001 value assigned					sq km
+NLCD2001_DEVELOPEDPCT_1000	tblLANDSCAPE	LANDSCAPE	developed - NLCD21 + 22 + 23 + 24 (% of 1000m-clipped buffer)					percent
+NLCD2001_DEVELOPEDPCT_200	tblLANDSCAPE	LANDSCAPE	developed - NLCD21 + 22 + 23 + 24 (% of 200m-clipped buffer)					percent
+NLCD2001_DEVELOPEDPCT_500	tblLANDSCAPE	LANDSCAPE	developed - NLCD21 + 22 + 23 + 24 (% of 500m-clipped buffer)					percent
+NLCD2001_DEVELOPEDPCT_BSN	tblLANDSCAPE	LANDSCAPE	developed - NLCD21 + 22 + 23 + 24 (% of basin area)					percent
+NLCD2001_FORESTPCT_1000	tblLANDSCAPE	LANDSCAPE	forested upland - NLCD41 + 42 + 43 (% of 1000m-clipped buffer)					percent
+NLCD2001_FORESTPCT_200	tblLANDSCAPE	LANDSCAPE	forested upland - NLCD41 + 42 + 43 (% of 200m-clipped buffer)					percent
+NLCD2001_FORESTPCT_500	tblLANDSCAPE	LANDSCAPE	forested upland - NLCD41 + 42 + 43 (% of 500m-clipped buffer)					percent
+NLCD2001_FORESTPCT_BSN	tblLANDSCAPE	LANDSCAPE	forested upland - NLCD41 + 42 + 43 (% of basin area)					percent
+NLCD2001_MISSINGDATA_1000	tblLANDSCAPE	LANDSCAPE	% of 1000m-clipped buffer not covered by NLCD2001					percent
+NLCD2001_MISSINGDATA_200	tblLANDSCAPE	LANDSCAPE	% of 200m-clipped buffer not covered by NLCD2001					percent
+NLCD2001_MISSINGDATA_500	tblLANDSCAPE	LANDSCAPE	% of 500m-clipped buffer not covered by NLCD2001					percent
+NLCD2001_MISSINGDATA_BSN	tblLANDSCAPE	LANDSCAPE	% of Basin not covered by NLCD2001					percent
+NLCD2001_WATERPCT_1000	tblLANDSCAPE	LANDSCAPE	water - NLCD11 + 12 (% of 1000m-clipped buffer)					percent
+NLCD2001_WATERPCT_200	tblLANDSCAPE	LANDSCAPE	water - NLCD11 + 12 (% of 200m-clipped buffer)					percent
+NLCD2001_WATERPCT_500	tblLANDSCAPE	LANDSCAPE	water - NLCD11 + 12 (% of 500m-clipped buffer)					percent
+NLCD2001_WATERPCT_BSN	tblLANDSCAPE	LANDSCAPE	water - NLCD11 + 12 (% of basin area)					percent
+NLCD2001_WETLANDPCT_1000	tblLANDSCAPE	LANDSCAPE	wetlands - NLCD90 + 95 (% of 1000m-clipped buffer)					percent
+NLCD2001_WETLANDPCT_200	tblLANDSCAPE	LANDSCAPE	wetlands - NLCD90 + 95 (% of 200m-clipped buffer)					percent
+NLCD2001_WETLANDPCT_500	tblLANDSCAPE	LANDSCAPE	wetlands - NLCD90 + 95 (% of 500m-clipped buffer)					percent
+NLCD2001_WETLANDPCT_BSN	tblLANDSCAPE	LANDSCAPE	wetlands - NLCD90 + 95 (% of basin area)					percent
+NLCD2006_11AREA_1000	tblLANDSCAPE	LANDSCAPE	open water (Meters Area in 1000m-clipped buffer)					
+NLCD2006_11AREA_200	tblLANDSCAPE	LANDSCAPE	open water (Meters Area in 200m-clipped buffer)					
+NLCD2006_11AREA_500	tblLANDSCAPE	LANDSCAPE	open water (Meters Area in 500m-clipped buffer)					
+NLCD2006_11AREA_BSN	tblLANDSCAPE	LANDSCAPE	open water (Area in basin in meters)					
+NLCD2006_11PCT_1000	tblLANDSCAPE	LANDSCAPE	open water (% of 1000m-clipped buffer)					percent
+NLCD2006_11PCT_200	tblLANDSCAPE	LANDSCAPE	open water (% of 200m-clipped buffer)					percent
+NLCD2006_11PCT_500	tblLANDSCAPE	LANDSCAPE	open water (% of 500m-clipped buffer)					percent
+NLCD2006_11PCT_BSN	tblLANDSCAPE	LANDSCAPE	open water (% of basin area)					percent
+NLCD2006_12AREA_1000	tblLANDSCAPE	LANDSCAPE	perennial ice (Meters Area in 1000m-clipped buffer)					
+NLCD2006_12AREA_200	tblLANDSCAPE	LANDSCAPE	perennial ice (Meters Area in 200m-clipped buffer)					
+NLCD2006_12AREA_500	tblLANDSCAPE	LANDSCAPE	perennial ice (Meters Area in 500m-clipped buffer)					
+NLCD2006_12AREA_BSN	tblLANDSCAPE	LANDSCAPE	perennial ice (Area in basin in meters)					
+NLCD2006_12PCT_1000	tblLANDSCAPE	LANDSCAPE	perennial ice (% of 1000m-clipped buffer)					percent
+NLCD2006_12PCT_200	tblLANDSCAPE	LANDSCAPE	perennial ice (% of 200m-clipped buffer)					percent
+NLCD2006_12PCT_500	tblLANDSCAPE	LANDSCAPE	perennial ice (% of 500m-clipped buffer)					percent
+NLCD2006_12PCT_BSN	tblLANDSCAPE	LANDSCAPE	perennial ice (% of basin area)					percent
+NLCD2006_21AREA_1000	tblLANDSCAPE	LANDSCAPE	"developed, open space (Meters Area in 1000m-clipped buffer)"					
+NLCD2006_21AREA_200	tblLANDSCAPE	LANDSCAPE	"developed, open space (Meters Area in 200m-clipped buffer)"					
+NLCD2006_21AREA_500	tblLANDSCAPE	LANDSCAPE	"developed, open space (Meters Area in 500m-clipped buffer)"					
+NLCD2006_21AREA_BSN	tblLANDSCAPE	LANDSCAPE	"developed, open space (Area in basin in meters)"					
+NLCD2006_21PCT_1000	tblLANDSCAPE	LANDSCAPE	"developed, open space (% of 1000m-clipped buffer)"					percent
+NLCD2006_21PCT_200	tblLANDSCAPE	LANDSCAPE	"developed, open space (% of 200m-clipped buffer)"					percent
+NLCD2006_21PCT_500	tblLANDSCAPE	LANDSCAPE	"developed, open space (% of 500m-clipped buffer)"					percent
+NLCD2006_21PCT_BSN	tblLANDSCAPE	LANDSCAPE	"developed, open space (% of basin area)"					percent
+NLCD2006_22AREA_1000	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (Meters Area in 1000m-clipped buffer)"					
+NLCD2006_22AREA_200	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (Meters Area in 200m-clipped buffer)"					
+NLCD2006_22AREA_500	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (Meters Area in 500m-clipped buffer)"					
+NLCD2006_22AREA_BSN	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (Area in basin in meters)"					
+NLCD2006_22PCT_1000	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (% of 1000m-clipped buffer)"					percent
+NLCD2006_22PCT_200	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (% of 200m-clipped buffer)"					percent
+NLCD2006_22PCT_500	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (% of 500m-clipped buffer)"					percent
+NLCD2006_22PCT_BSN	tblLANDSCAPE	LANDSCAPE	"developed, low intensity (% of basin area)"					percent
+NLCD2006_23AREA_1000	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (Meters Area in 1000m-clipped buffer)"					
+NLCD2006_23AREA_200	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (Meters Area in 200m-clipped buffer)"					
+NLCD2006_23AREA_500	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (Meters Area in 500m-clipped buffer)"					
+NLCD2006_23AREA_BSN	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (Area in basin in meters)"					
+NLCD2006_23PCT_1000	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (% of 1000m-clipped buffer)"					percent
+NLCD2006_23PCT_200	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (% of 200m-clipped buffer)"					percent
+NLCD2006_23PCT_500	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (% of 500m-clipped buffer)"					percent
+NLCD2006_23PCT_BSN	tblLANDSCAPE	LANDSCAPE	"developed, medium intensity (% of basin area)"					percent
+NLCD2006_24AREA_1000	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (Meters Area in 1000m-clipped buffer)"					
+NLCD2006_24AREA_200	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (Meters Area in 200m-clipped buffer)"					
+NLCD2006_24AREA_500	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (Meters Area in 500m-clipped buffer)"					
+NLCD2006_24AREA_BSN	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (Area in basin in meters)"					
+NLCD2006_24PCT_1000	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (% of 1000m-clipped buffer)"					percent
+NLCD2006_24PCT_200	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (% of 200m-clipped buffer)"					percent
+NLCD2006_24PCT_500	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (% of 500m-clipped buffer)"					percent
+NLCD2006_24PCT_BSN	tblLANDSCAPE	LANDSCAPE	"developed, high intensity (% of basin area)"					percent
+NLCD2006_31AREA_1000	tblLANDSCAPE	LANDSCAPE	barren land (Meters Area in 1000m-clipped buffer)					
+NLCD2006_31AREA_200	tblLANDSCAPE	LANDSCAPE	barren land (Meters Area in 200m-clipped buffer)					
+NLCD2006_31AREA_500	tblLANDSCAPE	LANDSCAPE	barren land (Meters Area in 500m-clipped buffer)					
+NLCD2006_31AREA_BSN	tblLANDSCAPE	LANDSCAPE	barren land (Area in basin in meters)					
+NLCD2006_31PCT_1000	tblLANDSCAPE	LANDSCAPE	barren land (% of 1000m-clipped buffer)					percent
+NLCD2006_31PCT_200	tblLANDSCAPE	LANDSCAPE	barren land (% of 200m-clipped buffer)					percent
+NLCD2006_31PCT_500	tblLANDSCAPE	LANDSCAPE	barren land (% of 500m-clipped buffer)					percent
+NLCD2006_31PCT_BSN	tblLANDSCAPE	LANDSCAPE	barren land (% of basin area)					percent
+NLCD2006_41AREA_1000	tblLANDSCAPE	LANDSCAPE	deciduous forest (Meters Area in 1000m-clipped buffer)					
+NLCD2006_41AREA_200	tblLANDSCAPE	LANDSCAPE	deciduous forest (Meters Area in 200m-clipped buffer)					
+NLCD2006_41AREA_500	tblLANDSCAPE	LANDSCAPE	deciduous forest (Meters Area in 500m-clipped buffer)					
+NLCD2006_41AREA_BSN	tblLANDSCAPE	LANDSCAPE	deciduous forest (Area in basin in meters)					
+NLCD2006_41PCT_1000	tblLANDSCAPE	LANDSCAPE	deciduous forest (% of 1000m-clipped buffer)					percent
+NLCD2006_41PCT_200	tblLANDSCAPE	LANDSCAPE	deciduous forest (% of 200m-clipped buffer)					percent
+NLCD2006_41PCT_500	tblLANDSCAPE	LANDSCAPE	deciduous forest (% of 500m-clipped buffer)					percent
+NLCD2006_41PCT_BSN	tblLANDSCAPE	LANDSCAPE	deciduous forest (% of basin area)					percent
+NLCD2006_42AREA_1000	tblLANDSCAPE	LANDSCAPE	evergreen forest (Meters Area in 1000m-clipped buffer)					
+NLCD2006_42AREA_200	tblLANDSCAPE	LANDSCAPE	evergreen forest (Meters Area in 200m-clipped buffer)					
+NLCD2006_42AREA_500	tblLANDSCAPE	LANDSCAPE	evergreen forest (Meters Area in 500m-clipped buffer)					
+NLCD2006_42AREA_BSN	tblLANDSCAPE	LANDSCAPE	evergreen forest (Area in basin in meters)					
+NLCD2006_42PCT_1000	tblLANDSCAPE	LANDSCAPE	evergreen forest (% of 1000m-clipped buffer)					percent
+NLCD2006_42PCT_200	tblLANDSCAPE	LANDSCAPE	evergreen forest (% of 200m-clipped buffer)					percent
+NLCD2006_42PCT_500	tblLANDSCAPE	LANDSCAPE	evergreen forest (% of 500m-clipped buffer)					percent
+NLCD2006_42PCT_BSN	tblLANDSCAPE	LANDSCAPE	evergreen forest (% of basin area)					percent
+NLCD2006_43AREA_1000	tblLANDSCAPE	LANDSCAPE	mixed forest (Meters Area in 1000m-clipped buffer)					
+NLCD2006_43AREA_200	tblLANDSCAPE	LANDSCAPE	mixed forest (Meters Area in 200m-clipped buffer)					
+NLCD2006_43AREA_500	tblLANDSCAPE	LANDSCAPE	mixed forest (Meters Area in 500m-clipped buffer)					
+NLCD2006_43AREA_BSN	tblLANDSCAPE	LANDSCAPE	mixed forest (Area in basin in meters)					
+NLCD2006_43PCT_1000	tblLANDSCAPE	LANDSCAPE	mixed forest (% of 1000m-clipped buffer)					percent
+NLCD2006_43PCT_200	tblLANDSCAPE	LANDSCAPE	mixed forest (% of 200m-clipped buffer)					percent
+NLCD2006_43PCT_500	tblLANDSCAPE	LANDSCAPE	mixed forest (% of 500m-clipped buffer)					percent
+NLCD2006_43PCT_BSN	tblLANDSCAPE	LANDSCAPE	mixed forest (% of basin area)					percent
+NLCD2006_51AREA_1000	tblLANDSCAPE	LANDSCAPE	dwarf scrub (Meters Area in 1000m-clipped buffer)					
+NLCD2006_51AREA_200	tblLANDSCAPE	LANDSCAPE	dwarf scrub (Meters Area in 200m-clipped buffer)					
+NLCD2006_51AREA_500	tblLANDSCAPE	LANDSCAPE	dwarf scrub (Meters Area in 500m-clipped buffer)					
+NLCD2006_51AREA_BSN	tblLANDSCAPE	LANDSCAPE	dwarf scrub (Area in basin in meters)					
+NLCD2006_51PCT_1000	tblLANDSCAPE	LANDSCAPE	dwarf scrub (% of 1000m-clipped buffer)					percent
+NLCD2006_51PCT_200	tblLANDSCAPE	LANDSCAPE	dwarf scrub (% of 200m-clipped buffer)					percent
+NLCD2006_51PCT_500	tblLANDSCAPE	LANDSCAPE	dwarf scrub (% of 500m-clipped buffer)					percent
+NLCD2006_51PCT_BSN	tblLANDSCAPE	LANDSCAPE	dwarf scrub (% of basin area)					percent
+NLCD2006_52AREA_1000	tblLANDSCAPE	LANDSCAPE	shrub/scrub (Meters Area in 1000m-clipped buffer)					
+NLCD2006_52AREA_200	tblLANDSCAPE	LANDSCAPE	shrub/scrub (Meters Area in 200m-clipped buffer)					
+NLCD2006_52AREA_500	tblLANDSCAPE	LANDSCAPE	shrub/scrub (Meters Area in 500m-clipped buffer)					
+NLCD2006_52AREA_BSN	tblLANDSCAPE	LANDSCAPE	shrub/scrub (Area in basin in meters)					
+NLCD2006_52PCT_1000	tblLANDSCAPE	LANDSCAPE	shrub/scrub (% of 1000m-clipped buffer)					percent
+NLCD2006_52PCT_200	tblLANDSCAPE	LANDSCAPE	shrub/scrub (% of 200m-clipped buffer)					percent
+NLCD2006_52PCT_500	tblLANDSCAPE	LANDSCAPE	shrub/scrub (% of 500m-clipped buffer)					percent
+NLCD2006_52PCT_BSN	tblLANDSCAPE	LANDSCAPE	shrub/scrub (% of basin area)					percent
+NLCD2006_71AREA_1000	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (Meters Area in 1000m-clipped buffer)					
+NLCD2006_71AREA_200	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (Meters Area in 200m-clipped buffer)					
+NLCD2006_71AREA_500	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (Meters Area in 500m-clipped buffer)					
+NLCD2006_71AREA_BSN	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (Area in basin in meters)					
+NLCD2006_71PCT_1000	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (% of 1000m-clipped buffer)					percent
+NLCD2006_71PCT_200	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (% of 200m-clipped buffer)					percent
+NLCD2006_71PCT_500	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (% of 500m-clipped buffer)					percent
+NLCD2006_71PCT_BSN	tblLANDSCAPE	LANDSCAPE	grassland/herbaceous (% of basin area)					percent
+NLCD2006_72AREA_1000	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (Meters Area in 1000m-clipped buffer)					
+NLCD2006_72AREA_200	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (Meters Area in 200m-clipped buffer)					
+NLCD2006_72AREA_500	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (Meters Area in 500m-clipped buffer)					
+NLCD2006_72AREA_BSN	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (Area in basin in meters)					
+NLCD2006_72PCT_1000	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (% of 1000m-clipped buffer)					percent
+NLCD2006_72PCT_200	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (% of 200m-clipped buffer)					percent
+NLCD2006_72PCT_500	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (% of 500m-clipped buffer)					percent
+NLCD2006_72PCT_BSN	tblLANDSCAPE	LANDSCAPE	sedge herbaceous (% of basin area)					percent
+NLCD2006_73AREA_1000	tblLANDSCAPE	LANDSCAPE	lichens (Meters Area in 1000m-clipped buffer)					
+NLCD2006_73AREA_200	tblLANDSCAPE	LANDSCAPE	lichens (Meters Area in 200m-clipped buffer)					
+NLCD2006_73AREA_500	tblLANDSCAPE	LANDSCAPE	lichens (Meters Area in 500m-clipped buffer)					
+NLCD2006_73AREA_BSN	tblLANDSCAPE	LANDSCAPE	lichens (Area in basin in meters)					
+NLCD2006_73PCT_1000	tblLANDSCAPE	LANDSCAPE	lichens (% of 1000m-clipped buffer)					percent
+NLCD2006_73PCT_200	tblLANDSCAPE	LANDSCAPE	lichens (% of 200m-clipped buffer)					percent
+NLCD2006_73PCT_500	tblLANDSCAPE	LANDSCAPE	lichens (% of 500m-clipped buffer)					percent
+NLCD2006_73PCT_BSN	tblLANDSCAPE	LANDSCAPE	lichens (% of basin area)					percent
+NLCD2006_74AREA_1000	tblLANDSCAPE	LANDSCAPE	moss (Meters Area in 1000m-clipped buffer)					
+NLCD2006_74AREA_200	tblLANDSCAPE	LANDSCAPE	moss (Meters Area in 200m-clipped buffer)					
+NLCD2006_74AREA_500	tblLANDSCAPE	LANDSCAPE	moss (Meters Area in 500m-clipped buffer)					
+NLCD2006_74AREA_BSN	tblLANDSCAPE	LANDSCAPE	moss (Area in basin in meters)					
+NLCD2006_74PCT_1000	tblLANDSCAPE	LANDSCAPE	moss (% of 1000m-clipped buffer)					percent
+NLCD2006_74PCT_200	tblLANDSCAPE	LANDSCAPE	moss (% of 200m-clipped buffer)					percent
+NLCD2006_74PCT_500	tblLANDSCAPE	LANDSCAPE	moss (% of 500m-clipped buffer)					percent
+NLCD2006_74PCT_BSN	tblLANDSCAPE	LANDSCAPE	moss (% of basin area)					percent
+NLCD2006_81AREA_1000	tblLANDSCAPE	LANDSCAPE	pasture/hay (Meters Area in 1000m-clipped buffer)					
+NLCD2006_81AREA_200	tblLANDSCAPE	LANDSCAPE	pasture/hay (Meters Area in 200m-clipped buffer)					
+NLCD2006_81AREA_500	tblLANDSCAPE	LANDSCAPE	pasture/hay (Meters Area in 500m-clipped buffer)					
+NLCD2006_81AREA_BSN	tblLANDSCAPE	LANDSCAPE	pasture/hay (Area in basin in meters)					
+NLCD2006_81PCT_1000	tblLANDSCAPE	LANDSCAPE	pasture/hay (% of 1000m-clipped buffer)					percent
+NLCD2006_81PCT_200	tblLANDSCAPE	LANDSCAPE	pasture/hay (% of 200m-clipped buffer)					percent
+NLCD2006_81PCT_500	tblLANDSCAPE	LANDSCAPE	pasture/hay (% of 500m-clipped buffer)					percent
+NLCD2006_81PCT_BSN	tblLANDSCAPE	LANDSCAPE	pasture/hay (% of basin area)					percent
+NLCD2006_82AREA_1000	tblLANDSCAPE	LANDSCAPE	cultivated crops (Meters Area in 1000m-clipped buffer)					
+NLCD2006_82AREA_200	tblLANDSCAPE	LANDSCAPE	cultivated crops (Meters Area in 200m-clipped buffer)					
+NLCD2006_82AREA_500	tblLANDSCAPE	LANDSCAPE	cultivated crops (Meters Area in 500m-clipped buffer)					
+NLCD2006_82AREA_BSN	tblLANDSCAPE	LANDSCAPE	cultivated crops (Area in basin in meters)					
+NLCD2006_82PCT_1000	tblLANDSCAPE	LANDSCAPE	cultivated crops (% of 1000m-clipped buffer)					percent
+NLCD2006_82PCT_200	tblLANDSCAPE	LANDSCAPE	cultivated crops (% of 200m-clipped buffer)					percent
+NLCD2006_82PCT_500	tblLANDSCAPE	LANDSCAPE	cultivated crops (% of 500m-clipped buffer)					percent
+NLCD2006_82PCT_BSN	tblLANDSCAPE	LANDSCAPE	cultivated crops (% of basin area)					percent
+NLCD2006_90AREA_1000	tblLANDSCAPE	LANDSCAPE	woody wetlands (Meters Area in 1000m-clipped buffer)					
+NLCD2006_90AREA_200	tblLANDSCAPE	LANDSCAPE	woody wetlands (Meters Area in 200m-clipped buffer)					
+NLCD2006_90AREA_500	tblLANDSCAPE	LANDSCAPE	woody wetlands (Meters Area in 500m-clipped buffer)					
+NLCD2006_90AREA_BSN	tblLANDSCAPE	LANDSCAPE	woody wetlands (Area in basin in meters)					
+NLCD2006_90PCT_1000	tblLANDSCAPE	LANDSCAPE	woody wetlands (% of 1000m-clipped buffer)					percent
+NLCD2006_90PCT_200	tblLANDSCAPE	LANDSCAPE	woody wetlands (% of 200m-clipped buffer)					percent
+NLCD2006_90PCT_500	tblLANDSCAPE	LANDSCAPE	woody wetlands (% of 500m-clipped buffer)					percent
+NLCD2006_90PCT_BSN	tblLANDSCAPE	LANDSCAPE	woody wetlands (% of basin area)					percent
+NLCD2006_95AREA_1000	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (Meters Area in 1000m-clipped buffer)					
+NLCD2006_95AREA_200	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (Meters Area in 200m-clipped buffer)					
+NLCD2006_95AREA_500	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (Meters Area in 500m-clipped buffer)					
+NLCD2006_95AREA_BSN	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (Area in basin in meters)					
+NLCD2006_95PCT_1000	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (% of 1000m-clipped buffer)					percent
+NLCD2006_95PCT_200	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (% of 200m-clipped buffer)					percent
+NLCD2006_95PCT_500	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (% of 500m-clipped buffer)					percent
+NLCD2006_95PCT_BSN	tblLANDSCAPE	LANDSCAPE	emergent herbaceious wetland (% of basin area)					percent
+NLCD2006_AGRICPCT_1000	tblLANDSCAPE	LANDSCAPE	planted/cultivated - NLCD81 + 82 (% of 1000m-clipped buffer)					percent
+NLCD2006_AGRICPCT_200	tblLANDSCAPE	LANDSCAPE	planted/cultivated - NLCD81 + 82 (% of 200m-clipped buffer)					percent
+NLCD2006_AGRICPCT_500	tblLANDSCAPE	LANDSCAPE	planted/cultivated - NLCD81 + 82 (% of 500m-clipped buffer)					percent
+NLCD2006_AGRICPCT_BSN	tblLANDSCAPE	LANDSCAPE	planted/cultivated - NLCD81 + 82 (% of basin area)					percent
+NLCD2006_ASSIGNEDAREA_1000	tblLANDSCAPE	LANDSCAPE	Area within 1000 m buffer with NLCD 2006 value assigned					sq km
+NLCD2006_ASSIGNEDAREA_200	tblLANDSCAPE	LANDSCAPE	Area within 200 m buffer with NLCD 2006 value assigned					sq km
+NLCD2006_ASSIGNEDAREA_500	tblLANDSCAPE	LANDSCAPE	Area within 500 m buffer with NLCD 2006 value assigned					sq km
+NLCD2006_ASSIGNEDAREA_BSN	tblLANDSCAPE	LANDSCAPE	Area within basin with NLCD 2006 value assigned					sq km
+NLCD2006_DEVELOPEDPCT_1000	tblLANDSCAPE	LANDSCAPE	developed - NLCD21 + 22 + 23 + 24 (% of 1000m-clipped buffer)					percent
+NLCD2006_DEVELOPEDPCT_200	tblLANDSCAPE	LANDSCAPE	developed - NLCD21 + 22 + 23 + 24 (% of 200m-clipped buffer)					percent
+NLCD2006_DEVELOPEDPCT_500	tblLANDSCAPE	LANDSCAPE	developed - NLCD21 + 22 + 23 + 24 (% of 500m-clipped buffer)					percent
+NLCD2006_DEVELOPEDPCT_BSN	tblLANDSCAPE	LANDSCAPE	developed - NLCD21 + 22 + 23 + 24 (% of basin area)					percent
+NLCD2006_FORESTPCT_1000	tblLANDSCAPE	LANDSCAPE	forested upland - NLCD41 + 42 + 43 (% of 1000m-clipped buffer)					percent
+NLCD2006_FORESTPCT_200	tblLANDSCAPE	LANDSCAPE	forested upland - NLCD41 + 42 + 43 (% of 200m-clipped buffer)					percent
+NLCD2006_FORESTPCT_500	tblLANDSCAPE	LANDSCAPE	forested upland - NLCD41 + 42 + 43 (% of 500m-clipped buffer)					percent
+NLCD2006_FORESTPCT_BSN	tblLANDSCAPE	LANDSCAPE	forested upland - NLCD41 + 42 + 43 (% of basin area)					percent
+NLCD2006_IMPERVAREA_1000	tblLANDSCAPE	LANDSCAPE	Imperviouis surface (Area in 1000m-clipped buffer in meters)					
+NLCD2006_IMPERVAREA_200	tblLANDSCAPE	LANDSCAPE	Imperviouis surface (Area in 200m-clipped buffer in meters)					
+NLCD2006_IMPERVAREA_500	tblLANDSCAPE	LANDSCAPE	Imperviouis surface (Area in 500m-clipped buffer in meters)					
+NLCD2006_IMPERVAREA_BSN	tblLANDSCAPE	LANDSCAPE	Imperviouis surface (Area in basin in meters)					
+NLCD2006_IMPERVPCT_1000	tblLANDSCAPE	LANDSCAPE	Impervious surface (% of 1000m-clipped buffer area)					percent
+NLCD2006_IMPERVPCT_200	tblLANDSCAPE	LANDSCAPE	Impervious surface (% of 200m-clipped buffer area)					percent
+NLCD2006_IMPERVPCT_500	tblLANDSCAPE	LANDSCAPE	Impervious surface (% of 500m-clipped buffer area)					percent
+NLCD2006_IMPERVPCT_BSN	tblLANDSCAPE	LANDSCAPE	Impervious surface (% of basin area)					percent
+NLCD2006_MISSINGDATA_IM_1000	tblLANDSCAPE	LANDSCAPE	% of 1000m-clipped buffer not covered by NLCD2006					percent
+NLCD2006_MISSINGDATA_IM_200	tblLANDSCAPE	LANDSCAPE	% of 200m-clipped buffer not covered by NLCD2006					percent
+NLCD2006_MISSINGDATA_IM_500	tblLANDSCAPE	LANDSCAPE	% of 500m-clipped buffer not covered by NLCD2006					percent
+NLCD2006_MISSINGDATA_IM_BSN	tblLANDSCAPE	LANDSCAPE	% of Basin not covered by NLCD2006					percent
+NLCD2006_MISSINGDATA_LU_1000	tblLANDSCAPE	LANDSCAPE	% of 1000m-clipped buffer not covered by NLCD2006					percent
+NLCD2006_MISSINGDATA_LU_200	tblLANDSCAPE	LANDSCAPE	% of 200m-clipped buffer not covered by NLCD2006					percent
+NLCD2006_MISSINGDATA_LU_500	tblLANDSCAPE	LANDSCAPE	% of 500m-clipped buffer not covered by NLCD2006					percent
+NLCD2006_MISSINGDATA_LU_BSN	tblLANDSCAPE	LANDSCAPE	% of Basin not covered by NLCD2006					percent
+NLCD2006_WATERPCT_1000	tblLANDSCAPE	LANDSCAPE	water - NLCD11 + 12 (% of 1000m-clipped buffer)					percent
+NLCD2006_WATERPCT_200	tblLANDSCAPE	LANDSCAPE	water - NLCD11 + 12 (% of 200m-clipped buffer)					percent
+NLCD2006_WATERPCT_500	tblLANDSCAPE	LANDSCAPE	water - NLCD11 + 12 (% of 500m-clipped buffer)					percent
+NLCD2006_WATERPCT_BSN	tblLANDSCAPE	LANDSCAPE	water - NLCD11 + 12 (% of basin area)					percent
+NLCD2006_WETLANDPCT_1000	tblLANDSCAPE	LANDSCAPE	wetlands - NLCD90 + 95 (% of 1000m-clipped buffer)					percent
+NLCD2006_WETLANDPCT_200	tblLANDSCAPE	LANDSCAPE	wetlands - NLCD90 + 95 (% of 200m-clipped buffer)					percent
+NLCD2006_WETLANDPCT_500	tblLANDSCAPE	LANDSCAPE	wetlands - NLCD90 + 95 (% of 500m-clipped buffer)					percent
+NLCD2006_WETLANDPCT_BSN	tblLANDSCAPE	LANDSCAPE	wetlands - NLCD90 + 95 (% of basin area)					percent
+PCVPY_BSN	tblLANDSCAPE	LANDSCAPE	CV of total monthly precip (12 months)					
+PCVPY_PT	tblLANDSCAPE	LANDSCAPE	CV of total monthly precip (12 months)					
+PERM_MISSINGDATA_BSN	tblLANDSCAPE	LANDSCAPE	% of Basin not covered by Permeability Raster					percent
+PERM_MISSINGDATA_SITE	tblLANDSCAPE	LANDSCAPE	"Value of 100 if permeability data available, 0 if not."					percent
+PERMRATE_BSN	tblLANDSCAPE	LANDSCAPE	Average permeability rate in basin					
+PERMRATE_SITE	tblLANDSCAPE	LANDSCAPE	Permeability rate at site					
+PIP_BSN	tblLANDSCAPE	LANDSCAPE	total average precipitation during index period (5 months)					
+PIP_PT	tblLANDSCAPE	LANDSCAPE	total average precipitation during index period (5 months)					
+PMAX_BSN	tblLANDSCAPE	LANDSCAPE	mean maximum precipitation (30 yrs)					
+PMAX_PT	tblLANDSCAPE	LANDSCAPE	mean maximum precipitation (30 yrs)					
+PMEAN_BSN	tblLANDSCAPE	LANDSCAPE	mean annual precipitation (30 yrs)					
+PMEAN_PT	tblLANDSCAPE	LANDSCAPE	mean annual precipitation (30 yrs)					
+PMIN_BSN	tblLANDSCAPE	LANDSCAPE	mean minimum precipitation (30 yrs)					
+PMIN_PT	tblLANDSCAPE	LANDSCAPE	mean minimum precipitation (30 yrs)					
+POPDEN_1000	tblLANDSCAPE	LANDSCAPE	Population Density in 1000m-Clipped Buffer (People/sqmi)					People/sqmi
+POPDEN_200	tblLANDSCAPE	LANDSCAPE	Population Density in 200m-Clipped Buffer (People/sqmi)					People/sqmi
+POPDEN_500	tblLANDSCAPE	LANDSCAPE	Population Density in 200m-Clipped Buffer (People/sqmi)					People/sqmi
+POPDEN_BSN	tblLANDSCAPE	LANDSCAPE	Population Density in Basin (People/sqmi)					People/sqmi
+POPDEN_MISSINGDATA_1000	tblLANDSCAPE	LANDSCAPE	% of 1000m-clipped buffer not covered by Population Density Raster					percent
+POPDEN_MISSINGDATA_200	tblLANDSCAPE	LANDSCAPE	% of 200m-clipped buffer not covered by Population Density Raster					percent
+POPDEN_MISSINGDATA_500	tblLANDSCAPE	LANDSCAPE	% of 500m-clipped buffer not covered by Population Density Raster					percent
+POPDEN_MISSINGDATA_BSN	tblLANDSCAPE	LANDSCAPE	% of Basin not covered by Population Density Raster					percent
+PRISM_MISSINGDATA_BSN	tblLANDSCAPE	LANDSCAPE	% of Basin not covered by Prism Rasters					percent
+PRISM_MISSINGDATA_PT	tblLANDSCAPE	LANDSCAPE	"0, if site has PRISM data, otherwise 100"					
+PSUM6M_BSN	tblLANDSCAPE	LANDSCAPE	total average precipitation for 6 months prior to sampling (6 months)					
+PSUM6M_PT	tblLANDSCAPE	LANDSCAPE	total average precipitation for 6 months prior to sampling (6 months)					
+PSUMPY_BSN	tblLANDSCAPE	LANDSCAPE	total average precip for 12 months prior to sampling (12 months)					
+PSUMPY_PT	tblLANDSCAPE	LANDSCAPE	total average precip for 12 months prior to sampling (12 months)					
+QTRNRYAREA_BSN	tblLANDSCAPE	LANDSCAPE	Area of Basin with the designated geology (sq km)					
+QTRNRYPCT_BSN	tblLANDSCAPE	LANDSCAPE	Percent of Basin with the designated geology					
+ROADDEN_1000	tblLANDSCAPE	LANDSCAPE	Road Density in 1000m-Clipped Buffer (km/sqkm)					km/sqkm
+ROADDEN_200	tblLANDSCAPE	LANDSCAPE	Road Density in 200m-Clipped Buffer (km/sqkm)					km/sqkm
+ROADDEN_500	tblLANDSCAPE	LANDSCAPE	Road Density in 200m-Clipped Buffer (km/sqkm)					km/sqkm
+ROADDEN_BSN	tblLANDSCAPE	LANDSCAPE	Road Density in Basin (km/sqkm)					km/sqkm
+ROADDEN_MISSINGDATA_1000	tblLANDSCAPE	LANDSCAPE	% of 1000m-clipped buffer not covered by Road Density Raster					percent
+ROADDEN_MISSINGDATA_200	tblLANDSCAPE	LANDSCAPE	% of 200m-clipped buffer not covered by Road Density Raster					percent
+ROADDEN_MISSINGDATA_500	tblLANDSCAPE	LANDSCAPE	% of 500m-clipped buffer not covered by Road Density Raster					percent
+ROADDEN_MISSINGDATA_BSN	tblLANDSCAPE	LANDSCAPE	% of Basin not covered by Road Density Raster					percent
+SAND_MISSINGDATA_BSN	tblLANDSCAPE	LANDSCAPE	% of Basin not covered by Sand Raster					percent
+SAND_MISSINGDATA_SITE	tblLANDSCAPE	LANDSCAPE	"Value of 100 if sand data available, 0 if not."					percent
+SANDPCT_BSN	tblLANDSCAPE	LANDSCAPE	Average percent sand in basin					
+SANDPCT_SITE	tblLANDSCAPE	LANDSCAPE	Percent sand at site					
+SDMNTAREA_BSN	tblLANDSCAPE	LANDSCAPE	Area within basin with sedimentary geology					sq km
+SDMNTPCT_BSN	tblLANDSCAPE	LANDSCAPE	Percent of basin with sedimentary geology					percent
+SITE_GEOLOGY	tblLANDSCAPE	LANDSCAPE	"\SDMNTRY\"" or \""GNEISS\"" or \""GRANITIC\"" or \""MAFUL\"" or \""QTRNRY\"" or \""VOLCANIC\"""""					
+SITE_ID	tblSITETRUTH	DESIGN	"The NLA Site ID  for the study and year sampled Text.  Preferred form is NLAnn_MM-xxxxx  where  nn is current cycle year (07, 12, 17, etc), MM is two letter state code, and xxxxx is between 10001 and 99999."					
+TFARMN_BSN	tblLANDSCAPE	LANDSCAPE	Nitrogen fertilizer used on farms in basin (kg)					kg
+TFARMP_BSN	tblLANDSCAPE	LANDSCAPE	Phosphorus fertilizer used on farms in basin (kg)					kg
+TIP_BSN	tblLANDSCAPE	LANDSCAPE	mean temperature for year prior to sampling (12 months)					
+TIP_PT	tblLANDSCAPE	LANDSCAPE	monthly mean air temperature of index period (5 months)					
+TMAX_BSN	tblLANDSCAPE	LANDSCAPE	mean annual maximum air temperature (30 yrs)					
+TMAX_PT	tblLANDSCAPE	LANDSCAPE	mean annual maximum air temperature (30 yrs)					
+TMAXSD_BSN	tblLANDSCAPE	LANDSCAPE	SD of annual max air temperature					
+TMEAN_BSN	tblLANDSCAPE	LANDSCAPE	mean annual air temperature (30 yrs)					
+TMEAN_PT	tblLANDSCAPE	LANDSCAPE	mean annual air temperature (30 yrs)					
+TMEANPW_BSN	tblLANDSCAPE	LANDSCAPE	monthly mean air temperature of prior winter					
+TMEANPW_PT	tblLANDSCAPE	LANDSCAPE	monthly mean air temperature of prior winter					c
+TMEANPY_BSN	tblLANDSCAPE	LANDSCAPE	Mean temperature in basin over the previous 12 months					degrees C*100
+TMEANPY_PT	tblLANDSCAPE	LANDSCAPE	mean temperature for year prior to sampling (12 months)					
+TMEANSD_BSN	tblLANDSCAPE	LANDSCAPE	SD of mean annual air temperature					
+TMIN_BSN	tblLANDSCAPE	LANDSCAPE	mean annual minimum air temperature (30 yrs)					
+TMIN_PT	tblLANDSCAPE	LANDSCAPE	mean annual minimum air temperature (30 yrs)					
+TMINSD_BSN	tblLANDSCAPE	LANDSCAPE	SD of annual  minimum air temperature					
+TNONFARMN_BSN	tblLANDSCAPE	LANDSCAPE	Nitrogen fertilizer used on non-farms in basin (kg)					kg
+TNONFARMP_BSN	tblLANDSCAPE	LANDSCAPE	Phosphorus fertilizer used on non-farms in basin (kg)					kg
+VOLCANAREA_BSN	tblLANDSCAPE	LANDSCAPE	Area within basin with volcanic geology					sq km
+VOLCANPCT_BSN	tblLANDSCAPE	LANDSCAPE	Percent of basin with volcanic geology					percent
+WATERAREA_BSN	tblLANDSCAPE	LANDSCAPE	Area within basin as water					sq km
+WATERPCT_BSN	tblLANDSCAPE	LANDSCAPE	Percent of basin as water					percent

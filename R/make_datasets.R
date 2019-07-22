@@ -403,7 +403,66 @@ secchi.12 = secchi.12 %>% mutate(
 #### X Merged data sets ####
 
 
-#### X.1 Merged site information
+#### X.1  Merged profile data sets 
+
+
+# Merge profiles data set
+profile.0712 = union(profile.07, profile.12)
+
+
+
+# The variable 'resampled' indicates whether or not the sites were sampled in both 2007 ans 2012
+profile.0712 = profile.0712 %>% mutate(resampled = NA)
+
+for (i in 1:nrow(profile.0712)) {
+  if (profile.0712$site_id[i] %in% common.sites$siteid_07 | 
+      profile.0712$site_id[i] %in% common.sites$siteid_12) {
+    profile.0712$resampled[i] = 1
+  } else {
+    profile.0712$resampled[i] = 0
+  }
+}
+
+
+# Change the site id to the site unique identifier defined above
+# In other words, change the id of the sites sampled in 2012 to the id they had in 
+# 2007 when they were also sampled in 2007
+
+
+for (i in 1:nrow(profile.0712)) {
+  if (profile.0712$resampled[i] == 1 & profile.0712$year[i] == 2012) {
+    k = which(common.sites$siteid_12 == profile.0712$site_id[i])
+    profile.0712$site_id[i] = common.sites$siteid_07[k]
+  }
+}
+
+
+
+# Assign adequate class to site_id
+profile.0712$site_id = as.factor(profile.0712$site_id)
+
+
+# Assign a unique identifier for every sampling event 
+profile.0712 = profile.0712 %>% unite("sampling_event", site_id, year, visit_no, sep = "-", remove = FALSE)
+
+
+# Reorder obervations
+profile.0712 = profile.0712 %>%
+  arrange(site_id, year, visit_no, depth)
+
+
+
+# Export the processed data set
+write.table(profile.0712,
+            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/profile_0712.tsv",
+            sep = "\t")
+
+
+
+
+
+
+#### X.2 Merged site information
 
 
 # Join site information with Secchi depths
@@ -414,6 +473,9 @@ info.12u = full_join(info.12, secchi.12, by = c("siteid_12", "year", "visit_no")
 
 # Join the 2007 and 2012 sampling events
 info.0712 = bind_rows(info.07u, info.12u)
+
+
+# If the maximum depth of the lake is unknown, take the maximum sampled depth from profile.0712
 
 
 # The NA year is in 2012
@@ -482,58 +544,4 @@ write.table(info.0712,
 
 
 
-
-#### X.2  Merged profile data sets 
-
-
-# Merge profiles data set
-profile.0712 = union(profile.07, profile.12)
-
-
-
-# The variable 'resampled' indicates whether or not the sites were sampled in both 2007 ans 2012
-profile.0712 = profile.0712 %>% mutate(resampled = NA)
-
-for (i in 1:nrow(profile.0712)) {
-  if (profile.0712$site_id[i] %in% common.sites$siteid_07 | 
-      profile.0712$site_id[i] %in% common.sites$siteid_12) {
-    profile.0712$resampled[i] = 1
-  } else {
-    profile.0712$resampled[i] = 0
-  }
-}
-
-
-# Change the site id to the site unique identifier defined above
-# In other words, change the id of the sites sampled in 2012 to the id they had in 
-# 2007 when they were also sampled in 2007
-
-
-for (i in 1:nrow(profile.0712)) {
-  if (profile.0712$resampled[i] == 1 & profile.0712$year[i] == 2012) {
-    k = which(common.sites$siteid_12 == profile.0712$site_id[i])
-    profile.0712$site_id[i] = common.sites$siteid_07[k]
-  }
-}
-
-
-
-# Assign adequate class to site_id
-profile.0712$site_id = as.factor(profile.0712$site_id)
-
-
-# Assign a unique identifier for every sampling event 
-profile.0712 = profile.0712 %>% unite("sampling_event", site_id, year, visit_no, sep = "-", remove = FALSE)
-
-
-# Reorder obervations
-profile.0712 = profile.0712 %>%
-  arrange(site_id, year, visit_no, depth)
-
-
-
-# Export the processed data set
-write.table(profile.0712,
-            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/profile_0712.tsv",
-            sep = "\t")
 
