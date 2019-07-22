@@ -8,7 +8,9 @@
 
 # Libraries
 library("dplyr")
+library("stringr")
 library("tidyr")
+
 
 
 
@@ -475,9 +477,6 @@ info.12u = full_join(info.12, secchi.12, by = c("siteid_12", "year", "visit_no")
 info.0712 = bind_rows(info.07u, info.12u)
 
 
-# If the maximum depth of the lake is unknown, take the maximum sampled depth from profile.0712
-
-
 # The NA year is in 2012
 # Change this NA to 2012
 info.0712$year = replace(info.0712$year, which(is.na(info.0712$year)), 2012)
@@ -504,12 +503,37 @@ for (i in 1:nrow(info.0712)) {
 info.0712 = info.0712 %>% unite("sampling_event", site_id, year, visit_no, sep = "-", remove = FALSE)
 
 
+# Add maximum sampled depth from profile.0712
+info.0712 = left_join(info.0712, 
+                      profile.0712 %>% group_by(sampling_event) %>% summarise(sampled_depthmax_m = max(depth)),
+                      by = "sampling_event")
+
+
+# Compute the Shoreline development index (SLD) in 2012 (=LAKEPERIM/(2*sqrt(LAKEAREA*pi))
+# The SLD indices given in the 2007 site information data set are the same as those computed here 
+
+info.0712 = info.0712 %>% 
+  mutate(SLD = perim_km / (2 * sqrt(area_km2 * pi)))
+
+
+# Correction of inconsistencies between levels of lake_origin
+info.0712$lake_origin = str_replace_all(info.0712$lake_origin, "_", "-")
+
+
 # Identify sites sampled in both 2007 and 2012
 common.sites = inner_join(info.07, info.12, by = "siteid_07") %>%
   select(siteid_07, siteid_12) %>%
   distinct(siteid_07, siteid_12, .keep_all = TRUE)
 dim(common.sites) # 401 repeated sites
 
+
+# Complete missing siteid_12 values when sampled in 2007
+for (i in 1:nrow(info.0712)) {
+  if (info.0712$siteid_07[i] %in% common.sites$siteid_07) {
+    k = which(common.sites$siteid_07 == info.0712$siteid_07[i])
+    info.0712$siteid_12[i] = common.sites$siteid_12[k]
+  } 
+}
 
 # The variable 'resampled' indicates whether or not the sites were sampled in both 2007 ans 2012
 info.0712 = info.0712 %>% mutate(resampled = NA)
@@ -521,7 +545,6 @@ for (i in 1:nrow(info.0712)) {
     info.0712$resampled[i] = 0
   }
 }
-
 
 
 # Correctly order observations 
@@ -537,11 +560,5 @@ info.0712$siteid_12 = as.factor(info.0712$siteid_12)
 write.table(info.0712,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/info_0712.tsv",
             sep = "\t")
-
-
-
-
-
-
 
 
