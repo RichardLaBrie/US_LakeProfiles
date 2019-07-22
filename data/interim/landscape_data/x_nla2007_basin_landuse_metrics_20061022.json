@@ -1,0 +1,66 @@
+[
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column SITE_TYPE using expression value.toTitlecase()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "SITE_TYPE",
+    "expression": "value.toTitlecase()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column SITE_TYPE using expression value.toLowercase()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "SITE_TYPE",
+    "expression": "value.toLowercase()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column LAKE_SAMP using expression value.toLowercase()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "LAKE_SAMP",
+    "expression": "value.toLowercase()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column BASINAREA_HA",
+    "columnName": "BASINAREA_HA"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column BASINAREA_LU_KM2",
+    "columnName": "BASINAREA_LU_KM2"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column MISSDATA_KM2_BSN",
+    "columnName": "MISSDATA_KM2_BSN"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column FLAG_LU_BASIN",
+    "columnName": "FLAG_LU_BASIN"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COMMENT_LU_BASIN",
+    "columnName": "COMMENT_LU_BASIN"
+  }
+]

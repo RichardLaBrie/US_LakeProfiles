@@ -380,8 +380,91 @@ secchi.12 = secchi.12 %>% mutate(
 
 
 
+#### 4. Landscape data ####
 
 
+#### 4.1 Tidy the landscape.07 data set 
+
+# Import the interim data set 
+landscape.07 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/landscape_data/nla2007_basin_landuse_metrics_20061022.tsv", header = TRUE,  sep = '\t', quote = "\\")
+
+colnames(landscape.07) = tolower(colnames(landscape.07)) # variable names in lowercase
+
+
+names(landscape.07)[names(landscape.07) == "pct_forest_bsn"] = "pct_forest" # % forested basin area
+names(landscape.07)[names(landscape.07) == "pct_agric_bsn"] = "pct_agric" # % agriculture basin area
+names(landscape.07)[names(landscape.07) == "site_id"] = "siteid_07" 
+
+
+# Select useful variables
+landscape.07 = landscape.07 %>% 
+  select(siteid_07, visit_no, basinarea_km2, pct_forest, pct_agric) %>%
+  mutate(year = 2007)
+
+
+# Change the variables' class
+landscape.07 = landscape.07 %>% mutate(
+  siteid_07 = as.factor(siteid_07), 
+  year = as.numeric(year), visit_no = as.numeric(visit_no), 
+  basinarea_km2 = as.numeric(basinarea_km2), 
+  pct_forest = as.numeric(pct_forest), 
+  pct_agric = as.numeric(pct_agric)) 
+
+
+
+
+
+
+
+
+#### 4.2 Tidy the landscape.12 data set 
+
+
+# Import the interim data set 
+landscape.12 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/landscape_data/nla2012_wide_watershed.tsv", header = TRUE,  sep = '\t', quote = "\\")
+
+colnames(landscape.12) = tolower(colnames(landscape.12)) # variable names in lowercase
+
+names(landscape.12)[names(landscape.12) == "nlcd2001_forestpct_bsn"] = "pct_forest" # % forested basin area
+names(landscape.12)[names(landscape.12) == "nlcd2006_agricpct_bsn"] = "pct_agric" # % agriculture basin area
+names(landscape.12)[names(landscape.12) == "tip_pt"] = "temp_12m" # mean temperature for year prior to sampling (12 months)		
+names(landscape.12)[names(landscape.12) == "tmean_pt"] = "temp_30y" # mean annual air temperature (30 yrs)	
+names(landscape.12)[names(landscape.12) == "psumpy_pt"] = "preci_12m" # total average precip for 12 months prior to sampling (12 months)		
+names(landscape.12)[names(landscape.12) == "pmean_bsn"] = "preci_30y" # mean annual precipitation (30 yrs)
+names(landscape.12)[names(landscape.12) == "site_id"] = "siteid_12" 
+
+
+
+# Select useful variables
+landscape.12 = landscape.12 %>% 
+  select(siteid_12, 
+         nlcd2001_11pct_bsn,  nlcd2001_11area_bsn,
+         pct_forest, pct_agric,
+         temp_12m, temp_30y,
+         preci_12m, preci_30y) %>%
+  mutate(year = 2012, visit_no = 1)
+
+
+# Compute the watershed area 
+# The basin area is missing in the 2012 data set 
+# It will be computed as the ratio of the total open water area (in m2) to the % of open water area of the basin
+landscape.12 = landscape.12 %>% 
+  mutate(basinarea_km2 = nlcd2001_11area_bsn / nlcd2001_11pct_bsn / 10000) %>% # 1 m2 = 1/10000 km2
+  select(-nlcd2001_11area_bsn, -nlcd2001_11pct_bsn)
+
+
+
+####### JE SUIS RENDU LÀ
+####### JE NE SAIS PAS QUOI FAIRE POUR LA TEMPERATURE, C'EST VRAIMENT FUCKÉ
+####### MÊME CHOSE POUR LES PRÉCIPITATIONS
+
+# Change the variables' class
+landscape.07 = landscape.07 %>% mutate(
+  siteid_07 = as.factor(siteid_07), 
+  year = as.numeric(year), visit_no = as.numeric(visit_no), 
+  basinarea_km2 = as.numeric(basinarea_km2), 
+  pct_forest = as.numeric(pct_forest), 
+  pct_agric = as.numeric(pct_agric)) 
 
 
 
