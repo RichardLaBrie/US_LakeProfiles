@@ -696,8 +696,7 @@ climate.0712 = left_join(climate.0712, states, by = "Location") %>%
 
 
 # Merge profiles data set
-profile.0712 = union(profile.07, profile.12)
-
+profile.0712 = bind_rows(profile.07, profile.12)
 
 
 # The variable 'resampled' indicates whether or not the sites were sampled in both 2007 ans 2012
@@ -930,7 +929,7 @@ dim(common.sites) # 401 repeated sites
 for (i in 1:nrow(info.0712)) {
   if (info.0712$siteid_07[i] %in% common.sites$siteid_07) {
     k = which(common.sites$siteid_07 == info.0712$siteid_07[i])
-    info.0712$siteid_12[i] = common.sites$siteid_12[k]
+    info.0712$siteid_12[i] = as.character(common.sites$siteid_12[k])
   } 
 }
 
@@ -963,5 +962,6 @@ info.0712$siteid_12 = as.factor(info.0712$siteid_12)
 write.table(info.0712,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/info_0712.tsv",
             sep = "\t")
+
 
 
