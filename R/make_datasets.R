@@ -10,8 +10,8 @@
 library("dplyr")
 library("stringr")
 library("tidyr")
-
-
+library("vegan")
+library("zoo")
 
 
 
@@ -621,6 +621,67 @@ chemistry.12 = left_join(chemistry.12, chla.12, by = "UID")
 
 
 
+#### 6. Climate ####
+
+
+#### 6.1 Climate data from the NOAA 
+
+
+# Import the raw data sets
+# state monthly precipitation (124 years)
+precip.124y = read.csv("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/raw/climate_noaa/110-pcp.csv", header = TRUE, skip = 3)
+# state montly average temperature (124 years)
+avgtemp.124y = read.csv("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/raw/climate_noaa/110-tavg.csv", header = TRUE, skip = 3)
+# state montly minimum temperature (124 years)
+mintemp.124y = read.csv("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/raw/climate_noaa/110-tmin.csv", header = TRUE, skip = 3)
+# state montly maximum temperature (124 years)
+maxtemp.124y = read.csv("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/raw/climate_noaa/110-tmax.csv", header = TRUE, skip = 3)
+
+
+
+# Select useful variables 
+precip.124y = precip.124y %>% select(Location, Date, Value)
+avgtemp.124y = avgtemp.124y %>% select(Location, Date, Value)
+mintemp.124y = mintemp.124y %>% select(Location, Date, Value)
+maxtemp.124y = maxtemp.124y %>% select(Location, Date, Value)
+
+# Change the units of the variables and rename them
+precip.124y = precip.124y %>% mutate(precip_mm = 25.4 * Value) %>% # 1 inch = 25.4 mm
+  select(-Value)
+avgtemp.124y = avgtemp.124y %>% mutate(avgtemp_C = (Value - 32) * 5/9) %>% # fahrenheit to celsius
+  select(-Value)
+mintemp.124y = mintemp.124y %>% mutate(mintemp_C = (Value - 32) * 5/9) %>% # fahrenheit to celsius
+  select(-Value)
+maxtemp.124y = maxtemp.124y %>% mutate(maxtemp_C = (Value - 32) * 5/9) %>% # fahrenheit to celsius
+  select(-Value)
+
+
+# Join the climate data sets
+climate.124y = precip.124y %>% left_join(avgtemp.124y, by = c("Location", "Date")) %>%
+  left_join(mintemp.124y, by = c("Location", "Date")) %>%
+  left_join(maxtemp.124y, by = c("Location", "Date")) 
+
+# Separate the date column into year and month columns
+climate.124y$Date = as.numeric(climate.124y$Date)
+climate.124y = separate(climate.124y, col = Date, into = c("year", "month"), 
+                        sep = 4, remove = TRUE)
+
+# Retain data in 2007 and 2012 only
+climate.0712 = climate.124y %>% filter(year == 2007 | year == 2012)
+
+
+
+
+# States abbreviations
+states = read.csv("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/raw/climate_noaa/states.csv", header = TRUE)
+
+names(states)[names(states) == "State"] = "Location" # State name
+names(states)[names(states) == "Abbreviation"] = "state" # State abbreviation
+
+climate.0712 = left_join(climate.0712, states, by = "Location") %>%
+  select(-Location)
+
+
 
 
 
@@ -752,6 +813,108 @@ info.0712 = info.0712 %>%
   mutate(SLD = perim_km / (2 * sqrt(area_km2 * pi)))
 
 
+
+
+
+
+
+
+
+
+# Compute the mean climatic observations over a 150 days period prior to the sampling event
+info.0712 = info.0712 %>% mutate(precip_mm = NA, avgtemp_C = NA, mintemp_C = NA, maxtemp_C = NA)
+
+climate.W = matrix(0, nrow(info.0712), 12) # montly ponderation matrix
+colnames(climate.W) = c("jan", "feb", "mar", "apr", 
+                          "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec")
+rownames(climate.W) = info.0712$sampling_event
+climate.W = as.data.frame(climate.W)
+
+
+
+for (i in 1:nrow(info.0712)) {
+  year = info.0712$year[i]
+  month = info.0712$month[i]
+  day = info.0712$day[i]
+
+  if (!is.na(year) & !is.na(month) & !is.na(day)) {
+    
+  date.sampled = date(paste(year, month, day, sep = "-")) # date of sampling event
+  date.150d = date.sampled - 149 # date 150 days before
+  
+  pond.in.month = as.data.frame(table(as.yearmon(seq(date.150d, date.sampled, "day")))) %>% # nb of days in each month between the 2 dates 
+    separate(Var1, into = c("month", "year"), sep = " ") %>%
+    select(-year)
+  
+  # Nb of days of each month inside climate.W matrix
+    
+  if(nrow(filter(pond.in.month, month == "janv.")) != 0)
+  {climate.W$jan[i] = filter(pond.in.month, month == "janv.")$Freq}
+ 
+  if(nrow(filter(pond.in.month, month == "févr.")) != 0)
+  {climate.W$feb[i] = filter(pond.in.month, month == "févr.")$Freq}
+  
+  if(nrow(filter(pond.in.month, month == "mars")) != 0)
+  {climate.W$mar[i] = filter(pond.in.month, month == "mars")$Freq}
+  
+  if(nrow(filter(pond.in.month, month == "avr.")) != 0)
+  {climate.W$apr[i] = filter(pond.in.month, month == "avr.")$Freq}
+  
+  if(nrow(filter(pond.in.month, month == "mai")) != 0)
+  {climate.W$may[i] = filter(pond.in.month, month == "mai")$Freq}
+  
+  if(nrow(filter(pond.in.month, month == "juin")) != 0)
+  {climate.W$jun[i] = filter(pond.in.month, month == "juin")$Freq}
+  
+  if(nrow(filter(pond.in.month, month == "juil.")) != 0)
+  {climate.W$jul[i] = filter(pond.in.month, month == "juil.")$Freq}
+  
+  if(nrow(filter(pond.in.month, month == "août")) != 0)
+  {climate.W$aug[i] = filter(pond.in.month, month == "août")$Freq}
+  
+  if(nrow(filter(pond.in.month, month == "sept.")) != 0)
+  {climate.W$sep[i] = filter(pond.in.month, month == "sept.")$Freq}
+  
+  if(nrow(filter(pond.in.month, month == "oct.")) != 0)
+  {climate.W$oct[i] = filter(pond.in.month, month == "oct.")$Freq}
+  
+  if(nrow(filter(pond.in.month, month == "nov.")) != 0)
+  {climate.W$nov[i] = filter(pond.in.month, month == "nov.")$Freq}
+  
+  if(nrow(filter(pond.in.month, month == "déc.")) != 0)
+  {climate.W$dec[i] = filter(pond.in.month, month == "déc.")$Freq}
+}
+
+}
+
+climate.W = decostand(climate.W, "total", MARGIN = 1) # proportion of the 150 days period
+
+
+
+
+# Mean climate metrics for 150 days before each sampling event 
+# Each row represent a sampling event 
+for (i in 1:nrow(info.0712)) {
+  state.i = as.character(info.0712$state[i])
+  year.i = info.0712$year[i]
+  
+  climate.i = climate.0712 %>% filter(state == state.i, year == year.i)
+  climate.W.i = t(climate.W[i,])
+  
+  info.0712$precip_mm[i] = sum(climate.i$precip_mm * climate.W.i)
+  info.0712$avgtemp_C[i] = sum(climate.i$avgtemp_C * climate.W.i)
+  info.0712$mintemp_C[i] = sum(climate.i$mintemp_C * climate.W.i)
+  info.0712$maxtemp_C[i] = sum(climate.i$maxtemp_C * climate.W.i)
+}
+
+
+
+
+
+
+
+
+
 # Correction of inconsistencies between levels of lake_origin
 info.0712$lake_origin = str_replace_all(info.0712$lake_origin, "_", "-")
 
@@ -783,6 +946,8 @@ for (i in 1:nrow(info.0712)) {
 }
 
 
+
+
 # Correctly order observations 
 info.0712 = info.0712 %>% arrange(site_id, year, visit_no) 
 
@@ -792,7 +957,6 @@ info.0712$siteid_07 = as.factor(info.0712$siteid_07)
 info.0712$siteid_12 = as.factor(info.0712$siteid_12)
 
 
-sum(is.na(info.0712$cond_uScm))
 
 
 # Export the processed data set
