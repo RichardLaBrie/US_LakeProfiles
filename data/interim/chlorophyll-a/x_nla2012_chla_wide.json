@@ -1,0 +1,22 @@
+[
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CHLL_LAB_FLAG",
+    "columnName": "CHLL_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CHLX_LAB_FLAG",
+    "columnName": "CHLX_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CHLL_LAB_COMMENT",
+    "columnName": "CHLL_LAB_COMMENT"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CHLX_LAB_COMMENT",
+    "columnName": "CHLX_LAB_COMMENT"
+  }
+]

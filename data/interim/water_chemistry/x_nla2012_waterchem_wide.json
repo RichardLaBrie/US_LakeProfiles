@@ -1,0 +1,210 @@
+[
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column SAM_CODE using expression value.toLowercase()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "SAM_CODE",
+    "expression": "value.toLowercase()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column ALUMINUM_LAB_FLAG",
+    "columnName": "ALUMINUM_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column AMMONIA_N_LAB_FLAG",
+    "columnName": "AMMONIA_N_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column ANC_LAB_FLAG",
+    "columnName": "ANC_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CALCIUM_LAB_FLAG",
+    "columnName": "CALCIUM_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CHLORIDE_LAB_FLAG",
+    "columnName": "CHLORIDE_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COLOR_LAB_FLAG",
+    "columnName": "COLOR_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COND_LAB_FLAG",
+    "columnName": "COND_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DOC_LAB_FLAG",
+    "columnName": "DOC_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column MAGNESIUM_LAB_FLAG",
+    "columnName": "MAGNESIUM_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NITRATE_N_LAB_FLAG",
+    "columnName": "NITRATE_N_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NITRATE_NITRITE_N_LAB_FLAG",
+    "columnName": "NITRATE_NITRITE_N_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NITRITE_N_LAB_FLAG",
+    "columnName": "NITRITE_N_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NTL_LAB_FLAG",
+    "columnName": "NTL_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PH_LAB_FLAG",
+    "columnName": "PH_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column POTASSIUM_LAB_FLAG",
+    "columnName": "POTASSIUM_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PTL_LAB_FLAG",
+    "columnName": "PTL_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SILICA_LAB_FLAG",
+    "columnName": "SILICA_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SULFATE_LAB_FLAG",
+    "columnName": "SULFATE_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column TURB_LAB_FLAG",
+    "columnName": "TURB_LAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NUTS_SHIP_FLAG",
+    "columnName": "NUTS_SHIP_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CHEM_SHIP_FLAG",
+    "columnName": "CHEM_SHIP_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column TURB_FLAG",
+    "columnName": "TURB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column TSS_FLAG",
+    "columnName": "TSS_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SULFATE_FLAG",
+    "columnName": "SULFATE_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SODIUM_FLAG",
+    "columnName": "SODIUM_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SILICA_FLAG",
+    "columnName": "SILICA_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PTL_FLAG",
+    "columnName": "PTL_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column POTASSIUM_FLAG",
+    "columnName": "POTASSIUM_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PH_FLAG",
+    "columnName": "PH_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NTL_FLAG",
+    "columnName": "NTL_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NITRATE_NITRITE_N_FLAG",
+    "columnName": "NITRATE_NITRITE_N_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NITRATE_N_FLAG",
+    "columnName": "NITRATE_N_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column MAGNESIUM_FLAG",
+    "columnName": "MAGNESIUM_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DOC_FLAG",
+    "columnName": "DOC_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COND_FLAG",
+    "columnName": "COND_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COLOR_FLAG",
+    "columnName": "COLOR_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CHLORIDE_FLAG",
+    "columnName": "CHLORIDE_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CALCIUM_FLAG",
+    "columnName": "CALCIUM_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column ANC_FLAG",
+    "columnName": "ANC_FLAG"
+  }
+]

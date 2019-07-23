@@ -271,13 +271,13 @@ info.12 = info.12 %>%
   select(site_id, siteid_07, sitesamp, visit_no, day, month, year, lat_dd83, lon_dd83,
          state, epa_reg, fw_eco9, huc2, huc8, lake_origin, 
          area_ha, perim_km, elevation, 
-         wgt_all) 
+         wgt_all, uid) 
 
 # Rename columns according to the ones of the 2007 data set
 colnames(info.12) = c("siteid_12", "siteid_07", "sitesamp", "visit_no", "day", "month", "year", "lat", "lon",
                                "state", "EPA_reg", "ECO9", "HUC2", "HUC8", "lake_origin", 
                                "area_km2", "perim_km", "elevation_m",
-                               "WGT")
+                               "WGT", "UID")
 
 
 # Change the variables' class
@@ -294,7 +294,7 @@ info.12  = info.12 %>%
          lake_origin = as.factor(lake_origin), 
          area_km2 = as.numeric(area_km2) / 100, perim_km = as.numeric(perim_km), 
          elevation_m = as.numeric(elevation_m), 
-         WGT = as.numeric(WGT)) %>% 
+         WGT = as.numeric(WGT), UID = as.factor(UID)) %>% 
   filter(sitesamp == "Y") %>%
   select(-sitesamp)
 
@@ -470,29 +470,150 @@ landscape.12 = landscape.12 %>% mutate(
 #### 5.1 Tidy the chemistry.07 data set 
 
 # Import the interim data set 
-chemistry.07 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/landscape_data/nla2007_basin_landuse_metrics_20061022.tsv", header = TRUE,  sep = '\t', quote = "\\")
+chemistry.07 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/water_chemistry/NLA2007_WaterQuality_20091123.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
-colnames(landscape.07) = tolower(colnames(landscape.07)) # variable names in lowercase
+colnames(chemistry.07) = tolower(colnames(chemistry.07)) # variable names in lowercase
 
 
-names(landscape.07)[names(landscape.07) == "pct_forest_bsn"] = "pct_forest" # % forested basin area
-names(landscape.07)[names(landscape.07) == "pct_agric_bsn"] = "pct_agric" # % agriculture basin area
-names(landscape.07)[names(landscape.07) == "site_id"] = "siteid_07" 
+names(chemistry.07)[names(chemistry.07) == "chla"] = "chla_ugL" # Chlorophyll a concentration (µg/L).  
+names(chemistry.07)[names(chemistry.07) == "color"] = "color_PCU" # Color (PCU)
+names(chemistry.07)[names(chemistry.07) == "ntl"] = "NTL_ugL" # Total Nitrogen (ug/L)
+names(chemistry.07)[names(chemistry.07) == "ptl"] = "PTL_ugL" # Total Phosphorus (ug/L)
+names(chemistry.07)[names(chemistry.07) == "na_ppm"] = "NA_mgL" # Sodium (mg/L)
+names(chemistry.07)[names(chemistry.07) == "doc"] = "DOC_mgL" #  Dissolved Organic Carbon (mg/L)
+names(chemistry.07)[names(chemistry.07) == "cond"] = "cond_uScm" # Conductivity (uS/cm @ 25 C)
+names(chemistry.07)[names(chemistry.07) == "turb"] = "turb_NTU" # Turbidity (NTU)	
+names(chemistry.07)[names(chemistry.07) == "site_id"] = "siteid_07" 
 
 
 # Select useful variables
-landscape.07 = landscape.07 %>% 
-  select(siteid_07, basinarea_km2, pct_forest, pct_agric) %>%
-  mutate(year = 2007)
-
+chemistry.07 = chemistry.07 %>% 
+  select(siteid_07, year, visit_no, 
+         chla_ugL, color_PCU, NTL_ugL, PTL_ugL, NA_mgL, DOC_mgL,  
+         cond_uScm, turb_NTU) 
 
 # Change the variables' class
-landscape.07 = landscape.07 %>% mutate(
+chemistry.07 = chemistry.07 %>% mutate(
   siteid_07 = as.factor(siteid_07), 
   year = as.numeric(year),  
-  basinarea_km2 = as.numeric(basinarea_km2), 
-  pct_forest = as.numeric(pct_forest), 
-  pct_agric = as.numeric(pct_agric)) 
+  visit_no = as.numeric(visit_no),
+  chla_ugL = as.numeric(chla_ugL), color_PCU = as.numeric(color_PCU),
+  NTL_ugL = as.numeric(NTL_ugL), PTL_ugL = as.numeric(PTL_ugL), 
+  NA_mgL = as.numeric(NA_mgL), DOC_mgL = as.numeric(DOC_mgL),
+  cond_uScm = as.numeric(cond_uScm), turb_NTU = as.numeric(turb_NTU))
+
+
+
+
+# Lake nutrient-color status assignment
+# Methods of Nürnberg and Shaw (1998) and Webster et al. (2008)
+chemistry.07 = chemistry.07 %>%
+  mutate(nutrient_color = NA)
+
+for (i in 1:nrow(chemistry.07)) {
+  TP = chemistry.07$PTL_ugL[i]
+  color = chemistry.07$color_PCU[i]
+  
+  if (TP <= 30 & color <= 20) {
+    chemistry.07$nutrient_color[i] = "blue"
+  } else if (TP > 30 & color <= 20) {
+    chemistry.07$nutrient_color[i] = "green"
+  } else if (TP <= 30 & color > 20) {
+    chemistry.07$nutrient_color[i] = "brown"
+  } else if (TP > 30 & color > 20) {
+    chemistry.07$nutrient_color[i] = "murky"
+  } 
+}
+
+
+
+
+
+#### 5.2 Tidy the chemistry.12 data set 
+
+# Import the interim data set 
+chemistry.12 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/water_chemistry/nla2012_waterchem_wide.tsv", header = TRUE,  sep = '\t', quote = "\\")
+
+colnames(chemistry.12) = tolower(colnames(chemistry.12)) # variable names in lowercase
+
+
+names(chemistry.12)[names(chemistry.12) == "color_result"] = "color_PCU" # Color (PCU)
+names(chemistry.12)[names(chemistry.12) == "ntl_result"] = "NTL_mgL" # Total Nitrogen (ug/L)
+names(chemistry.12)[names(chemistry.12) == "ptl_result"] = "PTL_ugL" # Total Phosphorus (ug/L)
+names(chemistry.12)[names(chemistry.12) == "sodium_result"] = "NA_mgL" # Sodium (mg/L)
+names(chemistry.12)[names(chemistry.12) == "doc_result"] = "DOC_mgL" #  Dissolved Organic Carbon (mg/L)
+names(chemistry.12)[names(chemistry.12) == "cond_result"] = "cond_uScm" # Conductivity (uS/cm @ 25 C)
+names(chemistry.12)[names(chemistry.12) == "turb_result"] = "turb_NTU" # Turbidity (NTU)	
+names(chemistry.12)[names(chemistry.12) == "uid"] = "UID" 
+
+
+# Select useful variables 
+chemistry.12 = chemistry.12 %>% 
+  mutate(NTL_ugL = NTL_mgL * 1000) %>% # total nitrogen was expressed in mg/L in the 2012 data set and in ug/L in the 2007 one
+  select(UID, color_PCU, NTL_ugL, PTL_ugL, NA_mgL, DOC_mgL,  
+         cond_uScm, turb_NTU) 
+
+# Change the variables' class
+chemistry.12 = chemistry.12 %>% mutate(
+  UID = as.factor(UID), color_PCU = as.numeric(color_PCU),
+  NTL_ugL = as.numeric(NTL_ugL), PTL_ugL = as.numeric(PTL_ugL), 
+  NA_mgL = as.numeric(NA_mgL), DOC_mgL = as.numeric(DOC_mgL), 
+  cond_uScm = as.numeric(cond_uScm), turb_NTU = as.numeric(turb_NTU))
+
+
+
+# Lake nutrient-color status assignment
+# Methods of Nürnberg and Shaw (1998) and Webster et al. (2008)
+chemistry.12 = chemistry.12 %>%
+  mutate(nutrient_color = NA)
+
+for (i in 1:nrow(chemistry.12)) {
+  TP = chemistry.12$PTL_ugL[i]
+  color = chemistry.12$color_PCU[i]
+  
+  if (is.na(TP) | is.na(color)) {
+    chemistry.12$nutrient_color[i] = NA
+  } else if (TP <= 30 & color <= 20) {
+    chemistry.12$nutrient_color[i] = "blue"
+  } else if (TP > 30 & color <= 20) {
+    chemistry.12$nutrient_color[i] = "green"
+  } else if (TP <= 30 & color > 20) {
+    chemistry.12$nutrient_color[i] = "brown"
+  } else if (TP > 30 & color > 20) {
+    chemistry.12$nutrient_color[i] = "murky"
+  } 
+}
+
+
+
+
+
+#### 5.3 Tidy the chla.12 data set 
+
+# Chla data were already present in the chemistry.07 data set 
+
+# Import the interim data set 
+chla.12 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/chlorophyll-a/nla2012_chla_wide.tsv", header = TRUE,  sep = '\t', quote = "\\")
+
+colnames(chla.12) = tolower(colnames(chla.12)) # variable names in lowercase
+
+
+names(chla.12)[names(chla.12) == "chlx_result"] = "chla_ugL" # Analyte value for X-site chlorophyll a (ug/L)
+names(chla.12)[names(chla.12) == "uid"] = "UID" 
+
+
+# Select useful variables 
+chla.12 = chla.12 %>% 
+  select(UID, chla_ugL) 
+
+# Change the variables' class
+chla.12 = chla.12 %>% mutate(
+  UID = as.factor(UID), chla_ugL = as.numeric(chla_ugL))
+
+
+
+# Merge chla.12 to chemistry.12
+chemistry.12 = left_join(chemistry.12, chla.12, by = "UID")
 
 
 
@@ -507,11 +628,10 @@ landscape.07 = landscape.07 %>% mutate(
 
 
 
+#### 7 Merged data sets ####
 
-#### X Merged data sets ####
 
-
-#### X.1  Merged profile data sets 
+#### 7.1  Merged profile data sets 
 
 
 # Merge profiles data set
@@ -570,16 +690,18 @@ write.table(profile.0712,
 
 
 
-#### X.2 Merged site information
+#### 7.2 Merged site information
 
 
 # Join site information with Secchi depths
 
 info.07u = left_join(info.07, secchi.07, by = c("siteid_07", "year", "visit_no")) %>%
-  left_join(landscape.07, by = c("siteid_07", "year"))
+  left_join(landscape.07, by = c("siteid_07", "year")) %>%
+  left_join(chemistry.07, by = c("siteid_07", "year", "visit_no"))
 
 info.12u = left_join(info.12, secchi.12, by = c("siteid_12", "year", "visit_no")) %>%
-  left_join(landscape.12, by = c("siteid_12", "year"))
+  left_join(landscape.12, by = c("siteid_12", "year")) %>%
+  left_join(chemistry.12, by = "UID")
 
 
 # Join the 2007 and 2012 sampling events
@@ -669,7 +791,10 @@ info.0712$site_id = as.factor(info.0712$site_id)
 info.0712$siteid_07 = as.factor(info.0712$siteid_07)
 info.0712$siteid_12 = as.factor(info.0712$siteid_12)
 
-View(info.0712)
+
+sum(is.na(info.0712$cond_uScm))
+
+
 # Export the processed data set
 write.table(info.0712,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/info_0712.tsv",

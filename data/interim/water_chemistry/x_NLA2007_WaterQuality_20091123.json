@@ -1,0 +1,238 @@
+[
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column SITE_TYPE using expression value.toLowercase()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "SITE_TYPE",
+    "expression": "value.toLowercase()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column LAKE_SAMP using expression value.toLowercase()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "LAKE_SAMP",
+    "expression": "value.toLowercase()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column SAMPLED using expression value.toLowercase()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "SAMPLED",
+    "expression": "value.toLowercase()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column SAMPLED_CHEM using expression value.toLowercase()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "SAMPLED_CHEM",
+    "expression": "value.toLowercase()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column INDXSAMP_CHEM using expression value.toLowercase()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "INDXSAMP_CHEM",
+    "expression": "value.toLowercase()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PHLAB_FLAG",
+    "columnName": "PHLAB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COND_FLAG",
+    "columnName": "COND_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column ANC_FLAG",
+    "columnName": "ANC_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column TURB_FLAG",
+    "columnName": "TURB_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column TOC_FLAG",
+    "columnName": "TOC_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column DOC_FLAG",
+    "columnName": "DOC_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NH4_FLAG",
+    "columnName": "NH4_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NO3NO2_FLAG",
+    "columnName": "NO3NO2_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NTL_FLAG",
+    "columnName": "NTL_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column PTL_FLAG",
+    "columnName": "PTL_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CL_FLAG",
+    "columnName": "CL_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NO3_FLAG",
+    "columnName": "NO3_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SO4_FLAG",
+    "columnName": "SO4_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column CA_FLAG",
+    "columnName": "CA_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column MG_FLAG",
+    "columnName": "MG_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column NA_FLAG",
+    "columnName": "NA_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column K_FLAG",
+    "columnName": "K_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COLOR_FLAG",
+    "columnName": "COLOR_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column SIO2_FLAG",
+    "columnName": "SIO2_FLAG"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COM_FIELD_PH",
+    "columnName": "COM_FIELD_PH"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COMMENT_FLD_CHEM",
+    "columnName": "COMMENT_FLD_CHEM"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COMMENT_LAB_CHEM",
+    "columnName": "COMMENT_LAB_CHEM"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COMMENT_IM_CHEM",
+    "columnName": "COMMENT_IM_CHEM"
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column INDXSAMP_CHLA using expression value.toLowercase()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "INDXSAMP_CHLA",
+    "expression": "value.toLowercase()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column SAMPLED_CHLA using expression value.toLowercase()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "SAMPLED_CHLA",
+    "expression": "value.toLowercase()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column FLAG_FLD_CHLA",
+    "columnName": "FLAG_FLD_CHLA"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COMMENT_FLD_CHLA",
+    "columnName": "COMMENT_FLD_CHLA"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column FLAG_LAB_CHLA",
+    "columnName": "FLAG_LAB_CHLA"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COMMENT_LAB_CHLA",
+    "columnName": "COMMENT_LAB_CHLA"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column COMMENT_SECCHI",
+    "columnName": "COMMENT_SECCHI"
+  },
+  {
+    "op": "core/column-removal",
+    "description": "Remove column FLAG_SECCHI",
+    "columnName": "FLAG_SECCHI"
+  }
+]
