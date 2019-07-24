@@ -165,7 +165,7 @@ top.bottom.meta = profile.0712 %>%
   summarize(top_depth = meta.depths(temp, depth)[1],
             bottom_depth = meta.depths(temp, depth)[2],
             max_depth = max(depth)) # maximum SAMPLED depth 
-                   # we believe it would make no sense to take here the maximum depth of the lake
+                  
 
 
 # Create a layer_r variable: each observation will be assigned to the layer found using rLakeAnalyser
@@ -200,7 +200,6 @@ for (i in 1:nrow(profile.0712)) {
   }
 }
 
-# top.bottom.meta %>% filter(top_depth == bottom_depth)
 
 
 # How many layers rLakeAnalyser identified differently from the NLA?
@@ -309,9 +308,6 @@ info.0712 = left_join(info.0712, top.bottom.meta, by = "sampling_event") %>%
 
 
 
-
-
-
 #### 4. approx.bathy  (cone method)  ####
 
 # Maximum sampled depths (m)
@@ -388,10 +384,10 @@ hypsography.curves = Reduce(bind_rows, hypsography.curves) %>%
 
 
 # Data frame of lake metrics
-nvar = 2 # Number of metrics
+nvar = 4 # Number of metrics
 lake.metrics = data.frame(matrix(nrow = length(unique(info.0712$sampling_event)), ncol = nvar))
 
-colnames(lake.metrics) = c("sampling_event", "epi_temp")
+colnames(lake.metrics) = c("sampling_event", "epitemp_C", "metatemp_C", "hypotemp_C")
 
 
 # Sampling events inside data frame
@@ -399,8 +395,10 @@ lake.metrics$sampling_event = unique(info.0712$sampling_event)
 
 
 
-##### 5.1 Volumetrically averaged epilimnion temp #####
+##### 5.1 Volumetrically averaged layer temp #####
 
+
+# Volumetrically averaged epilimnion temp 
 
 for (i in 1:length(unique(info.0712$sampling_event))) {
 
@@ -420,9 +418,308 @@ for (i in 1:length(unique(info.0712$sampling_event))) {
   
   if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
     
-      lake.metrics$epi_temp[i] = epi.temperature(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
+      lake.metrics$epitemp_C[i] = epi.temperature(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
     }
 }
+
+
+
+
+
+# Volumetrically averaged metalimnion temp 
+
+
+meta.temperature <- function(wtr, depths, bthA, bthD){ # function to computer the averaged metalimnion temp 
+  
+  md = rLakeAnalyzer::meta.depths(wtr, depths)
+  
+  if(is.na(md[1])){
+    avg_temp = NA
+  }else{
+    avg_temp = layer.temperature(md[1],md[2], wtr=wtr, depths=depths, bthA=bthA, bthD=bthD)
+  }
+  return(avg_temp)
+}
+
+
+
+for (i in 1:length(unique(info.0712$sampling_event))) {
+  
+  sampling.event = lake.metrics$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp)) 
+  
+  wtr = wtr.depths$temp
+  depths = wtr.depths$depth
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event)
+  
+  bthA = bthA.bthD$Area.at.z
+  bthD = bthA.bthD$depths
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+    
+    lake.metrics$metatemp_C[i] = meta.temperature(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
+  }
+}
+
+
+
+# Volumetrically averaged hypolimnion temp 
+
+for (i in 1:length(unique(info.0712$sampling_event))) {
+  
+  sampling.event = lake.metrics$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp)) 
+  
+  wtr = wtr.depths$temp
+  depths = wtr.depths$depth
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event)
+  
+  bthA = bthA.bthD$Area.at.z
+  bthD = bthA.bthD$depths
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+    
+    lake.metrics$hypotemp_C[i] = hypo.temperature(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
+  }
+}
+
+
+# Join those volumetrically averaged temp to the info.0712 data set
+info.0712 = left_join(info.0712, lake.metrics, by = "sampling_event")
+
+# Compute difference of temperature between top and bottom layer
+# If only one volumetrically layer averaged temp is present, delaT = 0
+# If 2 volumetrically layer averaged temp are present, deltaT = top layer T - bottom layer T
+# If the 3 volumetrically layer averaged temp are present, deltaT = epi T - hypo T 
+# If none are present, deltaT = NA
+
+info.0712 = info.0712 %>% mutate(deltaT_C = NA)
+
+for (i in 1:nrow(info.0712)) {
+  epitemp.i = info.0712$epitemp_C[i]
+  metatemp.i = info.0712$metatemp_C[i]
+  hypotemp.i = info.0712$hypotemp_C[i]
+
+  if (is.na(epitemp.i) & is.na(metatemp.i) & is.na(hypotemp.i)) {
+    info.0712$deltaT_C[i] = NA
+  } else if (!is.na(epitemp.i) & !is.na(hypotemp.i)) {
+    info.0712$deltaT_C[i] = epitemp.i - hypotemp.i
+  } else if (!is.na(epitemp.i) & !is.na(metatemp.i)) {
+    info.0712$deltaT_C[i] = epitemp.i - metatemp.i 
+  } else if (!is.na(metatemp.i) & !is.na(hypotemp.i)) {
+    info.0712$deltaT_C[i] = metatemp.i - hypotemp.i
+  } else {
+    info.0712$deltaT_C[i] = 0 
+  }
+}
+
+
+
+
+
+
+#### 5.2 Epilimnion thickness ####
+
+info.0712 = info.0712 %>% mutate(epithick_m = NA) 
+
+# Epilimnion thickness (m)
+# If no stratification was observed (top_depth = NA), the epilimnion thickness equals the max sampled depth
+# If a stratification was observed, the epilimnion thickness equals the top depth of the metalimnion
+for (i in 1:nrow(info.0712)) {
+  if(is.na(info.0712$top_depth[i])) {
+    info.0712$epithick_m[i] = info.0712$sampled_depthmax_m[i]
+  } else {
+    info.0712$epithick_m[i] = info.0712$top_depth[i]
+  }
+}
+
+# Epilimnion thickness : maximum sampled depth ratio 
+info.0712 = info.0712 %>% mutate(epithick_pct = epithick_m / sampled_depthmax_m)
+
+
+
+
+
+
+##### 5.3 Average layer density #####
+
+
+layer.dens= data.frame(matrix(nrow = length(unique(info.0712$sampling_event)), ncol = 4))
+
+colnames(layer.dens) = c("sampling_event", "epidens_kgm3", "metadens_kgm3", "hypodens_kgm3")
+
+
+# Sampling events inside data frame
+layer.dens$sampling_event = unique(info.0712$sampling_event)
+
+
+# Epilimnion density 
+epi.density <- function(wtr, depths, bthA, bthD){ # function to computer the density of the epilimnion  
+    
+    md = rLakeAnalyzer::meta.depths(wtr, depths)
+    
+    if(is.na(md[1])){
+     dens = layer.density(0,max(depths), wtr=wtr, depths=depths, bthA=bthA, bthD=bthD)
+    }else{
+      dens = layer.density(0,md[1], wtr=wtr, depths=depths, bthA=bthA, bthD=bthD)
+    }
+    return(dens)
+  }
+
+
+
+for (i in 1:length(unique(info.0712$sampling_event))) {
+  
+  sampling.event = layer.dens$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp)) 
+  
+  wtr = wtr.depths$temp
+  depths = wtr.depths$depth
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event)
+  
+  bthA = bthA.bthD$Area.at.z
+  bthD = bthA.bthD$depths
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+    
+    layer.dens$epidens_kgm3[i] = epi.density(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
+  }
+}
+
+
+
+
+
+
+
+
+# Metalimnion density 
+meta.density <- function(wtr, depths, bthA, bthD){ # function to computer the density of the metalimnion  
+  
+  md = rLakeAnalyzer::meta.depths(wtr, depths)
+  
+  if(is.na(md[1])){
+    dens = NA
+  }else{
+    dens = layer.density(md[1],md[2], wtr=wtr, depths=depths, bthA=bthA, bthD=bthD)
+  }
+  return(dens)
+}
+
+
+
+for (i in 1:length(unique(info.0712$sampling_event))) {
+  
+  sampling.event = layer.dens$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp)) 
+  
+  wtr = wtr.depths$temp
+  depths = wtr.depths$depth
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event)
+  
+  bthA = bthA.bthD$Area.at.z
+  bthD = bthA.bthD$depths
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+    
+    layer.dens$metadens_kgm3[i] = meta.density(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
+  }
+}
+
+
+
+
+
+
+
+
+
+# Hypolimnion density 
+hypo.density <- function(wtr, depths, bthA, bthD){ # function to computer the density of the hypolimnion 
+  
+  md = rLakeAnalyzer::meta.depths(wtr, depths)
+  
+  if(is.na(md[2])){
+    dens = NA
+  }else{
+    dens = layer.density(md[2],max(depths), wtr=wtr, depths=depths, bthA=bthA, bthD=bthD)
+  }
+  return(dens)
+}
+
+
+
+for (i in 1:length(unique(info.0712$sampling_event))) {
+  
+  sampling.event = layer.dens$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp)) 
+  
+  wtr = wtr.depths$temp
+  depths = wtr.depths$depth
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event)
+  
+  bthA = bthA.bthD$Area.at.z
+  bthD = bthA.bthD$depths
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+    
+    layer.dens$hypodens_kgm3[i] = hypo.density(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
+  }
+}
+
+
+
+
+
+# Join those averaged density to the info.0712 data set
+info.0712 = left_join(info.0712, layer.dens, by = "sampling_event")
+
+# Compute difference of density between top and bottom layer
+# If only one layer density is present, deltaD = 0
+# If 2 layer densities are present, deltaD = top layer density - bottom layer density
+# If the 3 layer densities are present, deltaD = epi density - hypo density  
+# If none are present, deltaD = NA
+
+info.0712 = info.0712 %>% mutate(deltaD_kgm3 = NA)
+
+for (i in 1:nrow(info.0712)) {
+  epidens.i = info.0712$epidens_kgm3[i]
+  metadens.i = info.0712$metadens_kgm3[i]
+  hypodens.i = info.0712$hypodens_kgm3[i]
+  
+  if (is.na(epidens.i) & is.na(metadens.i) & is.na(hypodens.i)) {
+    info.0712$deltaD_kgm3[i] = NA
+  } else if (!is.na(epidens.i) & !is.na(hypodens.i)) {
+    info.0712$deltaD_kgm3[i] = hypodens.i - epidens.i
+  } else if (!is.na(epidens.i) & !is.na(metadens.i)) {
+    info.0712$deltaD_kgm3[i] = metadens.i - epidens.i 
+  } else if (!is.na(metadens.i) & !is.na(hypodens.i)) {
+    info.0712$deltaD_kgm3[i] = hypodens.i - metadens.i
+  } else {
+    info.0712$deltaD_kgm3[i] = 0 
+  }
+}
+
 
 
 

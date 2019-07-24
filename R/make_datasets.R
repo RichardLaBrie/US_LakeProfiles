@@ -740,6 +740,13 @@ profile.0712 = profile.0712 %>%
 
 
 
+
+# A mistake was indroduced in the data 
+# For the sampling event "NLA06608-1868-2012-2", at a depth of 4.02 m, the T is 3075 oC
+# It should be 30,75 oC
+
+profile.0712$temp[which(profile.0712$sampling_event == "NLA06608-1868-2012-2")] = 30.75
+
 # Export the processed data set
 write.table(profile.0712,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/profile_0712.tsv",
