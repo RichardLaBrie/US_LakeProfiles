@@ -723,3 +723,127 @@ for (i in 1:nrow(info.0712)) {
 
 
 
+
+
+#### 5.4 Internal energy ####
+
+
+
+for (i in 1:length(unique(info.0712$sampling_event))) {
+  
+  sampling.event = info.0712$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp)) 
+  
+  wtr = wtr.depths$temp
+  depths = wtr.depths$depth
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event)
+  
+  bthA = bthA.bthD$Area.at.z
+  bthD = bthA.bthD$depths
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+    
+    info.0712$intE_Jm2[i] = internal.energy(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
+  }
+}
+
+
+
+
+
+#### 5.5 Thermocline depth #####
+
+
+# Thermocline depth (m) for each sampling event
+thermodepth = profile.0712 %>% group_by(sampling_event) %>%
+  summarize(thermodepth_m = thermo.depth(wtr = temp, depths = depth)) 
+
+# Inclusion of thermocline depth into info.0712 data set 
+info.0712 = left_join(info.0712, thermodepth, by = "sampling_event")
+
+
+
+
+
+#### 5.6 Anoxia and hypoxia ####
+
+# Which sampling event are anoxic somewhere in their water column
+# At which depth those sampling event begins to be anoxic ?
+anoxia = profile.0712 %>% filter(DO == 0) %>%
+  group_by(sampling_event) %>%
+  summarize(anoxia = 1, anoxiadepth_m = min(depth))
+
+
+# Which sampling event are hypoxic somewhere in their water column
+# At which depth those sampling event begins to be hypoxic ?
+hypoxia = profile.0712 %>% filter(DO < 2) %>%
+  group_by(sampling_event) %>%
+  summarize(hypoxia = 1, hypoxiadepth_m = min(depth))
+
+
+# Join anoxia and hypoxia data to the info.0712 data set 
+info.0712 = left_join(info.0712, anoxia, by = "sampling_event") %>%
+  left_join(hypoxia)
+
+
+# For each sampling event present in the profile.0712 data set, change NA to 0 if
+# no anoxia or hypoxia detected
+for (i in 1:nrow(info.0712)) {
+  sampling.event.i = info.0712$sampling_event[i]
+  
+  if(sampling.event.i %in% profile.0712$sampling_event &
+     is.na(info.0712$anoxia[i])) {    # no anoxia detected in this sampling event 
+    info.0712$anoxia[i] = 0
+  }
+  
+  if(sampling.event.i %in% profile.0712$sampling_event &
+     is.na(info.0712$hypoxia[i])) {    # no hypoxia detected in this sampling event 
+    info.0712$hypoxia[i] = 0
+  }
+}
+
+
+# Estimated lake volumes (method = cone)
+# The volume of a lake is its maximum sampled depth * lake area / 3
+
+info.0712 = info.0712 %>%
+  mutate(lakevolume_m3 = (area_km2 * 1000^2) * sampled_depthmax_m / 3)
+
+
+# Anoxia and hypoxia depth ratio 
+
+info.0712 = info.0712 %>%
+  mutate(anoxiadepth_pct = 1 - anoxiadepth_m / sampled_depthmax_m,
+         hypoxiadepth_pct = 1 - hypoxiadepth_m/sampled_depthmax_m)
+
+# If no anoxia or no hypoxia was observed, the anoxia or hypoxia depth are set at 0
+for (i in 1:nrow(info.0712)) {
+  if (!is.na(info.0712$anoxia[i])) {
+      if(info.0712$anoxia[i] == 0) {
+         info.0712$anoxiadepth_pct[i] = 0
+      }
+  }
+  if (!is.na(info.0712$hypoxia[i])) {
+      if (info.0712$hypoxia[i] == 0) {
+          info.0712$hypoxiadepth_pct[i] = 0
+      }
+  }
+}
+
+# Estimated anoxia and hypoxia volumes (method = cone)
+
+info.0712 = info.0712 %>% 
+  mutate(anoxiavolume_m3 = lakevolume_m3 * anoxiadepth_pct ^ 3, 
+         hypoxiavolume_m3 = lakevolume_m3 * hypoxiadepth_pct ^ 3)
+
+# Estimated anoxia and hypoxia volumes (in %)
+
+info.0712 = info.0712 %>%
+  mutate(anoxiavolume_pct = anoxiavolume_m3 / lakevolume_m3,
+         hypoxiavolume_pct = hypoxiavolume_m3 / lakevolume_m3)
+
+
