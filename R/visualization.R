@@ -88,7 +88,7 @@ info.0712r = info.0712r[-c(which(info.0712r$sampling_event == as.character("NLA0
                            which(info.0712r$sampling_event == as.character("NLA06608-0071-2007-1"))[2]),]  
 
 
-info.0712a = info.2007[-c(which(info.0712a$sampling_event == as.character("NLA06608-0042-2007-1"))[2],
+info.0712a = info.0712a[-c(which(info.0712a$sampling_event == as.character("NLA06608-0042-2007-1"))[2],
                          which(info.0712a$sampling_event == as.character("NLA06608-0061-2007-1"))[2],
                          which(info.0712a$sampling_event == as.character("NLA06608-0065-2007-1"))[2],
                          which(info.0712a$sampling_event == as.character("NLA06608-0071-2007-1"))[2],
@@ -99,28 +99,119 @@ info.0712a = info.2007[-c(which(info.0712a$sampling_event == as.character("NLA06
                          which(info.0712a$sampling_event == as.character("NLA06608-0228-2007-1"))[2]),]  
 
 
-# Lake type distribution
-
+# General US map with state borders 
 usa = map_data("state") 
 usa.plot = ggplot() + 
   geom_polygon(data = usa, aes(x=long, y = lat, group = group), fill = NA, color = "black") + 
   coord_fixed(1.3) 
 
 
-
+# Distribution of the type of lakes sampled in 2007 AND 2012
 type.plot.resampled = usa.plot +
-  geom_point(data = info.0712r, aes(x = lon, y = lat, col = type, size = sampled_depthmax_m), alpha = 0.65) +
+  geom_point(data = info.0712r, aes(x = lon, y = lat, col = type, size = sampled_depthmax_m), alpha = 0.8) +
   scale_color_brewer(type = "qual", palette = 2, 
                      labels =  c("1 (epi-meta-hypo)", "2 (epi-meta)", "3 (meta-hypo)",
                                  "4 (epi-hypo)", "5 (epi)", "6 (meta)")) +
-  facet_grid(~ year) +
+  facet_grid(rows = vars(year)) +
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   labs(size = "Profondeur maximale échantillonnée (m)", col = "Type de lac") +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
   
+ggsave(filename = "type_resampled.pdf", device = "pdf", plot = type.plot.resampled, path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
-ggsave(filename = type.plot)
+
+
+
+
+
+
+# Distribution of the type of every lake 
+type.plot.all = usa.plot +
+  geom_point(data = info.0712a, aes(x = lon, y = lat, col = type, size = sampled_depthmax_m), alpha = 0.8) +
+  scale_color_brewer(type = "qual", palette = 2, 
+                     labels =  c("1 (epi-meta-hypo)", "2 (epi-meta)", "3 (meta-hypo)",
+                                 "4 (epi-hypo)", "5 (epi)", "6 (meta)")) +
+  facet_grid(rows = vars(year)) +
+  scale_x_continuous(name = "lon") +
+  scale_y_continuous(name = "lat") +
+  labs(size = "Profondeur maximale échantillonnée (m)", col = "Type de lac") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"))
+
+ggsave(filename = "type_all.pdf", plot = type.plot.all, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+
+
+
+
+
+
+# Distribution of resampled lake stratification (yes or no)
+
+stratification.plot.resampled = usa.plot +
+  geom_point(data = info.0712r, aes(x = lon, y = lat, col = as.factor(stratified), size = sampled_depthmax_m), alpha = 0.8) +
+  scale_color_manual(values = c("red", "blue"),
+                     labels =  c("0", "1")) +
+  facet_grid(rows = vars(year)) +
+  scale_x_continuous(name = "lon") +
+  scale_y_continuous(name = "lat") +
+  labs(size = "Profondeur maximale échantillonnée (m)", col = "Stratification") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"))
+
+ggsave(filename = "stratification_resampled.pdf", plot = stratification.plot.resampled, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+
+
+
+
+
+# Distribution of every lake stratification (yes or no)
+
+stratification.plot.all = usa.plot +
+  geom_point(data = info.0712a, aes(x = lon, y = lat, col = as.factor(stratified), size = sampled_depthmax_m), alpha = 0.8) +
+  scale_color_manual(values = c("red", "blue"),
+                     labels =  c("0", "1")) +
+  facet_grid(rows = vars(year)) +
+  scale_x_continuous(name = "lon") +
+  scale_y_continuous(name = "lat") +
+  labs(size = "Profondeur maximale échantillonnée (m)", col = "Stratification") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"))
+
+ggsave(filename = "stratification_all.pdf", plot = stratification.plot.all, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+
+
+
+
+
+
+
+
+# Reshaping resampled data set 
+info.2007r = info.0712r %>% filter(year == 2007)
+info.2012r = info.0712r %>% filter(year == 2012)
+
+info.0712r2 = left_join(info.2007r, info.2012r, by = "site_id", suffix = c(".07", ".12")) 
+
+# Change of stratification 
+info.0712r2 = info.0712r2 %>% mutate(stratification_change = stratified.12 - stratified.07)
+
+
+# Distribution of change of stratification 
+
+stratification.change = usa.plot +
+  geom_point(data = info.0712r2, aes(x = lon.12, y = lat.12, col = as.factor(stratification_change), size = sampled_depthmax_m.12), alpha = 0.8) +
+  scale_color_manual(values = c("red", "grey", "blue"),
+                     labels =  c("1 -> 0", "Aucun", "0 -> 1")) +
+  scale_x_continuous(name = "lon") +
+  scale_y_continuous(name = "lat") +
+  labs(col = "Changement de stratification", size = "Profondeur maximale échantillonnée (m)") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"))
+
+ggsave(filename = "stratification_change.pdf", plot = stratification.change, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+
+ 
 
 
