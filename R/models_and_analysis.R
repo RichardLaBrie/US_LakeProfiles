@@ -4,6 +4,7 @@
 
 # Libraries
 library(dplyr)
+library(maps)
 library(rLakeAnalyzer)
 
 # Required R code (make_datasets.R)
@@ -847,3 +848,20 @@ info.0712 = info.0712 %>%
          hypoxiavolume_pct = hypoxiavolume_m3 / lakevolume_m3)
 
 
+
+
+
+
+
+
+#### 6. Maps ####
+
+# Lake type distribution
+
+usa <- map_data("state") 
+ggplot() + geom_polygon(data = usa, aes(x=long, y = lat, group = group), fill = "white") + 
+  coord_fixed(1.3)
+map('state', fill = FALSE) 
+points(info.0712[,"lon"], info.0712[,"lat"], cex=1, pch=20, alpha = 0.1, col = info.0712[,"type"])
+legend("topright", col = info.0712[,"type"])
+?geom_polygon

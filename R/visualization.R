@@ -4,6 +4,7 @@
 
 # Libraries
 library(dplyr)
+library(maps)
 library(ggplot2)
 
 # Required R code (make_datasets.R)
@@ -68,5 +69,58 @@ ggplot(top.bottom.meta, aes(x = type, y = max_depth)) +
 
 
 
+
+
+
+#### Maps ####
+
+
+# Subset of datasets
+info.0712a = info.0712 %>% filter(visit_no == 1) # 2007 and 2012, resampled or non resampled sites
+info.0712r = info.0712 %>% filter(visit_no == 1, resampled == 1) # 2007 and 2012 resampled sites
+
+
+
+
+# Duplicated sampling event 
+# We will take the first ones in the data set (like for our visit no)
+info.0712r = info.0712r[-c(which(info.0712r$sampling_event == as.character("NLA06608-0065-2007-1"))[2],
+                           which(info.0712r$sampling_event == as.character("NLA06608-0071-2007-1"))[2]),]  
+
+
+info.0712a = info.2007[-c(which(info.0712a$sampling_event == as.character("NLA06608-0042-2007-1"))[2],
+                         which(info.0712a$sampling_event == as.character("NLA06608-0061-2007-1"))[2],
+                         which(info.0712a$sampling_event == as.character("NLA06608-0065-2007-1"))[2],
+                         which(info.0712a$sampling_event == as.character("NLA06608-0071-2007-1"))[2],
+                         which(info.0712a$sampling_event == as.character("NLA06608-0078-2007-1"))[2],
+                         which(info.0712a$sampling_event == as.character("NLA06608-0129-2007-1"))[2],
+                         which(info.0712a$sampling_event == as.character("NLA06608-0169-2007-1"))[2],
+                         which(info.0712a$sampling_event == as.character("NLA06608-0225-2007-1"))[2],
+                         which(info.0712a$sampling_event == as.character("NLA06608-0228-2007-1"))[2]),]  
+
+
+# Lake type distribution
+
+usa = map_data("state") 
+usa.plot = ggplot() + 
+  geom_polygon(data = usa, aes(x=long, y = lat, group = group), fill = NA, color = "black") + 
+  coord_fixed(1.3) 
+
+
+
+type.plot.resampled = usa.plot +
+  geom_point(data = info.0712r, aes(x = lon, y = lat, col = type, size = sampled_depthmax_m), alpha = 0.65) +
+  scale_color_brewer(type = "qual", palette = 2, 
+                     labels =  c("1 (epi-meta-hypo)", "2 (epi-meta)", "3 (meta-hypo)",
+                                 "4 (epi-hypo)", "5 (epi)", "6 (meta)")) +
+  facet_grid(~ year) +
+  scale_x_continuous(name = "lon") +
+  scale_y_continuous(name = "lat") +
+  labs(size = "Profondeur maximale échantillonnée (m)", col = "Type de lac") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"))
   
+
+ggsave(filename = type.plot)
+
 
