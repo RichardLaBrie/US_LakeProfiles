@@ -4,7 +4,6 @@
 
 # Libraries
 library(dplyr)
-library(maps)
 library(rLakeAnalyzer)
 
 # Required R code (make_datasets.R)
@@ -309,6 +308,18 @@ info.0712 = left_join(info.0712, top.bottom.meta, by = "sampling_event") %>%
 
 
 
+# Lake stratification 
+# The lake is stratified if it is of type 1, 2, 3 or 4 
+
+for (i in 1:nrow(info.0712)) {
+  if(info.0712$type[i] %in% 1:4) {
+    info.0712$stratified[i] = 1
+  } else {
+    info.0712$stratified[i] = 0
+  }
+}
+
+
 #### 4. approx.bathy  (cone method)  ####
 
 # Maximum sampled depths (m)
@@ -401,7 +412,7 @@ lake.metrics$sampling_event = unique(info.0712$sampling_event)
 
 # Volumetrically averaged epilimnion temp 
 
-for (i in 1:length(unique(info.0712$sampling_event))) {
+for (i in 1:nrow(info.0712$sampling_event))) {
 
   sampling.event = lake.metrics$sampling_event[i]
   
@@ -425,8 +436,6 @@ for (i in 1:length(unique(info.0712$sampling_event))) {
 
 
 
-
-
 # Volumetrically averaged metalimnion temp 
 
 
@@ -444,7 +453,7 @@ meta.temperature <- function(wtr, depths, bthA, bthD){ # function to computer th
 
 
 
-for (i in 1:length(unique(info.0712$sampling_event))) {
+for (i in 1:nrow(info.0712$sampling_event))) {
   
   sampling.event = lake.metrics$sampling_event[i]
   
@@ -470,7 +479,7 @@ for (i in 1:length(unique(info.0712$sampling_event))) {
 
 # Volumetrically averaged hypolimnion temp 
 
-for (i in 1:length(unique(info.0712$sampling_event))) {
+for (i in 1:nrow(info.0712$sampling_event))) {
   
   sampling.event = lake.metrics$sampling_event[i]
   
@@ -854,14 +863,5 @@ info.0712 = info.0712 %>%
 
 
 
-#### 6. Maps ####
+  
 
-# Lake type distribution
-
-usa <- map_data("state") 
-ggplot() + geom_polygon(data = usa, aes(x=long, y = lat, group = group), fill = "white") + 
-  coord_fixed(1.3)
-map('state', fill = FALSE) 
-points(info.0712[,"lon"], info.0712[,"lat"], cex=1, pch=20, alpha = 0.1, col = info.0712[,"type"])
-legend("topright", col = info.0712[,"type"])
-?geom_polygon
