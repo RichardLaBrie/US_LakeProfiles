@@ -16,7 +16,7 @@ info.0712 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitativ
 profile.0712 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/profile_0712.tsv", header = TRUE,  sep = '\t')
 
 
-
+View(info.0712)
 
 
 #### 1. Some counting ####
@@ -347,9 +347,9 @@ for (i in 1:nrow(max.sampled.observed.depth)) {
   }
 }
 
-# Get rid of observations where max.depth = 0
+# Get rid of observations where max sampled depth = 0
 max.sampled.observed.depth = max.sampled.observed.depth %>%
-  filter(max.depth != 0)
+  filter(max.sampled != 0)
 
 
 # Lake areas (has to be in m2)
@@ -367,24 +367,21 @@ hypsography.curves = list()
 
 for (i in 1:nrow(max.depth.lake.area)) {
 
-hypsography.curves[[i]] = approx.bathy(Zmax = max.depth.lake.area$max.depth[i],
+if(!is.na(max.depth.lake.area$max.sampled[i]) &  !is.na(max.depth.lake.area$lake.area[i])) {
+hypsography.curves[[i]] = approx.bathy(Zmax = max.depth.lake.area$max.sampled[i],
                                        lkeArea = max.depth.lake.area$lake.area[i],
-                                       method = "cone")
+                                       method = "cone", 
+                                       zinterval = 0.1)
 
 hypsography.curves[[i]]$sampling_event = max.depth.lake.area$sampling_event[i]
 
 }
+}
+
 
 # Unlist the hypsography curves 
 hypsography.curves = Reduce(bind_rows, hypsography.curves) %>%
   select(sampling_event, depths, Area.at.z)
-
-
-
-
-
-
-
 
 
 
@@ -412,7 +409,7 @@ lake.metrics$sampling_event = unique(info.0712$sampling_event)
 
 # Volumetrically averaged epilimnion temp 
 
-for (i in 1:nrow(info.0712$sampling_event))) {
+for (i in 1:nrow(lake.metrics)) {
 
   sampling.event = lake.metrics$sampling_event[i]
   
@@ -428,10 +425,11 @@ for (i in 1:nrow(info.0712$sampling_event))) {
   bthA = bthA.bthD$Area.at.z
   bthD = bthA.bthD$depths
   
-  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton 
     
       lake.metrics$epitemp_C[i] = epi.temperature(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
     }
+  
 }
 
 
@@ -453,7 +451,7 @@ meta.temperature <- function(wtr, depths, bthA, bthD){ # function to computer th
 
 
 
-for (i in 1:nrow(info.0712$sampling_event))) {
+for (i in 1:nrow(lake.metrics)){
   
   sampling.event = lake.metrics$sampling_event[i]
   
@@ -479,7 +477,7 @@ for (i in 1:nrow(info.0712$sampling_event))) {
 
 # Volumetrically averaged hypolimnion temp 
 
-for (i in 1:nrow(info.0712$sampling_event))) {
+for (i in 1:nrow(lake.metrics)) {
   
   sampling.event = lake.metrics$sampling_event[i]
   
@@ -557,7 +555,7 @@ info.0712 = info.0712 %>% mutate(epithick_pct = epithick_m / sampled_depthmax_m)
 
 
 
-
+View(info.0712 %>% filter(is.na(deltaT_C)))
 
 ##### 5.3 Average layer density #####
 

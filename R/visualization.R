@@ -811,7 +811,7 @@ hypoxia.depth.all.violin = ggplot(info.0712a, aes(x = nutrient_color, y = hypoxi
                      labels = c("bleu", "brun", "vert", "boueux")) +
   facet_grid(rows = vars(year)) +
   scale_x_discrete(name = "Statut couleur-nutriment") +
-  scale_y_continuous(name = "Profondeur de l'anoxie (m)") 
+  scale_y_continuous(name = "Profondeur de l'hypoxie (m)") 
 
 
 ggsave(filename = "hypoxia_depth_all.pdf", plot = hypoxia.depth.all.violin, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/violin", width = 12, height = 12)
