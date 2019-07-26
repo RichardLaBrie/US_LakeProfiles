@@ -555,7 +555,7 @@ info.0712 = info.0712 %>% mutate(epithick_pct = epithick_m / sampled_depthmax_m)
 
 
 
-View(info.0712 %>% filter(is.na(deltaT_C)))
+View(info.0712 %>% filter((deltaT_C > 80)))
 
 ##### 5.3 Average layer density #####
 
@@ -857,6 +857,33 @@ info.0712 = info.0712 %>%
 
 
 
+
+#### 5.7 Schmidt stability ####
+
+
+
+for (i in 1:nrow(info.0712)) {
+  
+  sampling.event = info.0712$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp)) 
+  
+  wtr = wtr.depths$temp
+  depths = wtr.depths$depth
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event)
+  
+  bthA = bthA.bthD$Area.at.z
+  bthD = bthA.bthD$depths
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton 
+    
+    info.0712$schmidth.stability_Jm2[i] = schmidt.stability(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD)
+  }
+  
+}
 
 
 
