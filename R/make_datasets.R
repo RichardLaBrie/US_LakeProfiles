@@ -741,11 +741,14 @@ profile.0712 = profile.0712 %>%
 
 
 
-# A mistake was indroduced in the data 
+# SOme mistakes were indroduced in the data 
 # For the sampling event "NLA06608-1868-2012-2", at a depth of 4.02 m, the T is 3075 oC
 # It should be 30,75 oC
+# For the other events, we can't assume any realistic observations
 
-profile.0712$temp[which(profile.0712$sampling_event == "NLA06608-1868-2012-2")] = 30.75
+profile.0712$temp[which(profile.0712$temp > 3075)] = 30.75
+profile.0712$temp[which(profile.0712$temp > 60)] = NA
+
 
 # Export the processed data set
 write.table(profile.0712,

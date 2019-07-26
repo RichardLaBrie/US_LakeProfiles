@@ -5,6 +5,7 @@
 # Libraries
 library(dplyr)
 library(rLakeAnalyzer)
+library(SoDA)
 
 # Required R code (make_datasets.R)
 # source("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/R/make_datasets.R")
@@ -888,5 +889,90 @@ for (i in 1:nrow(info.0712)) {
 
 
 
-  
+
+
+
+#### 6. Data set ready for multivariate quantitative analysis ####
+
+# Transform the geographic coordinated (dd) into cartesian coordinates (m)
+info.0712 = info.0712 %>% mutate(lat_m = geoXY(latitude = info.0712$lat, longitude = info.0712$lon)[,2],
+                                 lon_m = geoXY(latitude = info.0712$lat, longitude = info.0712$lon)[,1])
+geoXY(latitude = info.0712$lat, longitude = info.0712$lon)
+
+
+# Select response and explanatory variables 
+strat.0712 = info.0712 %>%
+  mutate(sampling_event = sampling_event, 
+         site_id = as.factor(site_id), 
+         resampled = as.factor(resampled),
+         type = as.factor(type),
+         stratifies = as.factor(stratified),
+         deltaT = as.numeric(deltaT_C), 
+         epithick = as.numeric(epithick_m),
+         thermodepth = as.numeric(thermodepth_m),
+         anoxiaV = as.numeric(anoxiavolume_m3),
+         hypoxiaV = as.numeric(hypoxiavolume_m3),
+         schmidth_stability = as.numeric(schmidth.stability_Jm2),
+         month = as.ordered(month),
+         year = as.ordered(year),
+         X = as.numeric(lon_m),
+         Y = as.numeric(lat_m),
+         elevation = as.factor(elevation_m),
+         state = as.factor(state),
+         ECO9 = as.factor(ECO9),
+         lake_origin = as.factor(lake_origin),
+         area = as.numeric(area_km2),
+         volume = as.numeric(lakevolume_m3),
+         WALA_ratio = as.numeric(WALA_ratio),
+         depth = as.numeric(sampled_depthmax_m),
+         SDI = as.numeric(SLD),
+         forest = as.numeric(pct_forest),
+         agric = as.numeric(pct_agric),
+         precip = as.numeric(precip_mm),
+         avgtemp = as.numeric(avgtemp_C),
+         mintemp = as.numeric(mintemp_C),
+         maxtemp = as.numeric(maxtemp_C),
+         chla = as.numeric(chla_ugL),
+         color = as.numeric(color_PCU),
+         TN = as.numeric(NTL_ugL),
+         TP = as.numeric(PTL_ugL),
+         DOC = as.numeric(DOC_mgL),
+         cond = as.numeric(cond_uScm),
+         turb = as.numeric(turb_NTU),
+         nutrient_color = as.factor(nutrient_color)) %>%
+  filter(visit_no == 1) %>% 
+  select(sampling_event, site_id, resampled,
+         type, stratified, deltaT, epithick, thermodepth, anoxiaV, hypoxiaV, schmidth_stability,
+         month, year, X, Y, elevation, ECO9,
+         state,lake_origin,
+         area, volume, WALA_ratio, depth,
+         SDI, forest, agric,
+         precip, avgtemp, mintemp, maxtemp,
+         chla, color, TN, TP, DOC, cond, turb, nutrient_color)
+
+
+# Remove the second observation of each sampling event that is present more than one in the data set 
+repeated.sampling.event = strat.0712  %>% group_by(sampling_event) %>% count() %>% filter(n != 1)
+
+for (i in 1:nrow(repeated.sampling.event)) {
+  strat.0712 = strat.0712[-which(strat.0712$sampling_event %in% repeated.sampling.event$sampling_event[i])[2],]
+}
+
+
+# Sampling events as row names
+rownames(strat.0712) = strat.0712$sampling_event
+
+# Remove sampling event from the data set 
+strat.0712 = strat.0712 %>% select(-sampling_event)
+
+
+# Export data set ready for analysis
+
+# Export the processed data set
+write.table(strat.0712,
+            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/strat_0712.tsv",
+            sep = "\t")
+
+
+
 
