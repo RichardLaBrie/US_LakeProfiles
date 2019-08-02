@@ -915,6 +915,8 @@ strat.0712 = info.0712 %>%
          schmidth_stability = as.numeric(schmidth.stability_Jm2),
          month = as.ordered(month),
          year = as.ordered(year),
+         lat = as.numeric(lat),
+         lon = as.numeric(lon),
          X = as.numeric(lon_m),
          Y = as.numeric(lat_m),
          elevation = as.factor(elevation_m),
@@ -943,7 +945,7 @@ strat.0712 = info.0712 %>%
   filter(visit_no == 1) %>% 
   select(sampling_event, site_id, resampled,
          type, stratified, deltaT, epithick, thermodepth, anoxiaV, hypoxiaV, schmidth_stability,
-         month, year, X, Y, elevation, ECO9,
+         month, year, lat, lon, X, Y, elevation, ECO9,
          state,lake_origin,
          area, volume, WALA_ratio, depth,
          SDI, forest, agric,
@@ -957,7 +959,6 @@ repeated.sampling.event = strat.0712  %>% group_by(sampling_event) %>% count() %
 for (i in 1:nrow(repeated.sampling.event)) {
   strat.0712 = strat.0712[-which(strat.0712$sampling_event %in% repeated.sampling.event$sampling_event[i])[2],]
 }
-
 
 # Sampling events as row names
 rownames(strat.0712) = strat.0712$sampling_event
