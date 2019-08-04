@@ -969,7 +969,6 @@ strat.0712 = strat.0712 %>% select(-sampling_event)
 
 # Export data set ready for analysis
 
-# Export the processed data set
 write.table(strat.0712,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/strat_0712.tsv",
             sep = "\t")

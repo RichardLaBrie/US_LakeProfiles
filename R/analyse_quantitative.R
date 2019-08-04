@@ -8,12 +8,19 @@
 
 
 # Load packages
+library(adespatial)
+library(FD)
+library(gclus)
 library(ggplot2)
 library(maps)
 library(MASS)
+library(mvpart)
+library(MVPARTwrap)
 library(SoDA)
 library(vegan)
 
+# Source additional functions
+source("x_panelutils.R")
 
 # Load data 
 strat.0712 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/strat_0712.tsv", header = TRUE,  sep = '\t')
@@ -103,7 +110,6 @@ rownames(strat.0712.R.z) = strat.0712.R.z$Row.names # the former row names were 
 strat.0712.R.z = strat.0712.R.z[,!(names(strat.0712.R.z) %in% c("Row.names", "resampled"))] # remove unuseful columns 
 
 
-
 strat.0712.U.Q = decostand(strat.0712.U[,quanti.var], "standardize") # standardization of quantitative variables of sites sampled once
 strat.0712.U.nonQ = strat.0712.U[,!(names(strat.0712.U) %in% quanti.var)] # variables that have not been standardized 
 strat.0712.U.z = merge(strat.0712.U.nonQ,strat.0712.U.Q,by="row.names",all.x=TRUE) # merge standardized and non standardized variables
@@ -111,6 +117,41 @@ rownames(strat.0712.U.z) = strat.0712.U.z$Row.names # the former row names were 
 strat.0712.U.z = strat.0712.U.z[,!(names(strat.0712.U.z) %in% c("Row.names", "resampled"))] # remove unuseful columns 
 
 
+
+
+
+# Create subdatasets 
+strat.var = c("type", "deltaT", "epithick", "hypoxiaV", "schmidth_stability")
+temp.var = c("month", "year")
+geo.var = c("X", "Y")
+lake.var = c("site_id", "elevation", "area", "volume", "WALA_ratio", "depth")
+landuse.var = c("SDI", "forest", "agric", "lake_origin", "state")
+climate.var = c("precip", "avgtemp", "mintemp", "maxtemp", "ECO9")
+chemical.var = c("chla", "color", "TN", "TP", "DOC", "cond", "turb", "nutrient_color")
+
+# Resampled sites
+strat.R = strat.0712.R.z[,strat.var] # Stratification strength subdataset (response variables)
+temp.R = strat.0712.R.z[, temp.var] # Temporal subdataset 
+geo.R = strat.0712.R.z[, geo.var] # Geographical coordinates subdataset
+lake.R = strat.0712.R.z[, lake.var]  # Lake information subdataset
+landuse.R = strat.0712.R.z[, landuse.var] # Landuse subdataset
+climate.R = strat.0712.R.z[, climate.var] # Climate subdataset
+chemical.R = strat.0712.R.z[, chemical.var] # Chemical subdataset
+
+
+# Sites sampled once only
+strat.U = strat.0712.U.z[,strat.var] # Stratification strength subdataset (response variables)
+temp.U = strat.0712.U.z[, temp.var] # Temporal subdataset 
+geo.U = strat.0712.U.z[, geo.var] # Geographical coordinates subdataset
+lake.U = strat.0712.U.z[, lake.var]  # Lake information subdataset
+landuse.U = strat.0712.U.z[, landuse.var] # Landuse subdataset
+climate.U = strat.0712.U.z[, climate.var] # Climate subdataset
+chemical.U = strat.0712.U.z[, chemical.var] # Chemical subdataset
+
+
+# Explanatotry variables subdataset (excluding geographic coordinates and temporal variables)
+expl.R = cbind(lake.R, landuse.R, climate.R, chemical.R) # resampled sites
+expl.U = cbind(lake.U, landuse.U, climate.U, chemical.U) # sites sampled once
 
 
 
@@ -152,3 +193,78 @@ site.map = usa.map +
   labs(col = "Année(s) d'échantillonnage") +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
+
+
+
+# Correlation among stratification (response) variables
+strat.quanti.U = strat.U[, sapply(strat.U, class) == "numeric"] # Quantitative response variables of sites sampled once
+strat.cor = cor(strat.quanti.U, method = "kendall", use = "pairwise.complete.obs")
+strat.O = order.single(strat.cor)
+pairs(strat.quanti.U[, strat.O], lower.panel = panel.smooth, 
+      uper.panel = panel.cor, no.col = TRUE, 
+      method = "kendall", diag.panel = panel.hist)
+
+
+# Selection of explanatory variables =========
+
+strat.quanti.U = strat.U[, sapply(strat.U, class) == "numeric"] # Quantitative response variables of sites sampled once
+
+# Observations with NA values are removed from the analysis 
+strat.expl.U = cbind(strat.quanti.U, expl.U)
+strat.expl.U.noNA = subset(strat.expl.U, subset = complete.cases(strat.expl.U))
+
+# Separate the response and explanatory data sets 
+strat.U.noNA = strat.expl.quanti.U.noNA[,1:ncol(strat.quanti.U)]
+expl.U.noNA = strat.expl.U.noNA[,-(1:ncol(strat.quanti.U))]
+colnames(expl.U.noNA)
+
+# RDA will all explanatory quantitative variables
+strat.U.rda.all = rda(strat.U.noNA ~ elevation + area + volume + WALA_ratio + depth +
+                    SDI + forest + agric + lake_origin + state + precip + avgtemp + 
+                    mintemp + maxtemp + ECO9 + chla + color + TN + TP + DOC + cond + turb +
+                    nutrient_color, data = expl.U.noNA)
+R2a.strat.U.rda.all = RsquareAdj(strat.U.rda.all)$adj.r.squared # global adjusted R2
+
+# Forward selection with ordiR2step()
+mod0 = rda(strat.U.noNA ~ 1, data = expl.U.noNA)
+step.forward = ordiR2step(mod0, scope = formula(strat.U.rda.all),
+                       direction = "forward", R2scope = TRUE, 
+                       permutations = how(nperm = 999))
+
+
+
+
+
+
+# Association measures =========
+
+# Comparision of objects (Q mode)
+# Symmetrical coefficients
+# Mixed type data 
+
+# Gower dissimilarity coefficients 
+strat.R.S15 = gowdis(strat.R)
+range(strat.R.S15)
+
+strat.U.S15 = gowdis(strat.U)
+range(strat.U.S15, na.rm = TRUE)
+
+
+
+
+
+# Multivariate regression tree =========
+strat.quanti.U = strat.U[,-(names(strat.U) %in% "type")] # quantitative response variables
+
+
+par(mfrow = c(1,2))
+strat.mvpart = mvpart(data.matrix(strat.quanti.U) ~ .,
+                      expl.U, 
+                      margin = 0.08,
+                      cp = 0,
+                      xv = "pick", 
+                      xval = 10,
+                      xvmult = 1)
+?mvpart
+
+nrow(strat.quanti.U)
