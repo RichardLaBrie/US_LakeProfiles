@@ -21,6 +21,7 @@ library(vegan)
 
 # Source additional functions
 source("x_panelutils.R")
+source("x_triplot.rda.R")
 
 # Load data 
 strat.0712 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/strat_0712.tsv", header = TRUE,  sep = '\t')
@@ -205,7 +206,10 @@ pairs(strat.quanti.U[, strat.O], lower.panel = panel.smooth,
       method = "kendall", diag.panel = panel.hist)
 
 
-# Selection of explanatory variables =========
+
+
+
+# Selection of explanatory variables and RDA =========
 
 strat.quanti.U = strat.U[, sapply(strat.U, class) == "numeric"] # Quantitative response variables of sites sampled once
 
@@ -216,14 +220,18 @@ strat.expl.U.noNA = subset(strat.expl.U, subset = complete.cases(strat.expl.U))
 # Separate the response and explanatory data sets 
 strat.U.noNA = strat.expl.quanti.U.noNA[,1:ncol(strat.quanti.U)]
 expl.U.noNA = strat.expl.U.noNA[,-(1:ncol(strat.quanti.U))]
-colnames(expl.U.noNA)
 
 # RDA will all explanatory quantitative variables
 strat.U.rda.all = rda(strat.U.noNA ~ elevation + area + volume + WALA_ratio + depth +
-                    SDI + forest + agric + lake_origin + state + precip + avgtemp + 
+                    SDI + forest + agric + lake_origin + precip + avgtemp + 
                     mintemp + maxtemp + ECO9 + chla + color + TN + TP + DOC + cond + turb +
                     nutrient_color, data = expl.U.noNA)
 R2a.strat.U.rda.all = RsquareAdj(strat.U.rda.all)$adj.r.squared # global adjusted R2
+
+
+which(vif.cca(strat.U.rda.all) >= 20) # 3 variables have a variance inflation factors >= 20
+# The selection procedure is justified because of strong collinearity 
+
 
 # Forward selection with ordiR2step()
 mod0 = rda(strat.U.noNA ~ 1, data = expl.U.noNA)
@@ -231,6 +239,34 @@ step.forward = ordiR2step(mod0, scope = formula(strat.U.rda.all),
                        direction = "forward", R2scope = TRUE, 
                        permutations = how(nperm = 999))
 
+
+
+# Parsimonious RDA 
+# The explanatory variables were selected by the function ordiR2step
+strat.U.rda.parci = rda(strat.U.noNA ~ depth + volume + ECO9 + nutrient_color +
+                          area + maxtemp + SDI, data = expl.U.noNA)
+anova(strat.U.rda.parci, permutations = how(nperm = 999))
+anova(strat.U.rda.parci, permutations = how(nperm = 999), by = "axis") # 4 significant axis
+RsquareAdj(strat.U.rda.parci)$adj.r.squared #adjR2 = 0.4312
+
+which(vif.cca(strat.U.rda.parci) >= 10) # 0 factor levels have a variance inflation factors >= 10
+# no collinearity!
+
+
+# Plot of the parcimonious RDA result
+
+pdf(file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/quanti_analysis/strat_U_rda.pdf")
+
+triplot.rda(strat.U.rda.parci, scaling = 2, 
+            plot.sites = TRUE, plot.spe = TRUE, plot.env = TRUE, plot.cent = TRUE, 
+            arrows.only = TRUE, 
+            label.sites = FALSE, label.spe = TRUE, label.env = TRUE, label.cent = TRUE,
+            cex.point = 0.005, cex.char2 = 0.7, 
+            mult.spe = 1.5, mult.arrow = 1.5,
+            pos.spe = 3, pos.env = 3,
+            mar.percent = 0.35) 
+
+dev.off()
 
 
 
