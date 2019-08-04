@@ -14,6 +14,7 @@ library(gclus)
 library(ggplot2)
 library(maps)
 library(MASS)
+library(missMDA)
 library(mvpart)
 library(MVPARTwrap)
 library(SoDA)
@@ -268,6 +269,104 @@ triplot.rda(strat.U.rda.parci, scaling = 2,
 
 dev.off()
 
+
+
+# Principal component analysis and Procrustes rotation =========
+
+strat.quanti.R = strat.R[, sapply(strat.R, class) == "numeric"] # Quantitative response variables of resampled sites
+
+strat.R.07 = strat.quanti.R[strat.0712.R$year == 2007,] # 401 sites sampled in 2007
+strat.R.12 = strat.quanti.R[strat.0712.R$year == 2012,] # Same sites but sampled in 2012
+rownames(strat.R.07) = 1:401
+rownames(strat.R.12) = 1:401
+
+# Imputation of missing values
+strat.R.07.imp = imputePCA(strat.R.07)
+strat.R.12.imp = imputePCA(strat.R.12)
+
+# PCA on imputed data 
+strat.R.07.imp.PCA = rda(strat.R.07.imp$completeObs, scale = TRUE)
+strat.R.12.imp.PCA = rda(strat.R.12.imp$completeObs, scale = TRUE)
+
+
+# Extract site scores 
+scores.PCA.07 = scores(strat.R.07.imp.PCA, display = "wa", scaling = 1) # 2007 site scores
+scores.PCA.12 = scores(strat.R.12.imp.PCA, display = "wa", scaling = 1) # 2012 site scores
+
+
+# Change nutrient-color levels to numbers (for further use)
+for (i in 1:nrow(strat.0712.R)) {
+  for (j in 1:length(levels(strat.0712.R$nutrient_color))) {
+    if(strat.0712.R$nutrient_color[i] == levels(strat.0712.R$nutrient_color)[j])
+    {
+      strat.0712.R$nutrient_colornum[i] = j
+    }
+  }
+}
+
+nutricol.07 = strat.0712.R[strat.0712.R$year == 2007, "nutrient_colornum"] # vector of 2007 nutrient color groups
+nutricol.12 = strat.0712.R[strat.0712.R$year == 2012, "nutrient_colornum"] # vector of 2012 nutrient color groups
+
+
+# PCA plot displaying nutrient-color clusters
+par(mfrow = c(1,2))
+# 2007 PCA
+plot(strat.R.07.imp.PCA, 
+     display = "wa",
+     scaling = 1, 
+     type = "n",
+     main = "2007 PCA")
+abline(v = 0, lty = "dotted")
+abline(h = 0, lty = "dotted")
+for (i in 1:length(levels(as.factor(nutricol.07)))){
+  points(scores.PCA.07[nutricol.07 == i,],
+         pch = (14 + i),
+         cex = 1,
+         col = i + 1)
+} 
+legend(locator(1),
+       c("blue", "brown", "green", "murky"),
+        pch = 14 + c(1:length(levels(as.factor(nutricol.07)))),
+        col = c("blue", "brown", "green", "orange"),
+        pt.cex = 2,
+        cex = 0.4)
+
+
+# 2012 PCA
+# 2007 PCA
+plot(strat.R.12.imp.PCA, 
+     display = "wa",
+     scaling = 1, 
+     type = "n",
+     main = "2012 PCA")
+abline(v = 0, lty = "dotted")
+abline(h = 0, lty = "dotted")
+for (i in 1:length(levels(as.factor(nutricol.12)))){
+  points(scores.PCA.12[nutricol.12 == i,],
+         pch = (14 + i),
+         cex = 1,
+         col = i + 1)
+} 
+legend(locator(1),
+       c("blue", "brown", "green", "murky"),
+       pch = 14 + c(1:length(levels(as.factor(nutricol.12)))),
+       col = c("blue", "brown", "green", "orange"),
+       pt.cex = 2,
+       cex = 0.4)
+
+
+
+
+
+
+# Procrustes comparaison of the 2007 and 2012 PCAs
+proc.0712 = procrustes(strat.R.07.imp.PCA, strat.R.12.imp.PCA, scaling = 1)
+
+# Procrustes plot
+plot(proc.0712)
+points(proc.0712, display = "target", col = "red")
+text(proc.0712, display = "target", 
+     col = "red", pos = 3, cex = 0.1)
 
 
 
