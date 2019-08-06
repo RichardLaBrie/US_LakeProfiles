@@ -6,11 +6,11 @@
 
 # Load packages and data =========
 
-
 # Load packages
 library(adespatial)
 library(FD)
 library(gclus)
+library(geoR)
 library(ggplot2)
 library(maps)
 library(MASS)
@@ -43,7 +43,7 @@ colnames(strat.0712) # descriptors
 
 
 
-# Change variables class
+# Specify variables class
 strat.0712$site_id = as.factor(strat.0712$site_id)
 strat.0712$resampled = as.factor(strat.0712$resampled)
 strat.0712$type = as.factor(strat.0712$type)
@@ -62,7 +62,6 @@ strat.0712$lat = as.numeric(strat.0712$lat)
 strat.0712$lon = as.numeric(strat.0712$lon)
 strat.0712$elevation = as.numeric(strat.0712$elevation)
 strat.0712$ECO9 = as.factor(strat.0712$ECO9)
-strat.0712$state = as.factor(strat.0712$state)
 strat.0712$lake_origin = as.factor(strat.0712$lake_origin)
 strat.0712$area = as.numeric(strat.0712$area)
 strat.0712$volume = as.numeric(strat.0712$volume)
@@ -87,13 +86,99 @@ strat.0712$nutrient_color = as.factor(strat.0712$nutrient_color)
 
 
 
+# Normalize data 
+normality.test <- function(mat)
+  # Test normality of each column of 'mat' before and after log(x+1) and sqrt() transformations
+{
+  mat.quanti = mat[, sapply(mat, class) == "numeric"]
+  p = ncol(mat.quanti)
+  out = matrix(NA,p,6)
+  rownames(out) = colnames(mat.quanti)
+  colnames(out) = c("Shapiro_Wilk_p", "Shapiro_Wilk_W", "log1p_Shapiro_Wilk_p", "log1p_Shapiro_Wilk_W", "sqrt_Shapiro_Wilk_p", "sqrt_Shapiro_Wilk_W")
+  for(j in 1:p) {
+    mat.quanti[,j] = mat.quanti[,j] - min(mat.quanti[,j], na.rm = TRUE)
+    out[j,1] = shapiro.test(mat.quanti[,j])$p.value
+    out[j,2] = shapiro.test(mat.quanti[,j])$statistic
+    out[j,3] = shapiro.test(log1p(mat.quanti[,j]))$p.value
+    out[j,4] = shapiro.test(log1p(mat.quanti[,j]))$statistic
+    out[j,5] = shapiro.test(sqrt(mat.quanti[,j]))$p.value
+    out[j,6] = shapiro.test(sqrt(mat.quanti[,j]))$statistic
+  }
+  out
+}
+
+# Test normality on sites sampled once 
+# The normality of the distribution of geographic coordinates variables is not be tested 
+strat.0712.test.normal = strat.0712[strat.0712$resampled == 0, !(names(strat.0712) %in% c("lat", "lon", "X", "Y"))]
+
+shapiro.p.W = as.data.frame(normality.test(strat.0712.test.normal))
+which(shapiro.p.W$Shapiro_Wilk_p > 0.05) # No variables are normaly distributed
+which(shapiro.p.W$log1p_Shapiro_Wilk_p > 0.05) # No variables are normaly distributed even after log(1+x) transformation
+which(shapiro.p.W$sqrt_Shapiro_Wilk_p > 0.05) # No variables are normaly distributed even after sqrt transformation
+
+
+# Determine the best transformation for each variable between no transformation, log(x+1) and sqrt transformation
+best.transform = matrix(NA,nrow(shapiro.p.W),1)
+rownames(best.transform) = rownames(shapiro.p.W)
+colnames(best.transform) = "best_transform"
+
+for (i in 1:nrow(best.transform)) {
+  max.W = max(shapiro.p.W$Shapiro_Wilk_W[i], shapiro.p.W$log1p_Shapiro_Wilk_W[i], shapiro.p.W$sqrt_Shapiro_Wilk_W[i])
+
+  if(shapiro.p.W$Shapiro_Wilk_W[i] == max.W) {
+    best.transform[i,1] = "none"
+  } else if (shapiro.p.W$log1p_Shapiro_Wilk_W[i] == max.W) {
+    best.transform[i,1] = "log1p"
+  } else if (shapiro.p.W$sqrt_Shapiro_Wilk_W[i] == max.W) {
+    best.transform[i,1] = "sqrt"
+  }
+}
+best.transform
+
+
+
+
+# Transformation to make the variable distributions more symmetrical
+strat.0712.norm = strat.0712
+strat.0712.norm$deltaT = log1p(strat.0712.norm$deltaT - min(strat.0712.norm$deltaT, na.rm = TRUE)) # minimum added because of negative values
+strat.0712.norm$epithick = log1p(strat.0712.norm$epithick)
+strat.0712.norm$thermodepth = sqrt(strat.0712.norm$thermodepth)
+strat.0712.norm$anoxiaV = log1p(strat.0712.norm$anoxiaV)
+strat.0712.norm$hypoxiaV = log1p(strat.0712.norm$hypoxiaV)
+strat.0712.norm$schmidth_stability = log1p(strat.0712.norm$schmidth_stability - min(strat.0712.norm$schmidth_stability, na.rm = TRUE)) # minimum added because of negative values
+strat.0712.norm$elevation = log1p(strat.0712.norm$elevation - min(strat.0712.norm$elevation, na.rm = TRUE)) # minimum added because of negetive values
+strat.0712.norm$area = log1p(strat.0712.norm$area)
+strat.0712.norm$volume = log1p(strat.0712.norm$volume)
+strat.0712.norm$WALA_ratio = log1p(strat.0712.norm$WALA_ratio)
+strat.0712.norm$depth = log1p(strat.0712.norm$depth)
+strat.0712.norm$SDI = log1p(strat.0712.norm$SDI)
+strat.0712.norm$forest = sqrt(strat.0712.norm$forest)
+strat.0712.norm$agric = sqrt(strat.0712.norm$agric)
+strat.0712.norm$precip = strat.0712.norm$precip
+strat.0712.norm$avgtemp = strat.0712.norm$avgtemp
+strat.0712.norm$mintemp = strat.0712.norm$mintemp
+strat.0712.norm$maxtemp = strat.0712.norm$maxtemp
+strat.0712.norm$chla = log1p(strat.0712.norm$chla)
+strat.0712.norm$color = log1p(strat.0712.norm$color)
+strat.0712.norm$TN = log1p(strat.0712.norm$TN)
+strat.0712.norm$TP = log1p(strat.0712.norm$TP)
+strat.0712.norm$DOC = log1p(strat.0712.norm$DOC)
+strat.0712.norm$cond = log1p(strat.0712.norm$cond)
+strat.0712.norm$turb = log1p(strat.0712.norm$turb)
+
+
+
+
+
+
+
 # The whole data set comprises sites sampled in 2007 AND 2012 and sites sampled in 2007 OR 2012
 # Some analysis will be conducted on Resampled sites only, others on Unique sites only 
-strat.0712.R = strat.0712[which(strat.0712$resampled == 1),] # resampled sites 
+strat.0712.R = strat.0712.norm[which(strat.0712.norm$resampled == 1),] # resampled sites 
 length(unique(strat.0712.R$site_id)) # 401 sites were sampled in 2007 and 2012
 nrow(strat.0712.R) # 802 sampling events
 
-strat.0712.U = strat.0712[which(strat.0712$resampled == 0),] # sites sampled in 2007 OR 2012
+strat.0712.U = strat.0712.norm[which(strat.0712.norm$resampled == 0),] # sites sampled in 2007 OR 2012
 length(unique(strat.0712.U$site_id)) # 1485 sites were sampled in 2007 OR 2012
 nrow(strat.0712.U) # 1485 sampling events
 
@@ -117,7 +202,6 @@ strat.0712.U.nonQ = strat.0712.U[,!(names(strat.0712.U) %in% quanti.var)] # vari
 strat.0712.U.z = merge(strat.0712.U.nonQ,strat.0712.U.Q,by="row.names",all.x=TRUE) # merge standardized and non standardized variables
 rownames(strat.0712.U.z) = strat.0712.U.z$Row.names # the former row names were written in a column in the process : write them as row names as before
 strat.0712.U.z = strat.0712.U.z[,!(names(strat.0712.U.z) %in% c("Row.names", "resampled"))] # remove unuseful columns 
-
 
 
 
@@ -355,12 +439,18 @@ legend(locator(1),
        cex = 0.4)
 
 
+######### JE SUIS RENDU LÀ ############
+##### JE DOIS ARRANGER MES PCA
+# AJOUTER FLÈCHES, CHANGER COULEURS, MODIFIER LÉGENDE
+##### JE DOIS ARRANGER PROCRUSTES POUR QUE ÇA FASSE DU SENS
+##### JE DOIS REGARDER POUR VALEURS ABERRANTES À PARTIR DE MES PCA
 
 
 
 
 # Procrustes comparaison of the 2007 and 2012 PCAs
 proc.0712 = procrustes(strat.R.07.imp.PCA, strat.R.12.imp.PCA, scaling = 1)
+
 
 # Procrustes plot
 plot(proc.0712)

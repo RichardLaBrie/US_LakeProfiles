@@ -920,7 +920,6 @@ strat.0712 = info.0712 %>%
          X = as.numeric(lon_m),
          Y = as.numeric(lat_m),
          elevation = as.factor(elevation_m),
-         state = as.factor(state),
          ECO9 = as.factor(ECO9),
          lake_origin = as.factor(lake_origin),
          area = as.numeric(area_km2),
@@ -945,8 +944,7 @@ strat.0712 = info.0712 %>%
   filter(visit_no == 1) %>% 
   select(sampling_event, site_id, resampled,
          type, stratified, deltaT, epithick, thermodepth, anoxiaV, hypoxiaV, schmidth_stability,
-         month, year, lat, lon, X, Y, elevation, ECO9,
-         state,lake_origin,
+         month, year, lat, lon, X, Y, elevation, ECO9,lake_origin,
          area, volume, WALA_ratio, depth,
          SDI, forest, agric,
          precip, avgtemp, mintemp, maxtemp,
@@ -972,7 +970,6 @@ strat.0712 = strat.0712 %>% select(-sampling_event)
 write.table(strat.0712,
             file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/strat_0712.tsv",
             sep = "\t")
-
 
 
 
