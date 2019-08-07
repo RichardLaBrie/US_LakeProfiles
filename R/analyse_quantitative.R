@@ -15,6 +15,7 @@ library(ggplot2)
 library(maps)
 library(MASS)
 library(missMDA)
+library(MuMIn)
 library(mvpart)
 library(MVPARTwrap)
 library(SoDA)
@@ -26,7 +27,6 @@ source("x_triplot.rda.R")
 
 # Load data 
 strat.0712 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/strat_0712.tsv", header = TRUE,  sep = '\t')
-
 
 
 
@@ -83,6 +83,23 @@ strat.0712$cond = as.numeric(strat.0712$cond)
 strat.0712$turb = as.numeric(strat.0712$turb)
 strat.0712$nutrient_color = as.factor(strat.0712$nutrient_color)
 
+
+# Set lake depth category
+# shallow : depth <= 5m 
+# medium : 5m < depth <= 20m
+# deep : depth > 20m 
+for (i in 1:nrow(strat.0712)) {
+  if(!is.na(strat.0712$depth[i])) {
+    
+  if(strat.0712$depth[i] <= 5) {
+    strat.0712$depth.group[i] = "shallow"
+  } else if (strat.0712$depth[i] > 20) {
+    strat.0712$depth.group[i] = "deep"
+  } else {
+    strat.0712$depth.group[i] = "medium"
+  }
+  }
+}
 
 
 
@@ -170,8 +187,6 @@ strat.0712.norm$turb = log1p(strat.0712.norm$turb)
 
 
 
-
-
 # The whole data set comprises sites sampled in 2007 AND 2012 and sites sampled in 2007 OR 2012
 # Some analysis will be conducted on Resampled sites only, others on Unique sites only 
 strat.0712.R = strat.0712.norm[which(strat.0712.norm$resampled == 1),] # resampled sites 
@@ -184,7 +199,6 @@ nrow(strat.0712.U) # 1485 sampling events
 
 
 
-
 # Strandardization of quantitative variables (except geographic and temporal ones)
 quanti.var = c("deltaT", "epithick", "thermodepth", "anoxiaV", "hypoxiaV", "schmidth_stability", 
                "elevation", "area", "volume", "WALA_ratio", "depth", "SDI", "forest", "agric", "precip",
@@ -192,17 +206,14 @@ quanti.var = c("deltaT", "epithick", "thermodepth", "anoxiaV", "hypoxiaV", "schm
 
 strat.0712.R.Q = decostand(strat.0712.R[,quanti.var], "standardize") # standardization of quantitative variables of resampled sites
 strat.0712.R.nonQ = strat.0712.R[,!(names(strat.0712.R) %in% quanti.var)] # variables that have not been standardized 
-strat.0712.R.z = merge(strat.0712.R.nonQ,strat.0712.R.Q,by="row.names",all.x=TRUE) # merge standardized and non standardized variables
-rownames(strat.0712.R.z) = strat.0712.R.z$Row.names # the former row names were written in a column in the process : write them as row names as before
-strat.0712.R.z = strat.0712.R.z[,!(names(strat.0712.R.z) %in% c("Row.names", "resampled"))] # remove unuseful columns 
+strat.0712.R.z = cbind(strat.0712.R.nonQ,strat.0712.R.Q) # merge standardized and non standardized variables
+strat.0712.R.z = strat.0712.R.z[,!(names(strat.0712.R.z) %in% "resampled")] # remove unuseful columns 
 
 
 strat.0712.U.Q = decostand(strat.0712.U[,quanti.var], "standardize") # standardization of quantitative variables of sites sampled once
 strat.0712.U.nonQ = strat.0712.U[,!(names(strat.0712.U) %in% quanti.var)] # variables that have not been standardized 
-strat.0712.U.z = merge(strat.0712.U.nonQ,strat.0712.U.Q,by="row.names",all.x=TRUE) # merge standardized and non standardized variables
-rownames(strat.0712.U.z) = strat.0712.U.z$Row.names # the former row names were written in a column in the process : write them as row names as before
+strat.0712.U.z = cbind(strat.0712.U.Q,strat.0712.U.nonQ) # merge standardized and non standardized variables
 strat.0712.U.z = strat.0712.U.z[,!(names(strat.0712.U.z) %in% c("Row.names", "resampled"))] # remove unuseful columns 
-
 
 
 
@@ -210,8 +221,8 @@ strat.0712.U.z = strat.0712.U.z[,!(names(strat.0712.U.z) %in% c("Row.names", "re
 strat.var = c("type", "deltaT", "epithick", "hypoxiaV", "schmidth_stability")
 temp.var = c("month", "year")
 geo.var = c("X", "Y")
-lake.var = c("site_id", "elevation", "area", "volume", "WALA_ratio", "depth")
-landuse.var = c("SDI", "forest", "agric", "lake_origin", "state")
+lake.var = c("site_id", "elevation", "area", "volume", "WALA_ratio", "depth", "depth.group", "stratified")
+landuse.var = c("SDI", "forest", "agric", "lake_origin")
 climate.var = c("precip", "avgtemp", "mintemp", "maxtemp", "ECO9")
 chemical.var = c("chla", "color", "TN", "TP", "DOC", "cond", "turb", "nutrient_color")
 
@@ -238,7 +249,7 @@ chemical.U = strat.0712.U.z[, chemical.var] # Chemical subdataset
 # Explanatotry variables subdataset (excluding geographic coordinates and temporal variables)
 expl.R = cbind(lake.R, landuse.R, climate.R, chemical.R) # resampled sites
 expl.U = cbind(lake.U, landuse.U, climate.U, chemical.U) # sites sampled once
-
+expl.U = expl.U[!names(expl.U) %in% c("site_id", "state")] # Remove site it from expl. variables
 
 
 
@@ -294,9 +305,407 @@ pairs(strat.quanti.U[, strat.O], lower.panel = panel.smooth,
 
 
 
-# Selection of explanatory variables and RDA =========
+# Multiple linear regression of every explanatory variables =========
 
 strat.quanti.U = strat.U[, sapply(strat.U, class) == "numeric"] # Quantitative response variables of sites sampled once
+
+
+# Conditions of application
+# 1. Quantitative response data 
+# 2. Linearity 
+# 3. Absence of outliers
+# 4. Independance of errors
+# 5. Homoscedasticity
+# 6. Normality of the distribution of residuals
+
+strat.quanti.shallow = strat.quanti.U[which(strat.0712.U$depth.group == "shallow" & strat.0712.U$stratified == 1),]
+strat.quanti.medium = strat.quanti.U[which(strat.0712.U$depth.group == "medium" & strat.0712.U$stratified == 1),]
+strat.quanti.deep = strat.quanti.U[which(strat.0712.U$depth.group == "deep" & strat.0712.U$stratified == 1),]
+
+expl.shallow = expl.U[which(expl.U$depth.group == "shallow" & expl.U$stratified == 1), -(which(names(expl.U) %in% c("depth.group", "stratified")))]
+expl.medium = expl.U[which(expl.U$depth.group == "medium" & expl.U$stratified == 1), -(which(names(expl.U) %in% c("depth.group", "stratified")))]
+expl.deep = expl.U[which(expl.U$depth.group == "deep" & expl.U$stratified == 1), -(which(names(expl.U) %in% c("depth.group", "stratified")))]
+
+
+# Exlude NA values from the linear models 
+complete.observ.shallow = na.exclude(cbind(strat.quanti.shallow, expl.shallow))
+strat.quanti.shallow.2 = complete.observ.shallow[,1:ncol(strat.quanti.shallow)]
+expl.shallow.2 = complete.observ.shallow[,-(1:ncol(strat.quanti.shallow))]
+
+complete.observ.medium = na.exclude(cbind(strat.quanti.medium, expl.medium))
+strat.quanti.medium.2 = complete.observ.medium[,1:ncol(strat.quanti.medium)]
+expl.medium.2 = complete.observ.medium[,-(1:ncol(strat.quanti.medium))]
+
+complete.observ.deep = na.exclude(cbind(strat.quanti.deep, expl.deep))
+strat.quanti.deep.2 = complete.observ.deep[,1:ncol(strat.quanti.deep)]
+expl.deep.2 = complete.observ.deep[,-(1:ncol(strat.quanti.deep))]
+
+
+# deltaT for shallow lakes
+deltaT.shallow.m0 = lm(strat.quanti.shallow.2$deltaT ~ 1, data = expl.shallow.2) # model m0
+deltaT.shallow.mtot = lm(strat.quanti.shallow.2$deltaT ~ ., data = expl.shallow.2) # model mtot
+deltaT.shallow.select = step(deltaT.shallow.m0, scope=formula(deltaT.shallow.mtot), direction="both", trace=0) # variable selection
+summary(deltaT.shallow.select)
+
+
+# deltaT for medium lakes
+deltaT.medium.m0 = lm(strat.quanti.medium.2$deltaT ~ 1, data = expl.medium.2) # model m0
+deltaT.medium.mtot = lm(strat.quanti.medium.2$deltaT ~ ., data = expl.medium.2) # model mtot
+deltaT.medium.select = step(deltaT.medium.m0, scope=formula(deltaT.medium.mtot), direction="both", trace=0) # variable selection
+summary(deltaT.medium.select)
+
+
+# deltaT for deep lakes
+deltaT.deep.m0 = lm(strat.quanti.deep.2$deltaT ~ 1, data = expl.deep.2) # model m0
+deltaT.deep.mtot = lm(strat.quanti.deep.2$deltaT ~ ., data = expl.deep.2) # model mtot
+deltaT.deep.select = step(deltaT.deep.m0, scope=formula(deltaT.deep.mtot), direction="both", trace=0) # variable selection
+summary(deltaT.deep.select)
+
+
+
+# epithick for shallow lakes
+epithick.shallow.m0 = lm(strat.quanti.shallow.2$epithick ~ 1, data = expl.shallow.2) # model m0
+epithick.shallow.mtot = lm(strat.quanti.shallow.2$epithick ~ ., data = expl.shallow.2) # model mtot
+epithick.shallow.select = step(epithick.shallow.m0, scope=formula(epithick.shallow.mtot), direction="both", trace=0) # variable selection
+summary(epithick.shallow.select)
+
+
+# epithick for medium lakes
+epithick.medium.m0 = lm(strat.quanti.medium.2$epithick ~ 1, data = expl.medium.2) # model m0
+epithick.medium.mtot = lm(strat.quanti.medium.2$epithick ~ ., data = expl.medium.2) # model mtot
+epithick.medium.select = step(epithick.medium.m0, scope=formula(epithick.medium.mtot), direction="both", trace=0) # variable selection
+summary(epithick.medium.select)
+
+
+# epithick for deep lakes
+epithick.deep.m0 = lm(strat.quanti.deep.2$epithick ~ 1, data = expl.deep.2) # model m0
+epithick.deep.mtot = lm(strat.quanti.deep.2$epithick ~ ., data = expl.deep.2) # model mtot
+epithick.deep.select = step(epithick.deep.m0, scope=formula(epithick.deep.mtot), direction="both", trace=0) # variable selection
+summary(epithick.deep.select)
+
+
+
+# hypoxiaV for shallow lakes
+hypoxiaV.shallow.m0 = lm(strat.quanti.shallow.2$hypoxiaV ~ 1, data = expl.shallow.2) # model m0
+hypoxiaV.shallow.mtot = lm(strat.quanti.shallow.2$hypoxiaV ~ ., data = expl.shallow.2) # model mtot
+hypoxiaV.shallow.select = step(hypoxiaV.shallow.m0, scope=formula(hypoxiaV.shallow.mtot), direction="both", trace=0) # variable selection
+summary(hypoxiaV.shallow.select)
+
+
+
+# hypoxiaV for medium lakes
+hypoxiaV.medium.m0 = lm(strat.quanti.medium.2$hypoxiaV ~ 1, data = expl.medium.2) # model m0
+hypoxiaV.medium.mtot = lm(strat.quanti.medium.2$hypoxiaV ~ ., data = expl.medium.2) # model mtot
+hypoxiaV.medium.select = step(hypoxiaV.medium.m0, scope=formula(hypoxiaV.medium.mtot), direction="both", trace=0) # variable selection
+summary(hypoxiaV.medium.select)
+
+
+# hypoxiaV for deep lakes
+hypoxiaV.deep.m0 = lm(strat.quanti.deep.2$hypoxiaV ~ 1, data = expl.deep.2) # model m0
+hypoxiaV.deep.mtot = lm(strat.quanti.deep.2$hypoxiaV ~ ., data = expl.deep.2) # model mtot
+hypoxiaV.deep.select = step(hypoxiaV.deep.m0, scope=formula(hypoxiaV.deep.mtot), direction="both", trace=0) # variable selection
+summary(hypoxiaV.deep.select)
+
+
+
+# schmidth_stability for shallow lakes
+schmidth_stability.shallow.m0 = lm(strat.quanti.shallow.2$schmidth_stability ~ 1, data = expl.shallow.2) # model m0
+schmidth_stability.shallow.mtot = lm(strat.quanti.shallow.2$schmidth_stability ~ ., data = expl.shallow.2) # model mtot
+schmidth_stability.shallow.select = step(schmidth_stability.shallow.m0, scope=formula(schmidth_stability.shallow.mtot), direction="both", trace=0) # variable selection
+summary(schmidth_stability.shallow.select)
+
+
+# schmidth_stability for medium lakes
+schmidth_stability.medium.m0 = lm(strat.quanti.medium.2$schmidth_stability ~ 1, data = expl.medium.2) # model m0
+schmidth_stability.medium.mtot = lm(strat.quanti.medium.2$schmidth_stability ~ ., data = expl.medium.2) # model mtot
+schmidth_stability.medium.select = step(schmidth_stability.medium.m0, scope=formula(schmidth_stability.medium.mtot), direction="both", trace=0) # variable selection
+summary(schmidth_stability.medium.select)
+
+
+# schmidth_stability deep lakes
+schmidth_stability.deep.m0 = lm(strat.quanti.deep.2$schmidth_stability ~ 1, data = expl.deep.2) # model m0
+schmidth_stability.deep.mtot = lm(strat.quanti.deep.2$schmidth_stability ~ ., data = expl.deep.2) # model mtot
+schmidth_stability.deep.select = step(schmidth_stability.deep.m0, scope=formula(schmidth_stability.deep.mtot), direction="both", trace=0) # variable selection
+summary(schmidth_stability.deep.select)
+
+
+
+# Multiple linear regression of depth, nutrient-color and temp =========
+
+strat.expl.complete = na.exclude(cbind(strat.U[names(strat.U) %in% c("deltaT", "epithick", 'hypoxiaV', "schmidth_stability")],
+                                   expl.U[names(expl.U) %in% c("depth.group", "nutrient_color", 'maxtemp', "mintemp", "avgtemp")]))
+strat.U.lm = strat.expl.complete[,1:4]
+expl.U.lm = strat.expl.complete[,-(1:4)]
+
+
+
+deltaT.m0 = lm(strat.U.lm$deltaT ~ 1, data = expl.U.lm) # model m0
+deltaT.mtot = lm(strat.U.lm$deltaT ~ depth.group * nutrient_color * maxtemp * mintemp * avgtemp,
+                 data = expl.U.lm) # model mtot
+deltaT.select = step(deltaT.m0, scope=formula(deltaT.mtot), direction="both", trace=0) # variable selection
+summary(deltaT.select)
+
+
+epithick.m0 = lm(strat.U.lm$epithick ~ 1, data = expl.U.lm) # model m0
+epithick.mtot = lm(strat.U.lm$epithick ~ depth.group + nutrient_color + maxtemp + mintemp + avgtemp,
+                 data = expl.U.lm) # model mtot
+epithick.select = step(epithick.m0, scope=formula(epithick.mtot), direction="both", trace=0) # variable selection
+summary(epithick.select)
+
+
+
+
+hypoxiaV.m0 = lm(strat.U.lm$hypoxiaV ~ 1, data = expl.U.lm) # model m0
+hypoxiaV.mtot = lm(strat.U.lm$hypoxiaV ~ depth.group + nutrient_color + maxtemp + mintemp + avgtemp,
+                   data = expl.U.lm) # model mtot
+hypoxiaV.select = step(hypoxiaV.m0, scope=formula(hypoxiaV.mtot), direction="both", trace=0) # variable selection
+summary(hypoxiaV.select)
+
+
+
+
+schmidth_stability.m0 = lm(strat.U.lm$schmidth_stability ~ 1, data = expl.U.lm) # model m0
+schmidth_stability.mtot = lm(strat.U.lm$schmidth_stability ~ depth.group + nutrient_color + maxtemp + mintemp + avgtemp,
+                   data = expl.U.lm) # model mtot
+schmidth_stability.select = step(schmidth_stability.m0, scope=formula(schmidth_stability.mtot), direction="both", trace=0) # variable selection
+summary(schmidth_stability.select)
+
+
+
+
+
+
+
+# Variation partitioning =========
+
+strat.shallow = strat.U[which(strat.0712.U$depth.group == "shallow" & strat.0712.U$stratified == 1),]
+lake.shallow = lake.U[which(strat.0712.U$depth.group == "shallow" & strat.0712.U$stratified == 1),]
+landuse.shallow = landuse.U[which(strat.0712.U$depth.group == "shallow" & strat.0712.U$stratified == 1),]
+climate.shallow = climate.U[which(strat.0712.U$depth.group == "shallow" & strat.0712.U$stratified == 1),]
+chemical.shallow = chemical.U[which(strat.0712.U$depth.group == "shallow" & strat.0712.U$stratified == 1),]
+
+strat.medium = strat.U[which(strat.0712.U$depth.group == "medium" & strat.0712.U$stratified == 1),]
+lake.medium = lake.U[which(strat.0712.U$depth.group == "medium" & strat.0712.U$stratified == 1),]
+landuse.medium = landuse.U[which(strat.0712.U$depth.group == "medium" & strat.0712.U$stratified == 1),]
+climate.medium = climate.U[which(strat.0712.U$depth.group == "medium" & strat.0712.U$stratified == 1),]
+chemical.medium = chemical.U[which(strat.0712.U$depth.group == "medium" & strat.0712.U$stratified == 1),]
+
+strat.deep = strat.U[which(strat.0712.U$depth.group == "deep" & strat.0712.U$stratified == 1),]
+lake.deep = lake.U[which(strat.0712.U$depth.group == "deep" & strat.0712.U$stratified == 1),]
+landuse.deep = landuse.U[which(strat.0712.U$depth.group == "deep" & strat.0712.U$stratified == 1),]
+climate.deep = climate.U[which(strat.0712.U$depth.group == "deep" & strat.0712.U$stratified == 1),]
+chemical.deep = chemical.U[which(strat.0712.U$depth.group == "deep" & strat.0712.U$stratified == 1),]
+
+
+a = ncol(strat.U)
+b = ncol(lake.U)
+c = ncol(landuse.U)
+d = ncol(climate.U)
+e = ncol(chemical.U)
+strat.expl.shallow = na.exclude(cbind(strat.shallow, cbind(lake.shallow, cbind(landuse.shallow, cbind(climate.shallow, chemical.shallow)))))
+strat.shallow.2 = strat.expl.shallow[,1:a]                   
+lake.shallow.2 = strat.expl.shallow[,(a+1):(a+b)]
+landuse.shallow.2 = strat.expl.shallow[,(a+b+1):(a+b+c)]
+climate.shallow.2 = strat.expl.shallow[,(a+b+c+1):(a+b+c+d)]
+chemical.shallow.2 = strat.expl.shallow[,(a+b+c+d+1):(a+b+c+d+e)]
+
+
+strat.expl.medium = na.exclude(cbind(strat.medium, cbind(lake.medium, cbind(landuse.medium, cbind(climate.medium, chemical.medium)))))
+strat.medium.2 = strat.expl.medium[,1:a]                   
+lake.medium.2 = strat.expl.medium[,(a+1):(a+b)]
+landuse.medium.2 = strat.expl.medium[,(a+b+1):(a+b+c)]
+climate.medium.2 = strat.expl.medium[,(a+b+c+1):(a+b+c+d)]
+chemical.medium.2 = strat.expl.medium[,(a+b+c+d+1):(a+b+c+d+e)]
+
+
+
+strat.expl.deep = na.exclude(cbind(strat.deep, cbind(lake.deep, cbind(landuse.deep, cbind(climate.deep, chemical.deep)))))
+strat.deep.2 = strat.expl.deep[,1:a]                   
+lake.deep.2 = strat.expl.deep[,(a+1):(a+b)]
+landuse.deep.2 = strat.expl.deep[,(a+b+1):(a+b+c)]
+climate.deep.2 = strat.expl.deep[,(a+b+c+1):(a+b+c+d)]
+chemical.deep.2 = strat.expl.deep[,(a+b+c+d+1):(a+b+c+d+e)]
+
+
+
+deltaT.shallow.varpart = varpart(strat.shallow.2$deltaT, 
+        lake.shallow.2[,c("area", "depth")], 
+        climate.shallow.2[,c("avgtemp", "mintemp", "maxtemp")],
+        chemical.shallow.2[,c("color", "TP")])
+plot(deltaT.shallow.varpart,
+     digits = 2,
+     bg = c("blue", "red", "yellow"),
+     Xnames = c("Lake size", "Temperature", "Nutrient-color"),
+     id.sizes = 0.7)
+
+
+
+
+
+
+deltaT.medium.varpart = varpart(strat.medium.2$deltaT, 
+                                 lake.medium.2[,c("area", "depth")], 
+                                 climate.medium.2[,c("avgtemp", "mintemp", "maxtemp")],
+                                 chemical.medium.2[,c("color", "TP")])
+plot(deltaT.medium.varpart,
+     digits = 2,
+     bg = c("blue", "red", "yellow"),
+     Xnames = c("Lake size", "Temperature", "Nutrient-color"),
+     id.sizes = 0.7)
+
+
+
+deltaT.deep.varpart = varpart(strat.deep.2$deltaT, 
+                                lake.deep.2[,c("area", "depth")], 
+                                climate.deep.2[,c("avgtemp", "mintemp", "maxtemp")],
+                                chemical.deep.2[,c("color", "TP")])
+plot(deltaT.deep.varpart,
+     digits = 2,
+     bg = c("blue", "red", "yellow"),
+     Xnames = c("Lake size", "Temperature", "Nutrient-color"),
+     id.sizes = 0.7)
+
+
+
+
+
+
+
+
+
+
+
+epithick.shallow.varpart = varpart(strat.shallow.2$epithick, 
+                                 lake.shallow.2[,c("area", "depth")], 
+                                 climate.shallow.2[,c("avgtemp", "mintemp", "maxtemp")],
+                                 chemical.shallow.2[,c("color", "TP")])
+plot(epithick.shallow.varpart,
+     digits = 2,
+     bg = c("blue", "red", "yellow"),
+     Xnames = c("Lake size", "Temperature", "Nutrient-color"),
+     id.sizes = 0.7)
+
+
+
+
+
+
+epithick.medium.varpart = varpart(strat.medium.2$epithick, 
+                                lake.medium.2[,c("area", "depth")], 
+                                climate.medium.2[,c("avgtemp", "mintemp", "maxtemp")],
+                                chemical.medium.2[,c("color", "TP")])
+plot(epithick.medium.varpart,
+     digits = 2,
+     bg = c("blue", "red", "yellow"),
+     Xnames = c("Lake size", "Temperature", "Nutrient-color"),
+     id.sizes = 0.7)
+
+
+
+epithick.deep.varpart = varpart(strat.deep.2$epithick, 
+                              lake.deep.2[,c("area", "depth")], 
+                              climate.deep.2[,c("avgtemp", "mintemp", "maxtemp")],
+                              chemical.deep.2[,c("color", "TP")])
+plot(epithick.deep.varpart,
+     digits = 2,
+     bg = c("blue", "red", "yellow"),
+     Xnames = c("Lake size", "Temperature", "Nutrient-color"),
+     id.sizes = 0.7)
+
+
+
+
+
+
+hypoxiaV.shallow.varpart = varpart(strat.shallow.2$hypoxiaV, 
+                                   lake.shallow.2[,c("area", "depth")], 
+                                   climate.shallow.2[,c("avgtemp", "mintemp", "maxtemp")],
+                                   chemical.shallow.2[,c("color", "TP")])
+plot(hypoxiaV.shallow.varpart,
+     digits = 2,
+     bg = c("blue", "red", "yellow"),
+     Xnames = c("Lake size", "Temperature", "Nutrient-color"),
+     id.sizes = 0.7)
+
+
+
+
+
+hypoxiaV.medium.varpart = varpart(strat.medium.2$hypoxiaV, 
+                                  lake.medium.2[,c("area", "depth")], 
+                                  climate.medium.2[,c("avgtemp", "mintemp", "maxtemp")],
+                                  chemical.medium.2[,c("color", "TP")])
+plot(hypoxiaV.medium.varpart,
+     digits = 2,
+     bg = c("blue", "red", "yellow"),
+     Xnames = c("Lake size", "Temperature", "Nutrient-color"),
+     id.sizes = 0.7)
+
+
+
+hypoxiaV.deep.varpart = varpart(strat.deep.2$hypoxiaV, 
+                                lake.deep.2[,c("area", "depth")], 
+                                climate.deep.2[,c("avgtemp", "mintemp", "maxtemp")],
+                                chemical.deep.2[,c("color", "TP")])
+plot(hypoxiaV.deep.varpart,
+     digits = 2,
+     bg = c("blue", "red", "yellow"),
+     Xnames = c("Lake size", "Temperature", "Nutrient-color"),
+     id.sizes = 0.7)
+
+
+
+
+
+
+
+
+schmidth_stability.shallow.varpart = varpart(strat.shallow.2$schmidth_stability, 
+                                   lake.shallow.2[,c("area", "depth")], 
+                                   climate.shallow.2[,c("avgtemp", "mintemp", "maxtemp")],
+                                   chemical.shallow.2[,c("color", "TP")])
+plot(schmidth_stability.shallow.varpart,
+     digits = 2,
+     bg = c("blue", "red", "yellow"),
+     Xnames = c("Lake size", "Temperature", "Nutrient-color"),
+     id.sizes = 0.7)
+
+
+
+
+
+schmidth_stability.medium.varpart = varpart(strat.medium.2$schmidth_stability, 
+                                  lake.medium.2[,c("area", "depth")], 
+                                  climate.medium.2[,c("avgtemp", "mintemp", "maxtemp")],
+                                  chemical.medium.2[,c("color", "TP")])
+plot(schmidth_stability.medium.varpart,
+     digits = 2,
+     bg = c("blue", "red", "yellow"),
+     Xnames = c("Lake size", "Temperature", "Nutrient-color"),
+     id.sizes = 0.7)
+
+
+
+schmidth_stability.deep.varpart = varpart(strat.deep.2$schmidth_stability, 
+                                lake.deep.2[,c("area", "depth")], 
+                                climate.deep.2[,c("avgtemp", "mintemp", "maxtemp")],
+                                chemical.deep.2[,c("color", "TP")])
+plot(schmidth_stability.deep.varpart,
+     digits = 2,
+     bg = c("blue", "red", "yellow"),
+     Xnames = c("Lake size", "Temperature", "Nutrient-color"),
+     id.sizes = 0.7)
+
+
+
+
+
+
+
+
+
+# Selection of explanatory variables and RDA =========
+
 
 # Observations with NA values are removed from the analysis 
 strat.expl.U = cbind(strat.quanti.U, expl.U)
