@@ -885,3 +885,35 @@ ggsave(filename = "piechart_colorstrat.pdf", plot = p, device = "pdf", path = "C
 
 
 
+
+
+
+
+#### Graph Zepi vs Zmax ####
+
+data.for.zepizmax = info.0712a %>% filter(resampled == 0, stratified == 1, !is.na(nutrient_color)) %>%
+  mutate(zmax = sampled_depthmax_m, zepi = epithick_m) %>%
+  select(zmax, zepi, nutrient_color)
+
+lm_fit <- lm(zepi ~ zmax, data = data.for.zepizmax)
+predicted_df <- data.frame(zepi.predict = predict(lm_fit, data.for.zepizmax), zmax = data.for.zepizmax$zmax)
+
+zepizmax.plot = ggplot(data.for.zepizmax, aes(x = zmax, y = zepi, col = nutrient_color)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_line(color = "black", size = 1, data = predicted_df, aes(x = zmax, y = zepi.predict)) +
+  geom_abline(color = "black", lty = "dotted", intercept = 0, slope = 1) +
+  scale_color_manual(name = "nutrient-color status", values = c("blue", "brown", "green", "orange")) +
+  scale_x_continuous(name = "z max (m)") +
+  scale_y_continuous(name = "z epi (m)") +
+  annotate("text", label = "1:1 line", x = 30, y = 33) +
+  theme(strip.background = element_blank(), 
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black", size = 1)) +
+  coord_fixed(ratio = 1)
+  
+ggsave(filename = "zepi_zmax.pdf", plot = zepizmax.plot, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/scatter_plot", width = 12, height = 12)
+
+  
