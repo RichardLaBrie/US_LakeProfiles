@@ -888,6 +888,30 @@ range(strat.U.S15, na.rm = TRUE)
 
 
 # Multivariate regression tree =========
+
+
+######## JE SUIS AUSSI RENDU LÀ !! #######
+data.for.pie$type.07 = as.numeric(data.for.pie$type.07)
+data.for.pie$type.12 = as.factor(data.for.pie$type.12)
+
+test = mvpart(data.matrix(data.for.pie$type.12) ~.,
+              data.for.pie[,!(names(data.for.pie) %in% "type.12")])
+test2 = MRT(test, species = "type.12")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 strat.quanti.U = strat.U[,-(names(strat.U) %in% "type")] # quantitative response variables
 
 

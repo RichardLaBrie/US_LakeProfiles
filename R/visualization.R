@@ -6,6 +6,8 @@
 library(dplyr)
 library(maps)
 library(ggplot2)
+library(scatterpie)
+
 
 # Required R code (make_datasets.R)
 # source("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/R/models_and_analysis.R")
@@ -193,6 +195,7 @@ info.2007r = info.0712r %>% filter(year == 2007)
 info.2012r = info.0712r %>% filter(year == 2012)
 
 info.0712r2 = left_join(info.2007r, info.2012r, by = "site_id", suffix = c(".07", ".12")) 
+
 
 # Change of stratification 
 info.0712r2 = info.0712r2 %>% mutate(stratification_change = stratified.12 - stratified.07)
@@ -827,3 +830,58 @@ ggsave(filename = "hypoxia_depth_all.pdf", plot = hypoxia.depth.all.violin, devi
 table(info.0712a$type, info.0712a$nutrient_color)
 table(info.0712a$type, info.0712a$ECO9)
 table(info.0712a$nutrient_color, info.0712a$ECO9)
+
+
+
+
+
+
+
+#### Change analysis #####
+dim(info.0712r2)
+
+data.for.pie = as.data.frame(matrix(NA, 36*4, 8))
+colnames(data.for.pie) = c("nutricol.07","type.07", "type.12", "blue", "brown", "green", "murky", "freq")
+data.for.pie$nutricol.07 = c(rep("blue", 36), rep("brown", 36), rep("green", 36), rep("murky",36))
+data.for.pie$type.07 = rep(1:6, 6*4)
+data.for.pie$type.12 = rep(c(rep(1,6), rep(2,6), rep(3,6), rep(4,6), rep(5,6), rep(6,6)),4)
+
+info.0712r2.short = info.0712r2 %>% select(type.07, type.12, nutrient_color.07, nutrient_color.12)
+
+for (i in 1:nrow(data.for.pie)) {
+  nutricol.07.i = data.for.pie$nutricol.07[i]
+  type.07.i = data.for.pie$type.07[i]
+  type.12.i = data.for.pie$type.12[i]
+  
+  types.i = info.0712r2.short %>% filter(nutrient_color.07 == nutricol.07.i, type.07 == type.07.i, type.12 == type.12.i)
+  table.nutrient.color = table(types.i$nutrient_color.12)
+  
+  data.for.pie$blue[i] = table.nutrient.color["blue"]
+  data.for.pie$brown[i] = table.nutrient.color["brown"]
+  data.for.pie$green[i] = table.nutrient.color["green"]
+  data.for.pie$murky[i] = table.nutrient.color["murky"]
+  
+  data.for.pie$freq[i] = nrow(types.i)
+}
+
+p <- ggplot(data.for.pie) + 
+  facet_wrap(~ nutricol.07, ncol=2, labeller = labeller(nutricol.07 = c(blue = "blue 2007", brown = "brown 2007", green = "green 2007", murky = "murky 2007"))) +
+  geom_scatterpie(aes(x = type.07, y = type.12, r = log(freq + 1) / 6), data = data.for.pie,
+                          cols = c("blue", "brown", "green", "murky"), color = NA) + coord_equal() +
+  scale_fill_manual(values = c("blue", "brown", "green", "orange")) +
+  scale_x_continuous(name = "lake type 2007", breaks = 1:6) +
+  scale_y_continuous(name = "lake type 2012", breaks = 1:6) +
+  theme(strip.text.x = element_text(size = 10, face = "bold", color = "black"),
+        strip.background = element_rect(fill = "darkgrey"), 
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black", size = 1)) + 
+  labs(fill = "nutrient-color status 2012") + 
+  geom_text(data = filter(data.for.pie, freq != 0), aes(x = type.07 + 0.3, y = type.12, label = freq), size = 3.5) 
+
+
+ggsave(filename = "piechart_colorstrat.pdf", plot = p, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/pie_chart", width = 12, height = 12)
+
+
+
