@@ -4,6 +4,7 @@
 
 # Libraries
 library(dplyr)
+library(lsmeans)
 library(maps)
 library(ggplot2)
 library(scatterpie)
@@ -891,29 +892,55 @@ ggsave(filename = "piechart_colorstrat.pdf", plot = p, device = "pdf", path = "C
 
 #### Graph Zepi vs Zmax ####
 
-data.for.zepizmax = info.0712a %>% filter(resampled == 0, stratified == 1, !is.na(nutrient_color)) %>%
+# Only sites sampled once, stratified with an epilimnion
+data.for.zepizmax = info.0712a %>% filter(resampled == 0, stratified == 1, !is.na(nutrient_color), type != 3) %>%
   mutate(zmax = sampled_depthmax_m, zepi = epithick_m) %>%
   select(zmax, zepi, nutrient_color)
 
-lm_fit <- lm(zepi ~ zmax, data = data.for.zepizmax)
-predicted_df <- data.frame(zepi.predict = predict(lm_fit, data.for.zepizmax), zmax = data.for.zepizmax$zmax)
+# linear model without nutrient-color specification
+lm_fit <- lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax)
+predicted_df <- data.frame(zepi.predict = predict(lm_fit, data.for.zepizmax), zmax = log1p(data.for.zepizmax$zmax))
 
-zepizmax.plot = ggplot(data.for.zepizmax, aes(x = zmax, y = zepi, col = nutrient_color)) +
+# linear model with nutrient-color specification
+zepizmaxstatus.lm = lm(log1p(zepi) ~ log1p(zmax) * nutrient_color, data = data.for.zepizmax)
+zepizmaxstatus.R2adj = round(RsquareAdj(zepizmaxstatus.lm)$adj.r.squared, 3) # adjusted R2
+summary(zepizmaxstatus.lm)
+anova(zepizmaxstatus.lm)
+zepizmaxstatus.lm$coefficients # obtain slopes
+m.lst <- lstrends(zepizmaxstatus.lm, "nutrient_color", var = "zmax")
+pairs(m.lst) 
+
+
+
+# Examine residual graph (for blue lakes)
+zepizmax.lm.blue = lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax %>% filter(nutrient_color == "blue"))
+resid.fitted.blue = as.data.frame(matrix(NA, nrow(data.for.zepizmax %>% filter(nutrient_color == "blue")),2))
+colnames(resid.fitted.blue) = c("resid", "fitted")
+resid.fitted.blue$resid = resid(zepizmax.lm.blue)
+resid.fitted.blue$fitted = predict(zepizmax.lm.blue, data.for.zepizmax %>% filter(nutrient_color == "blue"))
+shapiro.test(resid.fitted.blue$resid)
+plot(zepizmax.lm.blue, 3) # approximatively homoscedastic
+plot(zepizmax.lm.blue, 2) # approximatively normal
+
+
+  
+# Plot log(z epi + 1) vs log(z max + 1)
+zepizmax.plot = ggplot(data.for.zepizmax, aes(x = log1p(zmax), y = log1p(zepi), col = nutrient_color)) +
   geom_point(alpha = 0.5) +
   geom_smooth(method = "lm", se = FALSE) +
   geom_line(color = "black", size = 1, data = predicted_df, aes(x = zmax, y = zepi.predict)) +
   geom_abline(color = "black", lty = "dotted", intercept = 0, slope = 1) +
   scale_color_manual(name = "nutrient-color status", values = c("blue", "brown", "green", "orange")) +
-  scale_x_continuous(name = "z max (m)") +
-  scale_y_continuous(name = "z epi (m)") +
-  annotate("text", label = "1:1 line", x = 30, y = 33) +
+  scale_x_continuous(name = "log(z max + 1) (m)", limits = c(0, 4)) +
+  scale_y_continuous(name = "log(z epi + 1) (m)", limits = c(0, 4)) +
+  annotate("text", label = "1:1 line", x = 3.8, y = 3.9) +
+  annotate("text", label = paste("adj R2 = ", zepizmaxstatus.R2adj), x = 1, y = 3, size = 5) +
   theme(strip.background = element_blank(), 
         panel.border = element_blank(),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        axis.line = element_line(colour = "black", size = 1)) +
-  coord_fixed(ratio = 1)
+        axis.line = element_line(colour = "black", size = 1))
   
 ggsave(filename = "zepi_zmax.pdf", plot = zepizmax.plot, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/scatter_plot", width = 12, height = 12)
 
-  
+
