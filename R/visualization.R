@@ -944,3 +944,179 @@ zepizmax.plot = ggplot(data.for.zepizmax, aes(x = log1p(zmax), y = log1p(zepi), 
 ggsave(filename = "zepi_zmax.pdf", plot = zepizmax.plot, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/scatter_plot", width = 12, height = 12)
 
 
+
+
+
+
+
+
+#### Maps deltaT épi and deltaT hypo ####
+
+# lakes stratified in 2007 AND 2012
+data.for.deltaTepihypo = info.0712r2 %>% 
+  filter(stratified.07 == 1, stratified.12 == 1) %>%
+  mutate(deltaT.epi = epitemp_C.12 - epitemp_C.07, 
+         deltaT.hypo = hypotemp_C.12 - hypotemp_C.07,
+         deltaT.atm.avg = avgtemp_C.12 - avgtemp_C.07, 
+         deltaT.atm.max = maxtemp_C.12 - maxtemp_C.07,
+         deltaT.atm.min = mintemp_C.12 - mintemp_C.07,
+         lat = lat.12, lon = lon.12, 
+         depth = sampled_depthmax_m.12, area = area_km2.12, 
+         deltaP = PTL_ugL.12 - PTL_ugL.07,
+         deltacol = color_PCU.12 - color_PCU.07) %>%
+select(deltaT.epi, deltaT.hypo, deltaT.atm.avg, deltaT.atm.max, deltaT.atm.min, lat, lon, depth, deltaP, deltacol) 
+
+
+
+# General US map
+usa = map_data("state") 
+usa.plot = ggplot() + 
+  geom_polygon(data = usa, aes(x=long, y = lat, group = group), fill = NA, color = "grey") + 
+  coord_fixed(1.3) 
+
+
+# Map of deltaT epi
+deltaT.epi.plot = usa.plot +
+  geom_point(data = data.for.deltaTepihypo, aes(x = lon, y = lat, fill = deltaT.epi, size = depth), shape = 21, col = "black") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
+  scale_x_continuous(name = "lon") +
+  scale_y_continuous(name = "lat") +
+  labs(size = "maximal depth (m)", fill = "change in temperature (0C)") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black", size = 1))
+
+
+
+
+# Map of deltaT hypo
+deltaT.hypo.plot = usa.plot +
+  geom_point(data = data.for.deltaTepihypo %>% filter(!is.na(deltaT.hypo)), aes(x = lon, y = lat, fill = deltaT.hypo, size = depth), shape = 21, col = "black") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
+  scale_x_continuous(name = "lon") +
+  scale_y_continuous(name = "lat") +
+  labs(size = "maximal depth (m)", fill = "change in temperature (0C)") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black", size = 1))
+
+
+
+
+
+
+##### Some tests (to complete) ####
+
+# Retain complete observations only
+data.for.deltaTepihypo2 = na.exclude(data.for.deltaTepihypo)
+
+deltaTs = data.for.deltaTepihypo2 %>% select(deltaT.atm.avg, deltaT.atm.max, deltaT.atm.min)
+deltaTs.pca = rda(deltaTs, scale = TRUE)
+summary(deltaTs.pca, scaling = 1) # 99,32 % of variation with first axis
+data.for.deltaTepihypo2$deltaT.atm.PCA = -scores(deltaTs.pca, scaling = 1)$sites[,1] # site scores as temperature variable
+
+
+deltaT.epihypo = data.for.deltaTepihypo2[,c("deltaT.epi", "deltaT.hypo")]
+deltaT.exp = data.for.deltaTepihypo2[,c("deltaT.atm.PCA", "depth", "deltaP", "deltacol")]
+deltaT.rda = rda(deltaT.epihypo ~ deltaT.atm.PCA + depth + deltaP + deltacol, data = deltaT.exp)
+RsquareAdj(deltaT.rda)$r.squared
+anova(deltaT.rda, by = "axis", permutations = how(nperm = 999))
+
+mod0 = rda(deltaT.epihypo ~ 1, data = deltaT.exp)
+ordistep(mod0, 
+         scope = formula(deltaT.rda),
+         direction = "both", 
+         permutations = how(nperm = 499))
+
+
+
+
+
+deltaT.epi.lm = lm(deltaT.epihypo$deltaT.epi ~ deltaT.atm.PCA * deltaP * deltacol + depth, data = deltaT.exp)
+deltaT.R2adj = round(RsquareAdj(deltaT.epi.lm)$adj.r.squared, 3) # adjusted R2
+summary(deltaT.epi.lm)
+anova(zepizmaxstatus.lm)
+zepizmaxstatus.lm$coefficients # obtain slopes
+m.lst <- lstrends(zepizmaxstatus.lm, "nutrient_color", var = "zmax")
+pairs(m.lst) 
+
+
+for(i in 1:nrow(data.for.deltaTepihypo2)) {
+  deltaP = data.for.deltaTepihypo2$deltaP[i]
+  deltacol = data.for.deltaTepihypo2$deltacol[i]
+  
+  if(deltaP >= 0 & deltacol >= 0) {
+    data.for.deltaTepihypo2$deltanutricol[i] = 2
+  } else if(deltaP >= 0 & deltacol < 0) {
+    data.for.deltaTepihypo2$deltanutricol[i] = 1
+  } else if(deltaP <  0 & deltacol >= 0) {
+      data.for.deltaTepihypo2$deltanutricol[i] = 0
+  } else if(deltaP <  0 & deltacol < 0) {
+      data.for.deltaTepihypo2$deltanutricol[i] = -1
+  }
+}
+
+data.for.deltaTepihypo2$deltanutricol = as.factor(data.for.deltaTepihypo2$deltanutricol)
+
+table(data.for.deltaTepihypo2$deltanutricol)
+
+
+
+
+
+
+
+
+#### Delta hypo vs delta epi
+
+deltaT.lm = lm(deltaT.hypo ~ deltaT.atm.PCA * deltanutricol, data = data.for.deltaTepihypo2)
+deltaT.R2adj = round(RsquareAdj(deltaT.lm)$adj.r.squared, 3) # adjusted R2
+summary(deltaT.lm)
+anova(deltaT.lm)
+deltaT.lm$coefficients # obtain slopes
+deltaT.lst <- lstrends(deltaT.lm, "deltanutricol", var = "deltaT.atm.PCA")
+pairs(deltaT.lst) 
+
+
+deltaT.epiatm.Rsq = round(RsquareAdj(lm(deltaT.epi ~ deltaT.atm.avg * deltanutricol + depth, data = data.for.deltaTepihypo2))$adj.r.squared, 3)
+ggplot(data.for.deltaTepihypo2, aes(x = deltaT.epi, y = deltaT.atm.avg, col = deltanutricol, size = depth)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_abline(color = "black", lty = "dotted", intercept = 0, slope = 1) +
+  scale_color_manual(name = "differences in nutrient and color", values = c("blue", "brown", "green", "orange"),
+                     labels = c("bluer", "browner", "greener", "murkier")) +
+  scale_x_continuous(name = "difference in averaged atmospheric temperature (oC)") +
+  scale_y_continuous(name = "difference in epilimnetic temperature (oC)") +
+  annotate("text", label = "1:1 line", x = 5, y = 6) +
+  annotate("text", label = paste("adj R2 = ", deltaT.epiatm.Rsq), x = -5, y = 10, size = 5) +
+  theme(strip.background = element_blank(), 
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black", size = 1))
+
+
+
+
+
+
+deltaT.hypoatm.Rsq = round(RsquareAdj(lm(deltaT.hypo ~ deltaT.atm.avg * deltanutricol + depth, data = data.for.deltaTepihypo2))$adj.r.squared, 3)
+ggplot(data.for.deltaTepihypo2, aes(x = deltaT.hypo, y = deltaT.atm.avg, col = deltanutricol, size = depth)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_abline(color = "black", lty = "dotted", intercept = 0, slope = 1) +
+  scale_color_manual(name = "differences in nutrient and color", values = c("blue", "brown", "green", "orange"),
+                     labels = c("bluer", "browner", "greener", "murkier")) +
+  scale_x_continuous(name = "difference in averaged atmospheric temperature (oC)") +
+  scale_y_continuous(name = "difference in hypolimnetic temperature (oC)") +
+  annotate("text", label = "1:1 line", x = 5, y = 6) +
+  annotate("text", label = paste("adj R2 = ", deltaT.hypoatm.Rsq), x = -5, y = 10, size = 5) +
+  theme(strip.background = element_blank(), 
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black", size = 1))
+  
+
+geom_line(color = "black", size = 1, data = predicted_df, aes(x = zmax, y = zepi.predict)) +
+  annotate("text", label = paste("adj R2 = ", zepizmaxstatus.R2adj), x = 1, y = 3, size = 5) 
+
+
