@@ -624,6 +624,10 @@ ggsave(filename = "hypoxia_depth_all.pdf", plot = hypoxia.depth.all, device = "p
 
 
 
+
+
+
+
 maxdepth.all.violin = ggplot(info.0712a, aes(x = nutrient_color, y = sampled_depthmax_m)) +
   geom_violin(aes(color = nutrient_color), show.legend = FALSE, size = 0.7) +
   geom_boxplot(width = 0.05, alpha = 0.4) +
@@ -819,7 +823,6 @@ hypoxia.depth.all.violin = ggplot(info.0712a, aes(x = nutrient_color, y = hypoxi
 
 
 ggsave(filename = "hypoxia_depth_all.pdf", plot = hypoxia.depth.all.violin, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/violin", width = 12, height = 12)
-
 
 
 
@@ -1077,7 +1080,7 @@ pairs(deltaT.lst)
 
 
 deltaT.epiatm.Rsq = round(RsquareAdj(lm(deltaT.epi ~ deltaT.atm.avg * deltanutricol + depth, data = data.for.deltaTepihypo2))$adj.r.squared, 3)
-ggplot(data.for.deltaTepihypo2, aes(x = deltaT.epi, y = deltaT.atm.avg, col = deltanutricol, size = depth)) +
+ggplot(data.for.deltaTepihypo2, aes(x = deltaT.atm.avg, y = deltaT.epi, col = deltanutricol, size = depth)) +
   geom_point(alpha = 0.5) +
   geom_smooth(method = "lm", se = FALSE) +
   geom_abline(color = "black", lty = "dotted", intercept = 0, slope = 1) +
@@ -1099,7 +1102,7 @@ ggplot(data.for.deltaTepihypo2, aes(x = deltaT.epi, y = deltaT.atm.avg, col = de
 
 
 deltaT.hypoatm.Rsq = round(RsquareAdj(lm(deltaT.hypo ~ deltaT.atm.avg * deltanutricol + depth, data = data.for.deltaTepihypo2))$adj.r.squared, 3)
-ggplot(data.for.deltaTepihypo2, aes(x = deltaT.hypo, y = deltaT.atm.avg, col = deltanutricol, size = depth)) +
+ggplot(data.for.deltaTepihypo2, aes(x = deltaT.atm.avg, y = deltaT.hypo, col = deltanutricol, size = depth)) +
   geom_point(alpha = 0.5) +
   geom_smooth(method = "lm", se = FALSE) +
   geom_abline(color = "black", lty = "dotted", intercept = 0, slope = 1) +

@@ -23,7 +23,9 @@ library(vegan)
 
 # Source additional functions
 source("x_panelutils.R")
+source("x_plot.lda.R")
 source("x_triplot.rda.R")
+
 
 # Load data 
 strat.0712 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/strat_0712.tsv", header = TRUE,  sep = '\t')
@@ -429,13 +431,80 @@ schmidth_stability.deep.select = step(schmidth_stability.deep.m0, scope=formula(
 summary(schmidth_stability.deep.select)
 
 
+# Partial multiple linear regression 
+
+strat.expl.quanti = cbind(strat.quant)
+strat.quanti.= strat.quanti.U[which(strat.0712.U$depth.group == "shallow" & strat.0712.U$stratified == 1),]
+strat.quanti.medium = strat.quanti.U[which(strat.0712.U$depth.group == "medium" & strat.0712.U$stratified == 1),]
+strat.quanti.deep = strat.quanti.U[which(strat.0712.U$depth.group == "deep" & strat.0712.U$stratified == 1),]
+
+expl.shallow = expl.U[which(expl.U$depth.group == "shallow" & expl.U$stratified == 1), -(which(names(expl.U) %in% c("depth.group", "stratified")))]
+expl.medium = expl.U[which(expl.U$depth.group == "medium" & expl.U$stratified == 1), -(which(names(expl.U) %in% c("depth.group", "stratified")))]
+expl.deep = expl.U[which(expl.U$depth.group == "deep" & expl.U$stratified == 1), -(which(names(expl.U) %in% c("depth.group", "stratified")))]
+
+
+
+
+
 
 # Multiple linear regression of depth, nutrient-color and temp =========
 
-strat.expl.complete = na.exclude(cbind(strat.U[names(strat.U) %in% c("deltaT", "epithick", 'hypoxiaV', "schmidth_stability")],
-                                   expl.U[names(expl.U) %in% c("depth.group", "nutrient_color", 'maxtemp', "mintemp", "avgtemp")]))
-strat.U.lm = strat.expl.complete[,1:4]
-expl.U.lm = strat.expl.complete[,-(1:4)]
+strat.nutricol.temp.depth = na.exclude(cbind(strat.quanti.U, expl.U[c("depth", "stratified", "avgtemp", "color", "TP")]))
+strat.nutricol.temp.depth.stratified = strat.nutricol.temp.depth[which(strat.nutricol.temp.depth$stratified == 1),]
+
+strat.pmlr = strat.nutricol.temp.depth.stratified[,1:4] # response variables
+X.pmlr = strat.nutricol.temp.depth.stratified[,7:9] # matrix of explanatory variables
+W.pmlr = strat.nutricol.temp.depth.stratified$depth # covariables
+
+
+
+deltaT.prda = rda(strat.pmlr$deltaT ~ avgtemp + color + TP + Condition(W.pmlr), data = X.pmlr)
+RsquareAdj(deltaT.prda)
+anova(deltaT.prda)
+anova(rda(strat.pmlr$deltaT ~ avgtemp + Condition(color) + Condition(TP) + Condition(W.pmlr), data = X.pmlr))
+anova(rda(strat.pmlr$deltaT ~ color + TP + Condition(avgtemp) + Condition(W.pmlr), data = X.pmlr))
+
+deltaT.varpart = varpart(strat.pmlr$deltaT, ~ avgtemp, ~ color + TP, data = X.pmlr, W.pmlr)
+plot(deltaT.varpart, cex = 1.5, Xnames = c("average temperature", "color + TP", "depth"), bg = c("red", "orange", "blue"))
+
+
+epithick.prda = rda(strat.pmlr$epithick ~ avgtemp + color + TP + Condition(W.pmlr), data = X.pmlr)
+RsquareAdj(epithick.prda)
+anova(epithick.prda)
+anova(rda(strat.pmlr$epithick ~ avgtemp + Condition(color) + Condition(TP) + Condition(W.pmlr), data = X.pmlr))
+anova(rda(strat.pmlr$epithick ~ color + TP + Condition(avgtemp) + Condition(W.pmlr), data = X.pmlr))
+
+
+epithick.varpart = varpart(strat.pmlr$epithick, ~ avgtemp, ~ color + TP, data = X.pmlr, W.pmlr)
+plot(epithick.varpart, cex = 1.5, Xnames = c("average temperature", "color + TP", "depth"), bg = c("red", "orange", "blue"))
+
+
+
+schmidt.prda = rda(strat.pmlr$schmidth_stability ~ avgtemp + color + TP + Condition(W.pmlr), data = X.pmlr)
+RsquareAdj(schmidt.prda)
+anova(schmidt.prda)
+anova(rda(strat.pmlr$schmidth_stability ~ avgtemp + Condition(color) + Condition(TP) + Condition(W.pmlr), data = X.pmlr))
+anova(rda(strat.pmlr$schmidth_stability ~ color + TP + Condition(avgtemp) + Condition(W.pmlr), data = X.pmlr))
+
+
+schmidt.varpart = varpart(strat.pmlr$schmidt, ~ avgtemp, ~ color + TP, data = X.pmlr, W.pmlr)
+plot(schmidt.varpart, cex = 1.5, Xnames = c("average temperature", "color + TP", "depth"), bg = c("red", "orange", "blue"))
+
+
+
+hypoxiaV.prda = rda(strat.pmlr$hypoxiaV ~ avgtemp + color + TP + Condition(W.pmlr), data = X.pmlr)
+RsquareAdj(hypoxiaV.prda)
+anova(hypoxiaV.prda)
+anova(rda(strat.pmlr$hypoxiaV ~ avgtemp + Condition(color) + Condition(TP) + Condition(W.pmlr), data = X.pmlr))
+anova(rda(strat.pmlr$hypoxiaV ~ color + TP + Condition(avgtemp) + Condition(W.pmlr), data = X.pmlr))
+
+
+hypoxiaV.varpart = varpart(strat.pmlr$hypoxiaV, ~ avgtemp, ~ color + TP, data = X.pmlr, W.pmlr)
+plot(hypoxiaV.varpart, cex = 1.5, Xnames = c("average temperature", "color + TP", "depth"), bg = c("red", "orange", "blue"))
+
+
+
+
 
 
 
@@ -475,6 +544,45 @@ summary(schmidth_stability.select)
 
 
 
+# Univariate LDA ===========
+
+
+gr = strat.U$type
+colnames(expl.U)
+expl.uLDA = expl.U[, !(names(expl.U) %in% c("stratified", "depth.group", "lake_origin", "ECo9", "nutrient_color"))]
+gr.expl.uLDA = na.exclude(cbind(gr, expl.uLDA))
+gr = gr.expl.uLDA[,1]
+expl.uLDA = gr.expl.uLDA[,-1]
+
+expl.uLDA.d = dist(expl.uLDA)
+expl.uLDA.MHV = betadisper(expl.uLDA.d, gr)
+permutest(expl.uLDA.MHV)
+test = lda(gr ~ ., data = expl.uLDA, 
+    CV = TRUE)
+test$class
+table(gr, test$class)
+diag(prop.table(table(gr, test$class),1))
+
+
+plot.lda(lda.out = test, 
+         groups = gr, 
+         plot.sites = 0)
+
+
+
+# Univariate regression tree =======
+strat.0712.URT = strat.0712[which(strat.0712$resampled == 0),]
+strat.0712.URT2 = strat.0712.URT[,!(names(strat.0712) %in% c("site_id", "resampled", "stratified", "deltaT", "epithick", "thermodepth", "anoxiaV", "hypoxiaV", "schmidth_stability", "month", "year", "lat", "lon", "X", "Y"))]
+strat.0712.URT3 = na.exclude(strat.0712.URT2)
+
+gr = strat.0712.URT3$type
+expl.URT = strat.0712.URT3[, !(names(strat.0712.URT3) %in% "type")]
+
+colnames(expl.URT)
+type.URT = mvpart(gr ~ ., expl.URT, xv = "pick", margin = 0.08, cp = 0, xval = 10, xvmult = 100)
+printcp(test)
+summary(test)
+MRT(test, percent = 10)
 
 # Variation partitioning =========
 
@@ -711,9 +819,12 @@ plot(schmidth_stability.deep.varpart,
 strat.expl.U = cbind(strat.quanti.U, expl.U)
 strat.expl.U.noNA = subset(strat.expl.U, subset = complete.cases(strat.expl.U))
 
+
+
 # Separate the response and explanatory data sets 
-strat.U.noNA = strat.expl.quanti.U.noNA[,1:ncol(strat.quanti.U)]
-expl.U.noNA = strat.expl.U.noNA[,-(1:ncol(strat.quanti.U))]
+# Stratified lakes only 
+strat.U.noNA = strat.expl.U.noNA[which(strat.expl.U.noNA$stratified == 1), 1:ncol(strat.quanti.U)]
+expl.U.noNA = strat.expl.U.noNA[which(strat.expl.U.noNA$stratified == 1), -(1:ncol(strat.quanti.U))]
 
 # RDA will all explanatory quantitative variables
 strat.U.rda.all = rda(strat.U.noNA ~ elevation + area + volume + WALA_ratio + depth +
@@ -737,11 +848,12 @@ step.forward = ordiR2step(mod0, scope = formula(strat.U.rda.all),
 
 # Parsimonious RDA 
 # The explanatory variables were selected by the function ordiR2step
-strat.U.rda.parci = rda(strat.U.noNA ~ depth + volume + ECO9 + nutrient_color +
-                          area + maxtemp + SDI, data = expl.U.noNA)
+strat.U.rda.parci = rda(strat.U.noNA ~ depth  + ECO9 + DOC + volume + mintemp + turb +
+                          elevation + agric + nutrient_color + SDI + TP, data = expl.U.noNA)
 anova(strat.U.rda.parci, permutations = how(nperm = 999))
 anova(strat.U.rda.parci, permutations = how(nperm = 999), by = "axis") # 4 significant axis
-RsquareAdj(strat.U.rda.parci)$adj.r.squared #adjR2 = 0.4312
+RsquareAdj(strat.U.rda.parci)$adj.r.squared #adjR2 = 0.5835
+summary(strat.U.rda.parci)
 
 which(vif.cca(strat.U.rda.parci) >= 10) # 0 factor levels have a variance inflation factors >= 10
 # no collinearity!
@@ -752,13 +864,13 @@ which(vif.cca(strat.U.rda.parci) >= 10) # 0 factor levels have a variance inflat
 pdf(file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/quanti_analysis/strat_U_rda.pdf")
 
 triplot.rda(strat.U.rda.parci, scaling = 2, 
-            plot.sites = TRUE, plot.spe = TRUE, plot.env = TRUE, plot.cent = TRUE, 
+            plot.sites = FALSE, plot.spe = TRUE, plot.env = TRUE, plot.cent = TRUE, 
             arrows.only = TRUE, 
             label.sites = FALSE, label.spe = TRUE, label.env = TRUE, label.cent = TRUE,
-            cex.point = 0.005, cex.char2 = 0.7, 
-            mult.spe = 1.5, mult.arrow = 1.5,
+            cex.point = 0.0005, cex.char2 = 0.7,  
+            mult.spe = 4, mult.arrow = 3,
             pos.spe = 3, pos.env = 3,
-            mar.percent = 0.35) 
+            mar.percent = 1.1) 
 
 dev.off()
 
@@ -926,3 +1038,56 @@ strat.mvpart = mvpart(data.matrix(strat.quanti.U) ~ .,
 ?mvpart
 
 nrow(strat.quanti.U)
+
+
+
+
+
+
+
+
+
+### Varia ###
+library(VennDiagram)
+
+draw.pairwise.venn(area1 = nrow(filter(strat.0712, year == 2007)), 
+                   area2 = nrow(filter(strat.0712, year == 2012)),
+                   cross.area = nrow(strat.0712.R) / 2, 
+                   fill = "blue", cex = rep(3,3))
+
+
+table.type = table(strat.0712.U$type, strat.0712.U$year) 
+prop.type = prop.table(table.type, 2)
+
+prop.type.df = as.data.frame(prop.type)
+colnames(prop.type.df) = c("type", "year", "prop")
+
+ggplot(prop.type.df) +
+  geom_bar(aes(x = type, weight = prop, fill = year), position = position_dodge(), color = "black") +
+  scale_x_discrete(name = "lake type") +
+  scale_y_continuous(name = "yearly proportion") +
+  scale_fill_manual(values = c("blue", "green")) +
+  geom_text(data = prop.type.df %>% filter(year == 2007), aes(label = paste(round(prop * 100,0), "%"), x = as.numeric(type) - 0.2, y = prop - 0.01), size = 4) +
+  geom_text(data = prop.type.df %>% filter(year == 2012), aes(label = paste(round(prop * 100,0), "%"), x = as.numeric(type) + 0.25, y = prop - 0.01), size = 4) +
+  theme(strip.background = element_blank(), 
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black", size = 1))
+
+
+boxplot.type.data = strat.0712.U %>% filter(!is.na(type))
+maxdepth.type.boxplot = ggplot(boxplot.type.data, aes(x = type, y = exp(depth) - 1)) +
+  geom_boxplot(aes(fill = year), show.legend = TRUE, size = 0.7, na.rm = TRUE) +
+  scale_fill_manual(values = c("blue", "orange"),
+                     labels = c("2007", "2012")) +
+  scale_x_discrete(name = "lake type") +
+  scale_y_continuous(name = "profondeur maximale (m)") +
+  theme(strip.background = element_blank(), 
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black", size = 1))
+
+
+table(info.0712r2$type.07, info.0712r2$type.12)
