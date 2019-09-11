@@ -1,17 +1,19 @@
 ### Francis Banville - Université de Montréal
-### July 10th 2019
+### August 27th 2019
 
 ### The interim data sets, obtained from OpenRefine, are here tidied and merged to form processed data sets
 ### The sections of our script first refer to the indicators identified by the NARS 
-### Then they represent the merging of data sets and the disctinction between repeated and non repeated sites
+### Then they represent the merging of data sets 
+
+### The numbers in the data frame names represent the year of the sampling events
+### For example, profile.07 is the data frame of profiles sampled in 2007
+### profile.12 is the data frame of profiles sampled in 2012
 
 
 # Libraries
 library("dplyr")
 library("stringr")
 library("tidyr")
-library("vegan")
-library("zoo")
 
 
 
@@ -25,6 +27,7 @@ library("zoo")
 # Import the interim data sets 
 profile.07 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/water_chemistry/nla2007_profile_20091008.tsv", header = TRUE,  sep = '\t')
 
+# Rename some variables 
 colnames(profile.07) = tolower(colnames(profile.07)) # variable names in lowercase
 names(profile.07)[names(profile.07) == "temp_field"] = "temp"
 names(profile.07)[names(profile.07) == "do_field"] = "DO"
@@ -42,7 +45,8 @@ profile.07 = profile.07 %>%
 
 
 profile.07 = profile.07 %>%
-  # Average observations on same site, visit no and depth 
+  # Average observations on same site, visit no and depth (observations)
+  # An observation cannot have multiple values
   group_by(site_id, visit_no, depth) %>%
   summarise(year = year[1], 
             month = month[1], 
@@ -61,9 +65,9 @@ profile.07 = profile.07 %>%
 # h = hypolimnion
 
 profile.07 = profile.07 %>%
-  mutate(layer_nla = NA)
+  mutate(layer_nla = NA) # layer_nla is the layer assigned by the NLA
 
-profile.07$layer_nla[1] = "E"
+profile.07$layer_nla[1] = "E" 
 
 for (i in 2:nrow(profile.07)) {
   # an observation that is at the top or bottom of the metalimnion is in the metalimnion
