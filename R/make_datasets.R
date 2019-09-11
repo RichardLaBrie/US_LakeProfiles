@@ -843,16 +843,18 @@ info.0712 = info.0712 %>%
 
 
 
+# Mean climatic observations =======
 
 
-# Compute the mean climatic observations over a 150 days period prior to the sampling event
-info.0712 = info.0712 %>% mutate(precip_mm = NA, avgtemp_C = NA, mintemp_C = NA, maxtemp_C = NA)
 
-climate.W = matrix(0, nrow(info.0712), 12) # montly ponderation matrix
-colnames(climate.W) = c("jan", "feb", "mar", "apr", 
+# Compute the mean climatic observations over a 150 days period (5 months) prior to the sampling event
+info.0712 = info.0712 %>% mutate(precip_5 = NA, avgtemp_5 = NA, mintemp_5 = NA, maxtemp_5 = NA)
+
+climate.W5 = matrix(0, nrow(info.0712), 12) # montly ponderation matrix
+colnames(climate.W5) = c("jan", "feb", "mar", "apr", 
                           "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec")
-rownames(climate.W) = info.0712$sampling_event
-climate.W = as.data.frame(climate.W)
+rownames(climate.W5) = info.0712$sampling_event
+climate.W5 = as.data.frame(climate.W5)
 
 
 
@@ -873,49 +875,46 @@ for (i in 1:nrow(info.0712)) {
   # Nb of days of each month inside climate.W matrix
     
   if(nrow(filter(pond.in.month, month == "janv.")) != 0)
-  {climate.W$jan[i] = filter(pond.in.month, month == "janv.")$Freq}
+  {climate.W5$jan[i] = filter(pond.in.month, month == "janv.")$Freq}
  
   if(nrow(filter(pond.in.month, month == "févr.")) != 0)
-  {climate.W$feb[i] = filter(pond.in.month, month == "févr.")$Freq}
+  {climate.W5$feb[i] = filter(pond.in.month, month == "févr.")$Freq}
   
   if(nrow(filter(pond.in.month, month == "mars")) != 0)
-  {climate.W$mar[i] = filter(pond.in.month, month == "mars")$Freq}
+  {climate.W5$mar[i] = filter(pond.in.month, month == "mars")$Freq}
   
   if(nrow(filter(pond.in.month, month == "avr.")) != 0)
-  {climate.W$apr[i] = filter(pond.in.month, month == "avr.")$Freq}
+  {climate.W5$apr[i] = filter(pond.in.month, month == "avr.")$Freq}
   
   if(nrow(filter(pond.in.month, month == "mai")) != 0)
-  {climate.W$may[i] = filter(pond.in.month, month == "mai")$Freq}
+  {climate.W5$may[i] = filter(pond.in.month, month == "mai")$Freq}
   
   if(nrow(filter(pond.in.month, month == "juin")) != 0)
-  {climate.W$jun[i] = filter(pond.in.month, month == "juin")$Freq}
+  {climate.W5$jun[i] = filter(pond.in.month, month == "juin")$Freq}
   
   if(nrow(filter(pond.in.month, month == "juil.")) != 0)
-  {climate.W$jul[i] = filter(pond.in.month, month == "juil.")$Freq}
+  {climate.W5$jul[i] = filter(pond.in.month, month == "juil.")$Freq}
   
   if(nrow(filter(pond.in.month, month == "août")) != 0)
-  {climate.W$aug[i] = filter(pond.in.month, month == "août")$Freq}
+  {climate.W5$aug[i] = filter(pond.in.month, month == "août")$Freq}
   
   if(nrow(filter(pond.in.month, month == "sept.")) != 0)
-  {climate.W$sep[i] = filter(pond.in.month, month == "sept.")$Freq}
+  {climate.W5$sep[i] = filter(pond.in.month, month == "sept.")$Freq}
   
   if(nrow(filter(pond.in.month, month == "oct.")) != 0)
-  {climate.W$oct[i] = filter(pond.in.month, month == "oct.")$Freq}
+  {climate.W5$oct[i] = filter(pond.in.month, month == "oct.")$Freq}
   
   if(nrow(filter(pond.in.month, month == "nov.")) != 0)
-  {climate.W$nov[i] = filter(pond.in.month, month == "nov.")$Freq}
+  {climate.W5$nov[i] = filter(pond.in.month, month == "nov.")$Freq}
   
   if(nrow(filter(pond.in.month, month == "déc.")) != 0)
-  {climate.W$dec[i] = filter(pond.in.month, month == "déc.")$Freq}
+  {climate.W5$dec[i] = filter(pond.in.month, month == "déc.")$Freq}
 }
 
 }
 
 
-library("vegan")
-
-climate.W = decostand(climate.W, "total", MARGIN = 1) # proportion of the 150 days period
-
+climate.W5 = decostand(climate.W5, "total", MARGIN = 1) # proportion of the 150 days period
 
 
 
@@ -926,12 +925,12 @@ for (i in 1:nrow(info.0712)) {
   year.i = info.0712$year[i]
   
   climate.i = climate.0712 %>% filter(state == state.i, year == year.i)
-  climate.W.i = t(climate.W[i,])
+  climate.W.i = t(climate.W5[i,])
   
-  info.0712$precip_mm[i] = sum(climate.i$precip_mm * climate.W.i)
-  info.0712$avgtemp_C[i] = sum(climate.i$avgtemp_C * climate.W.i)
-  info.0712$mintemp_C[i] = sum(climate.i$mintemp_C * climate.W.i)
-  info.0712$maxtemp_C[i] = sum(climate.i$maxtemp_C * climate.W.i)
+  info.0712$precip_5[i] = sum(climate.i$precip_mm * climate.W.i)
+  info.0712$avgtemp_5[i] = sum(climate.i$avgtemp_C * climate.W.i)
+  info.0712$mintemp_5[i] = sum(climate.i$mintemp_C * climate.W.i)
+  info.0712$maxtemp_5[i] = sum(climate.i$maxtemp_C * climate.W.i)
 }
 
 
@@ -939,6 +938,384 @@ for (i in 1:nrow(info.0712)) {
 
 
 
+
+# Compute the mean climatic observations over a 120 days period (4 months) prior to the sampling event
+info.0712 = info.0712 %>% mutate(precip_4 = NA, avgtemp_4 = NA, mintemp_4 = NA, maxtemp_4 = NA)
+
+climate.W4 = matrix(0, nrow(info.0712), 12) # montly ponderation matrix
+colnames(climate.W4) = c("jan", "feb", "mar", "apr", 
+                         "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec")
+rownames(climate.W4) = info.0712$sampling_event
+climate.W4 = as.data.frame(climate.W4)
+
+
+
+for (i in 1:nrow(info.0712)) {
+  year = info.0712$year[i]
+  month = info.0712$month[i]
+  day = info.0712$day[i]
+  
+  if (!is.na(year) & !is.na(month) & !is.na(day)) {
+    
+    date.sampled = date(paste(year, month, day, sep = "-")) # date of sampling event
+    date.120d = date.sampled - 119 # date 120 days before
+    
+    pond.in.month = as.data.frame(table(as.yearmon(seq(date.120d, date.sampled, "day")))) %>% # nb of days in each month between the 2 dates 
+      separate(Var1, into = c("month", "year"), sep = " ") %>%
+      select(-year)
+    
+    # Nb of days of each month inside climate.W matrix
+    
+    if(nrow(filter(pond.in.month, month == "janv.")) != 0)
+    {climate.W4$jan[i] = filter(pond.in.month, month == "janv.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "févr.")) != 0)
+    {climate.W4$feb[i] = filter(pond.in.month, month == "févr.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "mars")) != 0)
+    {climate.W4$mar[i] = filter(pond.in.month, month == "mars")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "avr.")) != 0)
+    {climate.W4$apr[i] = filter(pond.in.month, month == "avr.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "mai")) != 0)
+    {climate.W4$may[i] = filter(pond.in.month, month == "mai")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "juin")) != 0)
+    {climate.W4$jun[i] = filter(pond.in.month, month == "juin")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "juil.")) != 0)
+    {climate.W4$jul[i] = filter(pond.in.month, month == "juil.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "août")) != 0)
+    {climate.W4$aug[i] = filter(pond.in.month, month == "août")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "sept.")) != 0)
+    {climate.W4$sep[i] = filter(pond.in.month, month == "sept.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "oct.")) != 0)
+    {climate.W4$oct[i] = filter(pond.in.month, month == "oct.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "nov.")) != 0)
+    {climate.W4$nov[i] = filter(pond.in.month, month == "nov.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "déc.")) != 0)
+    {climate.W4$dec[i] = filter(pond.in.month, month == "déc.")$Freq}
+  }
+  
+}
+
+
+climate.W4 = decostand(climate.W4, "total", MARGIN = 1) # proportion of the 120 days period
+
+
+
+# Mean climate metrics for 120 days before each sampling event 
+# Each row represent a sampling event 
+for (i in 1:nrow(info.0712)) {
+  state.i = as.character(info.0712$state[i])
+  year.i = info.0712$year[i]
+  
+  climate.i = climate.0712 %>% filter(state == state.i, year == year.i)
+  climate.W.i = t(climate.W4[i,])
+  
+  info.0712$precip_4[i] = sum(climate.i$precip_mm * climate.W.i)
+  info.0712$avgtemp_4[i] = sum(climate.i$avgtemp_C * climate.W.i)
+  info.0712$mintemp_4[i] = sum(climate.i$mintemp_C * climate.W.i)
+  info.0712$maxtemp_4[i] = sum(climate.i$maxtemp_C * climate.W.i)
+}
+
+
+
+
+
+
+
+
+
+# Compute the mean climatic observations over a 90 days period (3 months) prior to the sampling event
+info.0712 = info.0712 %>% mutate(precip_3 = NA, avgtemp_3 = NA, mintemp_3 = NA, maxtemp_3 = NA)
+
+climate.W3 = matrix(0, nrow(info.0712), 12) # montly ponderation matrix
+colnames(climate.W3) = c("jan", "feb", "mar", "apr", 
+                         "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec")
+rownames(climate.W3) = info.0712$sampling_event
+climate.W3 = as.data.frame(climate.W3)
+
+
+
+for (i in 1:nrow(info.0712)) {
+  year = info.0712$year[i]
+  month = info.0712$month[i]
+  day = info.0712$day[i]
+  
+  if (!is.na(year) & !is.na(month) & !is.na(day)) {
+    
+    date.sampled = date(paste(year, month, day, sep = "-")) # date of sampling event
+    date.90d = date.sampled - 89 # date 90 days before
+    
+    pond.in.month = as.data.frame(table(as.yearmon(seq(date.90d, date.sampled, "day")))) %>% # nb of days in each month between the 2 dates 
+      separate(Var1, into = c("month", "year"), sep = " ") %>%
+      select(-year)
+    
+    # Nb of days of each month inside climate.W matrix
+    
+    if(nrow(filter(pond.in.month, month == "janv.")) != 0)
+    {climate.W3$jan[i] = filter(pond.in.month, month == "janv.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "févr.")) != 0)
+    {climate.W3$feb[i] = filter(pond.in.month, month == "févr.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "mars")) != 0)
+    {climate.W3$mar[i] = filter(pond.in.month, month == "mars")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "avr.")) != 0)
+    {climate.W3$apr[i] = filter(pond.in.month, month == "avr.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "mai")) != 0)
+    {climate.W3$may[i] = filter(pond.in.month, month == "mai")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "juin")) != 0)
+    {climate.W3$jun[i] = filter(pond.in.month, month == "juin")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "juil.")) != 0)
+    {climate.W3$jul[i] = filter(pond.in.month, month == "juil.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "août")) != 0)
+    {climate.W3$aug[i] = filter(pond.in.month, month == "août")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "sept.")) != 0)
+    {climate.W3$sep[i] = filter(pond.in.month, month == "sept.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "oct.")) != 0)
+    {climate.W4$oct[i] = filter(pond.in.month, month == "oct.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "nov.")) != 0)
+    {climate.W3$nov[i] = filter(pond.in.month, month == "nov.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "déc.")) != 0)
+    {climate.W3$dec[i] = filter(pond.in.month, month == "déc.")$Freq}
+  }
+  
+}
+
+
+climate.W3 = decostand(climate.W3, "total", MARGIN = 1) # proportion of the 90 days period
+
+
+
+# Mean climate metrics for 90 days before each sampling event 
+# Each row represent a sampling event 
+for (i in 1:nrow(info.0712)) {
+  state.i = as.character(info.0712$state[i])
+  year.i = info.0712$year[i]
+  
+  climate.i = climate.0712 %>% filter(state == state.i, year == year.i)
+  climate.W.i = t(climate.W3[i,])
+  
+  info.0712$precip_3[i] = sum(climate.i$precip_mm * climate.W.i)
+  info.0712$avgtemp_3[i] = sum(climate.i$avgtemp_C * climate.W.i)
+  info.0712$mintemp_3[i] = sum(climate.i$mintemp_C * climate.W.i)
+  info.0712$maxtemp_3[i] = sum(climate.i$maxtemp_C * climate.W.i)
+}
+
+
+
+
+
+
+
+
+# Compute the mean climatic observations over a 60 days period (2 months) prior to the sampling event
+info.0712 = info.0712 %>% mutate(precip_2 = NA, avgtemp_2 = NA, mintemp_2 = NA, maxtemp_2 = NA)
+
+climate.W2 = matrix(0, nrow(info.0712), 12) # montly ponderation matrix
+colnames(climate.W2) = c("jan", "feb", "mar", "apr", 
+                         "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec")
+rownames(climate.W2) = info.0712$sampling_event
+climate.W2 = as.data.frame(climate.W2)
+
+
+
+for (i in 1:nrow(info.0712)) {
+  year = info.0712$year[i]
+  month = info.0712$month[i]
+  day = info.0712$day[i]
+  
+  if (!is.na(year) & !is.na(month) & !is.na(day)) {
+    
+    date.sampled = date(paste(year, month, day, sep = "-")) # date of sampling event
+    date.60d = date.sampled - 59 # date 60 days before
+    
+    pond.in.month = as.data.frame(table(as.yearmon(seq(date.60d, date.sampled, "day")))) %>% # nb of days in each month between the 2 dates 
+      separate(Var1, into = c("month", "year"), sep = " ") %>%
+      select(-year)
+    
+    # Nb of days of each month inside climate.W matrix
+    
+    if(nrow(filter(pond.in.month, month == "janv.")) != 0)
+    {climate.W2$jan[i] = filter(pond.in.month, month == "janv.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "févr.")) != 0)
+    {climate.W2$feb[i] = filter(pond.in.month, month == "févr.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "mars")) != 0)
+    {climate.W2$mar[i] = filter(pond.in.month, month == "mars")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "avr.")) != 0)
+    {climate.W2$apr[i] = filter(pond.in.month, month == "avr.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "mai")) != 0)
+    {climate.W2$may[i] = filter(pond.in.month, month == "mai")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "juin")) != 0)
+    {climate.W2$jun[i] = filter(pond.in.month, month == "juin")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "juil.")) != 0)
+    {climate.W2$jul[i] = filter(pond.in.month, month == "juil.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "août")) != 0)
+    {climate.W2$aug[i] = filter(pond.in.month, month == "août")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "sept.")) != 0)
+    {climate.W2$sep[i] = filter(pond.in.month, month == "sept.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "oct.")) != 0)
+    {climate.W2$oct[i] = filter(pond.in.month, month == "oct.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "nov.")) != 0)
+    {climate.W2$nov[i] = filter(pond.in.month, month == "nov.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "déc.")) != 0)
+    {climate.W2$dec[i] = filter(pond.in.month, month == "déc.")$Freq}
+  }
+  
+}
+
+
+climate.W2 = decostand(climate.W2, "total", MARGIN = 1) # proportion of the 60 days period
+
+
+
+# Mean climate metrics for 60 days before each sampling event 
+# Each row represent a sampling event 
+for (i in 1:nrow(info.0712)) {
+  state.i = as.character(info.0712$state[i])
+  year.i = info.0712$year[i]
+  
+  climate.i = climate.0712 %>% filter(state == state.i, year == year.i)
+  climate.W.i = t(climate.W2[i,])
+  
+  info.0712$precip_2[i] = sum(climate.i$precip_mm * climate.W.i)
+  info.0712$avgtemp_2[i] = sum(climate.i$avgtemp_C * climate.W.i)
+  info.0712$mintemp_2[i] = sum(climate.i$mintemp_C * climate.W.i)
+  info.0712$maxtemp_2[i] = sum(climate.i$maxtemp_C * climate.W.i)
+}
+
+
+
+
+
+
+
+
+
+
+
+# Compute the mean climatic observations over a 30 days period (1 month) prior to the sampling event
+info.0712 = info.0712 %>% mutate(precip_1 = NA, avgtemp_1 = NA, mintemp_1 = NA, maxtemp_1 = NA)
+
+climate.W1 = matrix(0, nrow(info.0712), 12) # montly ponderation matrix
+colnames(climate.W1) = c("jan", "feb", "mar", "apr", 
+                         "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec")
+rownames(climate.W1) = info.0712$sampling_event
+climate.W1 = as.data.frame(climate.W1)
+
+
+
+for (i in 1:nrow(info.0712)) {
+  year = info.0712$year[i]
+  month = info.0712$month[i]
+  day = info.0712$day[i]
+  
+  if (!is.na(year) & !is.na(month) & !is.na(day)) {
+    
+    date.sampled = date(paste(year, month, day, sep = "-")) # date of sampling event
+    date.30d = date.sampled - 29 # date 30 days before
+    
+    pond.in.month = as.data.frame(table(as.yearmon(seq(date.30d, date.sampled, "day")))) %>% # nb of days in each month between the 2 dates 
+      separate(Var1, into = c("month", "year"), sep = " ") %>%
+      select(-year)
+    
+    # Nb of days of each month inside climate.W matrix
+    
+    if(nrow(filter(pond.in.month, month == "janv.")) != 0)
+    {climate.W1$jan[i] = filter(pond.in.month, month == "janv.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "févr.")) != 0)
+    {climate.W1$feb[i] = filter(pond.in.month, month == "févr.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "mars")) != 0)
+    {climate.W1$mar[i] = filter(pond.in.month, month == "mars")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "avr.")) != 0)
+    {climate.W1$apr[i] = filter(pond.in.month, month == "avr.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "mai")) != 0)
+    {climate.W1$may[i] = filter(pond.in.month, month == "mai")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "juin")) != 0)
+    {climate.W1$jun[i] = filter(pond.in.month, month == "juin")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "juil.")) != 0)
+    {climate.W1$jul[i] = filter(pond.in.month, month == "juil.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "août")) != 0)
+    {climate.W1$aug[i] = filter(pond.in.month, month == "août")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "sept.")) != 0)
+    {climate.W1$sep[i] = filter(pond.in.month, month == "sept.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "oct.")) != 0)
+    {climate.W1$oct[i] = filter(pond.in.month, month == "oct.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "nov.")) != 0)
+    {climate.W2$nov[i] = filter(pond.in.month, month == "nov.")$Freq}
+    
+    if(nrow(filter(pond.in.month, month == "déc.")) != 0)
+    {climate.W1$dec[i] = filter(pond.in.month, month == "déc.")$Freq}
+  }
+  
+}
+
+
+climate.W1 = decostand(climate.W1, "total", MARGIN = 1) # proportion of the 60 days period
+
+
+
+# Mean climate metrics for 30 days before each sampling event 
+# Each row represent a sampling event 
+for (i in 1:nrow(info.0712)) {
+  state.i = as.character(info.0712$state[i])
+  year.i = info.0712$year[i]
+  
+  climate.i = climate.0712 %>% filter(state == state.i, year == year.i)
+  climate.W.i = t(climate.W1[i,])
+  
+  info.0712$precip_1[i] = sum(climate.i$precip_mm * climate.W.i)
+  info.0712$avgtemp_1[i] = sum(climate.i$avgtemp_C * climate.W.i)
+  info.0712$mintemp_1[i] = sum(climate.i$mintemp_C * climate.W.i)
+  info.0712$maxtemp_1[i] = sum(climate.i$maxtemp_C * climate.W.i)
+}
+
+
+
+
+
+
+
+
+# Correction of data =====
 
 
 
