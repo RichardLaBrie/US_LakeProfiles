@@ -1,26 +1,27 @@
 ### Francis Banville - Université de Montréal
-### August 27th 2019
+### September 12th 2019
 
 ### The interim data sets, obtained from OpenRefine, are here tidied and merged to form processed data sets
 ### The sections of our script first refer to the indicators identified by the NARS 
-### Then they represent the merging of data sets 
+### They then refer to the merging of data sets and computation of data further used in analysis 
 
 ### The numbers in the data frame names represent the year of the sampling events
 ### For example, profile.07 is the data frame of profiles sampled in 2007
 ### profile.12 is the data frame of profiles sampled in 2012
 
 
-# Libraries
+# Libraries ====
 library("dplyr")
 library("lubridate")
+library("rLakeAnalyzer")
 library("stringr")
 library("tidyr")
 library("zoo")
 
 
 
-#### 1. Water chemisty (profiles) ####
 
+#### 1. Water chemisty (profiles) ====
 
 
 #### 1.1 Tidy the profile.07 data set 
@@ -83,7 +84,7 @@ for (i in 2:nrow(profile.07)) {
            profile.07$metalimnion[i-1] == "B")
   { profile.07$layer_nla[i] = "H" }
   
-  # observations on the same site and visit are in the same layer as the one above them
+  # observations on the same site and visit no are in the same layer as the one above them
   # (if they don't cross the top or bottom of the metalimnion)
   else if(profile.07$site_id[i-1] == profile.07$site_id[i] &
           profile.07$visit_no[i-1] == profile.07$visit_no[i]) 
@@ -124,6 +125,7 @@ profile.07$layer_nla = as.factor(profile.07$layer_nla)
 profile.12 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/water_chemistry/nla2012_wide_profile_08232016.tsv", header = TRUE,  sep = '\t')
 
 
+# Rename some variables 
 colnames(profile.12) = tolower(colnames(profile.12)) # variable names in lowercase
 names(profile.12)[names(profile.12) == "temp_field"] = "temp"
 names(profile.12)[names(profile.12) == "do_field"] = "DO"
@@ -194,6 +196,8 @@ for (i in 2:nrow(profile.12)) {
 profile.12 = profile.12 %>%
   select(-metalimnion)
 
+
+# Change variables class
 profile.12$site_id = as.factor(profile.12$site_id)
 profile.12$visit_no = as.factor(profile.12$visit_no)
 profile.12$depth = as.numeric(profile.12$depth)
@@ -212,7 +216,7 @@ profile.12$layer_nla = as.factor(profile.12$layer_nla)
 
 
 
-#### 2. Site information ####
+#### 2. Site information ====
 
 
 #### 2.1 Tidy the info.07 data set 
@@ -313,7 +317,8 @@ info.12$lake_origin = tolower(info.12$lake_origin) # values in lowercase letters
 
 
 
-#### 3. Secchi ####
+
+#### 3. Secchi ====
 
 
 #### 3.1 Tidy the secchi.07 data set 
@@ -321,15 +326,16 @@ info.12$lake_origin = tolower(info.12$lake_origin) # values in lowercase letters
 # Import the interim data set 
 secchi.07 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/secchi/nla2007_secchi_20091008.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
+
+# Rename some variables 
 colnames(secchi.07) = tolower(colnames(secchi.07)) # variable names in lowercase
-
-
 names(secchi.07)[names(secchi.07) == "secmean_m"] = "secchi_m"
 names(secchi.07)[names(secchi.07) == "site_id"] = "siteid_07"
 
  
-
+# Change the variable's class
 secchi.07$clear_to_bottom = as.character(secchi.07$clear_to_bottom)
+
 
 # Replace "Y" by 1s in binary variable clear_to_bottom
 secchi.07$clear_to_bottom = replace(secchi.07$clear_to_bottom, which(secchi.07$clear_to_bottom == "Y"), 1)
@@ -348,17 +354,19 @@ secchi.07 = secchi.07 %>% mutate(
 
 
 
+
 #### 3.2 Tidy the secchi.12 data set 
 
 # Import the interim data set 
 secchi.12 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/secchi/nla2012_secchi_08232016.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
+# Rename some variables
 colnames(secchi.12) = tolower(colnames(secchi.12)) # variable names in lowercase
-
 names(secchi.12)[names(secchi.12) == "secchi"] = "secchi_m"
 names(secchi.12)[names(secchi.12) == "site_id"] = "siteid_12"
 
 
+# Change the variable's class
 secchi.12$clear_to_bottom = as.character(secchi.12$clear_to_bottom)
 
 
@@ -386,7 +394,7 @@ secchi.12 = secchi.12 %>% mutate(
 
 
 
-#### 4. Landscape data ####
+#### 4. Landscape data ====
 
 
 #### 4.1 Tidy the landscape.07 data set 
@@ -394,9 +402,9 @@ secchi.12 = secchi.12 %>% mutate(
 # Import the interim data set 
 landscape.07 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/landscape_data/nla2007_basin_landuse_metrics_20061022.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
+
+# Rename some variables 
 colnames(landscape.07) = tolower(colnames(landscape.07)) # variable names in lowercase
-
-
 names(landscape.07)[names(landscape.07) == "pct_forest_bsn"] = "pct_forest" # % forested basin area
 names(landscape.07)[names(landscape.07) == "pct_agric_bsn"] = "pct_agric" # % agriculture basin area
 names(landscape.07)[names(landscape.07) == "site_id"] = "siteid_07" 
@@ -405,7 +413,7 @@ names(landscape.07)[names(landscape.07) == "site_id"] = "siteid_07"
 # Select useful variables
 landscape.07 = landscape.07 %>% 
   select(siteid_07, basinarea_km2, pct_forest, pct_agric) %>%
-  mutate(year = 2007)
+  mutate(year = 2007) # add a year variable 
 
 
 # Change the variables' class
@@ -429,8 +437,8 @@ landscape.07 = landscape.07 %>% mutate(
 # Import the interim data set 
 landscape.12 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/landscape_data/nla2012_wide_watershed.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
+# Rename some variables 
 colnames(landscape.12) = tolower(colnames(landscape.12)) # variable names in lowercase
-
 names(landscape.12)[names(landscape.12) == "nlcd2001_forestpct_bsn"] = "pct_forest" # % forested basin area
 names(landscape.12)[names(landscape.12) == "nlcd2006_agricpct_bsn"] = "pct_agric" # % agriculture basin area
 names(landscape.12)[names(landscape.12) == "site_id"] = "siteid_12" 
@@ -442,7 +450,7 @@ landscape.12 = landscape.12 %>%
   select(siteid_12, 
          nlcd2001_11pct_bsn,  nlcd2001_11area_bsn,
          pct_forest, pct_agric) %>%
-  mutate(year = 2012)
+  mutate(year = 2012) # add a year variable
 
 
 # Compute the watershed area 
@@ -470,7 +478,7 @@ landscape.12 = landscape.12 %>% mutate(
 
 
 
-#### 5. Water chemistry (water quality) ####
+#### 5. Water chemistry (water quality) ====
 
 
 #### 5.1 Tidy the chemistry.07 data set 
@@ -478,8 +486,9 @@ landscape.12 = landscape.12 %>% mutate(
 # Import the interim data set 
 chemistry.07 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/water_chemistry/NLA2007_WaterQuality_20091123.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
-colnames(chemistry.07) = tolower(colnames(chemistry.07)) # variable names in lowercase
 
+# Rename some variables
+colnames(chemistry.07) = tolower(colnames(chemistry.07)) # variable names in lowercase
 
 names(chemistry.07)[names(chemistry.07) == "chla"] = "chla_ugL" # Chlorophyll a concentration (µg/L).  
 names(chemistry.07)[names(chemistry.07) == "color"] = "color_PCU" # Color (PCU)
@@ -521,13 +530,13 @@ for (i in 1:nrow(chemistry.07)) {
   color = chemistry.07$color_PCU[i]
   
   if (TP <= 30 & color <= 20) {
-    chemistry.07$nutrient_color[i] = "blue"
+    chemistry.07$nutrient_color[i] = "blue" # Blue if TP <= 30 and color <= 20 
   } else if (TP > 30 & color <= 20) {
-    chemistry.07$nutrient_color[i] = "green"
+    chemistry.07$nutrient_color[i] = "green" # Green if TP > 30 and color <= 20
   } else if (TP <= 30 & color > 20) {
-    chemistry.07$nutrient_color[i] = "brown"
+    chemistry.07$nutrient_color[i] = "brown" # Brown if TP <= 30 and color > 20
   } else if (TP > 30 & color > 20) {
-    chemistry.07$nutrient_color[i] = "murky"
+    chemistry.07$nutrient_color[i] = "murky" # Murky if TP > 30 and color > 20
   } 
 }
 
@@ -540,8 +549,8 @@ for (i in 1:nrow(chemistry.07)) {
 # Import the interim data set 
 chemistry.12 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/water_chemistry/nla2012_waterchem_wide.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
+# Rename some variables
 colnames(chemistry.12) = tolower(colnames(chemistry.12)) # variable names in lowercase
-
 
 names(chemistry.12)[names(chemistry.12) == "color_result"] = "color_PCU" # Color (PCU)
 names(chemistry.12)[names(chemistry.12) == "ntl_result"] = "NTL_mgL" # Total Nitrogen (ug/L)
@@ -601,8 +610,8 @@ for (i in 1:nrow(chemistry.12)) {
 # Import the interim data set 
 chla.12 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/chlorophyll-a/nla2012_chla_wide.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
+# Rename some variables
 colnames(chla.12) = tolower(colnames(chla.12)) # variable names in lowercase
-
 
 names(chla.12)[names(chla.12) == "chlx_result"] = "chla_ugL" # Analyte value for X-site chlorophyll a (ug/L)
 names(chla.12)[names(chla.12) == "uid"] = "UID" 
@@ -627,7 +636,7 @@ chemistry.12 = left_join(chemistry.12, chla.12, by = "UID")
 
 
 
-#### 6. Climate ####
+#### 6. Climate ====
 
 
 #### 6.1 Climate data from the NOAA 
@@ -695,7 +704,7 @@ climate.0712 = left_join(climate.0712, states, by = "Location") %>%
 
 
 
-#### 7 Merged data sets ####
+#### 7 Merged data sets ====
 
 
 # Identify sites sampled in both 2007 and 2012
@@ -703,6 +712,7 @@ common.sites = inner_join(info.07, info.12, by = "siteid_07") %>%
   select(siteid_07, siteid_12) %>%
   distinct(siteid_07, siteid_12, .keep_all = TRUE)
 dim(common.sites) # 401 repeated sites
+
 
 
 
@@ -716,6 +726,7 @@ profile.0712 = bind_rows(profile.07, profile.12)
 # The variable 'resampled' indicates whether or not the sites were sampled in both 2007 ans 2012
 profile.0712 = profile.0712 %>% mutate(resampled = NA)
 
+# A site is considered resampled if it is found in the "common.sites" vector 
 for (i in 1:nrow(profile.0712)) {
   if (profile.0712$site_id[i] %in% common.sites$siteid_07 | 
       profile.0712$site_id[i] %in% common.sites$siteid_12) {
@@ -754,11 +765,12 @@ profile.0712 = profile.0712 %>%
 
 
 
+#### Correction of mistakes in the data 
 
-# SOme mistakes were indroduced in the data 
+# Some mistakes were indroduced in the data 
 # For the sampling event "NLA06608-1868-2012-2", at a depth of 4.02 m, the T is 3075 oC
 # It should be 30,75 oC
-# For the other events, we can't assume any realistic observations
+# For the other events where temp > 60, we can't assume any realistic observations
 
 profile.0712$temp[which(profile.0712$temp > 3075)] = 30.75
 profile.0712$temp[which(profile.0712$temp > 60)] = NA
@@ -777,8 +789,7 @@ write.table(profile.0712,
 #### 7.2 Merged site information
 
 
-
-# Join site information with Secchi depths
+# Join site information with Secchi depths, landscape and chemistry data 
 
 info.07u = left_join(info.07, secchi.07, by = c("siteid_07", "year", "visit_no")) %>%
   left_join(landscape.07, by = c("siteid_07", "year")) %>%
@@ -839,26 +850,63 @@ info.0712 = info.0712 %>%
 
 
 
+#### Correction of data 
+
+
+# Correction of inconsistencies between levels of lake_origin
+info.0712$lake_origin = str_replace_all(info.0712$lake_origin, "_", "-")
+
+
+
+# Complete missing siteid_12 values when sampled in 2007
+for (i in 1:nrow(info.0712)) {
+  if (info.0712$siteid_07[i] %in% common.sites$siteid_07) {
+    k = which(common.sites$siteid_07 == info.0712$siteid_07[i])
+    info.0712$siteid_12[i] = as.character(common.sites$siteid_12[k])
+  } 
+}
+
+
+# The variable 'resampled' indicates whether or not the sites were sampled in both 2007 ans 2012
+# A site is considered resampled if it is found in the "common.sites" vector 
+info.0712 = info.0712 %>% mutate(resampled = NA)
+
+for (i in 1:nrow(info.0712)) {
+  if (info.0712$siteid_07[i] %in% common.sites$siteid_07) {
+    info.0712$resampled[i] = 1
+  } else {
+    info.0712$resampled[i] = 0
+  }
+}
+
+
 
 
 
 
 # Mean climatic observations =======
 
+#### Weight matrices are first computed, and represent the fraction of days in each month 150, 120, 90, 60 and 30 days prior to the sampling event
+#### States monthly averaged climatic variables are multiplied by those weights and then summed
 
 
-# Compute the mean climatic observations over a 150 days period (5 months) prior to the sampling event
-info.0712 = info.0712 %>% mutate(precip_5 = NA, avgtemp_5 = NA, mintemp_5 = NA, maxtemp_5 = NA)
+#### Compute the mean climatic observations over a 150 days period (5 months) prior to the sampling event
+
+info.0712 = info.0712 %>% mutate(precip_5 = NA, avgtemp_5 = NA, mintemp_5 = NA, maxtemp_5 = NA) # empty variables
+
 
 climate.W5 = matrix(0, nrow(info.0712), 12) # montly ponderation matrix
+
+# Column and row names of the monthly ponderation matrix 
 colnames(climate.W5) = c("jan", "feb", "mar", "apr", 
                           "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec")
 rownames(climate.W5) = info.0712$sampling_event
-climate.W5 = as.data.frame(climate.W5)
+
+climate.W5 = as.data.frame(climate.W5) # the monthly ponderation matrix as a data frame
 
 
 
-for (i in 1:nrow(info.0712)) {
+for (i in 1:nrow(info.0712)) { # Each row represent a sampling event 
   year = info.0712$year[i]
   month = info.0712$month[i]
   day = info.0712$day[i]
@@ -939,7 +987,8 @@ for (i in 1:nrow(info.0712)) {
 
 
 
-# Compute the mean climatic observations over a 120 days period (4 months) prior to the sampling event
+#### Compute the mean climatic observations over a 120 days period (4 months) prior to the sampling event
+
 info.0712 = info.0712 %>% mutate(precip_4 = NA, avgtemp_4 = NA, mintemp_4 = NA, maxtemp_4 = NA)
 
 climate.W4 = matrix(0, nrow(info.0712), 12) # montly ponderation matrix
@@ -1033,7 +1082,8 @@ for (i in 1:nrow(info.0712)) {
 
 
 
-# Compute the mean climatic observations over a 90 days period (3 months) prior to the sampling event
+#### Compute the mean climatic observations over a 90 days period (3 months) prior to the sampling event
+
 info.0712 = info.0712 %>% mutate(precip_3 = NA, avgtemp_3 = NA, mintemp_3 = NA, maxtemp_3 = NA)
 
 climate.W3 = matrix(0, nrow(info.0712), 12) # montly ponderation matrix
@@ -1126,7 +1176,8 @@ for (i in 1:nrow(info.0712)) {
 
 
 
-# Compute the mean climatic observations over a 60 days period (2 months) prior to the sampling event
+#### Compute the mean climatic observations over a 60 days period (2 months) prior to the sampling event
+
 info.0712 = info.0712 %>% mutate(precip_2 = NA, avgtemp_2 = NA, mintemp_2 = NA, maxtemp_2 = NA)
 
 climate.W2 = matrix(0, nrow(info.0712), 12) # montly ponderation matrix
@@ -1222,7 +1273,8 @@ for (i in 1:nrow(info.0712)) {
 
 
 
-# Compute the mean climatic observations over a 30 days period (1 month) prior to the sampling event
+#### Compute the mean climatic observations over a 30 days period (1 month) prior to the sampling event
+
 info.0712 = info.0712 %>% mutate(precip_1 = NA, avgtemp_1 = NA, mintemp_1 = NA, maxtemp_1 = NA)
 
 climate.W1 = matrix(0, nrow(info.0712), 12) # montly ponderation matrix
@@ -1312,42 +1364,9 @@ for (i in 1:nrow(info.0712)) {
 
 
 
-
-
-
-# Correction of data =====
-
-
-
-# Correction of inconsistencies between levels of lake_origin
-info.0712$lake_origin = str_replace_all(info.0712$lake_origin, "_", "-")
-
-
-
-# Complete missing siteid_12 values when sampled in 2007
-for (i in 1:nrow(info.0712)) {
-  if (info.0712$siteid_07[i] %in% common.sites$siteid_07) {
-    k = which(common.sites$siteid_07 == info.0712$siteid_07[i])
-    info.0712$siteid_12[i] = as.character(common.sites$siteid_12[k])
-  } 
-}
-
-# The variable 'resampled' indicates whether or not the sites were sampled in both 2007 ans 2012
-info.0712 = info.0712 %>% mutate(resampled = NA)
-
-for (i in 1:nrow(info.0712)) {
-  if (info.0712$siteid_07[i] %in% common.sites$siteid_07) {
-    info.0712$resampled[i] = 1
-  } else {
-    info.0712$resampled[i] = 0
-  }
-}
-
-
-
-
 # Correctly order observations 
 info.0712 = info.0712 %>% arrange(site_id, year, visit_no) 
+
 
 # Assign adequate class to site_id
 info.0712$site_id = as.factor(info.0712$site_id)
@@ -1356,10 +1375,870 @@ info.0712$siteid_12 = as.factor(info.0712$siteid_12)
 
 
 
-
 # Export the processed data set
 write.table(info.0712,
             file = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/info_0712.tsv",
+            sep = "\t")
+
+
+
+
+
+#### RLA1. meta.depths()  ====
+
+
+## Get the depths of the top and bottom of metalimnions using meta.depths()
+## NaN is returned when difference of temperatures are below the threshold value of mixed.cutoff (1 0C by default)
+## The bottom depth is returned when no distinct metalimnion top and bottom were found
+## Only one metalimnion was found for each combination of site, year and visit no
+
+
+top.bottom.meta = profile.0712 %>% 
+  filter(!is.na(temp)) %>%
+  group_by(sampling_event) %>%
+  summarize(top_depth = meta.depths(temp, depth)[1],
+            bottom_depth = meta.depths(temp, depth)[2],
+            max_depth = max(depth)) # maximum SAMPLED depth 
+
+
+
+# Create a layer_r variable: each observation will be assigned to the layer found using rLakeAnalyser
+# e = epilimnion or no stratification
+# m = metalimnion
+# h = hypolimnion
+
+profile.0712 = profile.0712 %>% mutate(layer_r = NA)
+
+
+# When the top and bottom of the metalimnion are at the same depth, we considered that the metalimnion 
+# thickness was very small and we thus only identified the epilimnion and hypolimnion of those lakes
+for (i in 1:nrow(profile.0712)) { # Each row represent a depth of a sampling event
+  sampling.event.i = profile.0712$sampling_event[i]
+  depth = profile.0712$depth[i]
+  
+  k = which(top.bottom.meta$sampling_event == sampling.event.i) # Identify the sampling event in the top.bottom.meta matrix
+  
+  top.depth = top.bottom.meta$top_depth[k]
+  bottom.depth = top.bottom.meta$bottom_depth[k]
+  
+  if (length(k) == 0) {
+    profile.0712$layer_r[i] = "E"
+  } else if (is.na(top.depth) | is.na(bottom.depth)) { # If there is no metalimnion in the sampling event, the sample is in the epilimnion
+    profile.0712$layer_r[i] = "E"
+  } else if (depth < top.depth) { # If the sample is above the top of the metalimnion, it is in the epilimnion
+    profile.0712$layer_r[i] = "E"
+  } else if (depth >= top.depth & depth <= bottom.depth) { # If the sample is in between the top and bottom of the metalimnion, it is in the metalimnion
+    profile.0712$layer_r[i] = "M"
+  } else if (depth > bottom.depth) { # If the sample is below the bottom of the metalimnion, it is in the hypolimnion
+    profile.0712$layer_r[i] = "H"
+  }
+}
+
+
+
+# How many layers rLakeAnalyser identified differently from the NLA?
+# Number of sampling event where at least one depth have been differently layered
+different = profile.0712 %>% filter(layer_nla != layer_r) %>%
+  group_by(sampling_event) %>%
+  count() %>%
+  nrow()
+
+# Total number of sampling event
+total = profile.0712 %>% group_by(sampling_event) %>%
+  count() %>%
+  nrow()
+
+# Proportion of sampling event where at least one depth have been differently layered
+different / total # 66,16 %
+
+
+
+
+
+
+##### RLA2. Lake types according to their layers ====
+
+# Every sampling event will be classified related to their layers
+# The types are : 
+# 1 - epi - meta - hypo
+# 2 - epi - meta
+# 3 - meta - hypo
+# 4 - epi - hypo (mini meta)
+# 5 - epi 
+# 6 - meta
+# 7 - hypo 
+
+
+
+top.bottom.meta = top.bottom.meta %>% mutate(type = NA)
+
+
+
+# Assign a type to all sampling events according to their layers
+
+for (i in 1:nrow(top.bottom.meta)) {
+  
+  top.meta = top.bottom.meta$top_depth[i]
+  bottom.meta = top.bottom.meta$bottom_depth[i]
+  max.depth = top.bottom.meta$max_depth[i]
+  
+  if (is.na(top.meta) & is.na(bottom.meta)) {
+    top.bottom.meta$type[i] = 5 # the lake is not stratified (below minimum slope, epi only)
+  }
+  else if (top.meta == max.depth && bottom.meta == max.depth) {
+    top.bottom.meta$type[i] = 5 # the lake is not stratified (no meta found, epi only)
+  }
+  else if (top.meta == 0 & bottom.meta == 0) {
+    top.bottom.meta.all.u$type[i] = 7 # the meta is super small at the top of the lake (hypo only)
+  }
+  else if (top.meta == 0 & bottom.meta == max.depth) {
+    top.bottom.meta$type[i] = 6 # meta only 
+  }
+  else if (top.meta != 0 & top.meta == bottom.meta & bottom.meta != max.depth) {
+    top.bottom.meta$type[i] = 4 # the meta is super small (epi and hypo)
+  }
+  else if (top.meta == 0 & bottom.meta != max.depth) {
+    top.bottom.meta$type[i] = 3 # meta and hypo 
+  }
+  else if (top.meta != 0 & bottom.meta == max.depth) {
+    top.bottom.meta$type[i] = 2 # epi and meta
+  }
+  else if (top.meta != 0 & bottom.meta != max.depth & top.meta != bottom.meta) {
+    top.bottom.meta$type[i] = 1 # classic stratification (epi - meta - hypo)
+  }
+}
+
+
+
+
+# Lake types as factor levels
+top.bottom.meta$type = as.factor(top.bottom.meta$type)
+
+
+
+# Add lake type to info.0712 data set 
+
+info.0712 = left_join(info.0712, top.bottom.meta, by = "sampling_event") %>%
+  select(-max_depth)
+
+
+
+# Simplified lake type
+# If the lake type is either 3, 4 or 6, it is considered abnormal
+# Those types are regrouped under the type "other"
+
+info.0712$type_simple = NA
+for (i in 1:nrow(info.0712)) {
+  if(info.0712$type[i] %in% c(3, 4, 6)) {
+    info.0712$type_simple[i] = "other"
+  } else {
+    info.0712$type_simple[i] = info.0712$type[i]
+  }
+}
+
+
+
+# Lake stratification 
+# The lake is stratified if it is of type 1, 2, 3 or 4 
+
+for (i in 1:nrow(info.0712)) {
+  if(info.0712$type[i] %in% 1:4) {
+    info.0712$stratified[i] = 1
+  } else {
+    info.0712$stratified[i] = 0
+  }
+}
+
+
+
+
+
+
+#### RLA3. approx.bathy  (cone method)  ####
+
+# Maximum sampled depths (m)
+max.sampled.depth = profile.0712 %>% 
+  group_by(sampling_event) %>%
+  summarise(max.sampled = max(depth))
+
+# Maximum observed depths (m)
+max.observed.depth = info.0712 %>%
+  mutate(max.observed = depthmax_m) %>%
+  select(sampling_event, max.observed) 
+
+# Join maximum sampled and observed depths
+max.sampled.observed.depth = left_join(max.sampled.depth, max.observed.depth, 
+                                       by = "sampling_event")
+
+# If no maximum depth is given for a specific sampling event, the maximum sampled depth will be taken
+max.sampled.observed.depth = max.sampled.observed.depth %>%
+  mutate(max.depth = max.observed) 
+
+for (i in 1:nrow(max.sampled.observed.depth)) {
+  
+  if(is.na(max.sampled.observed.depth$max.depth[i])) {
+    max.sampled.observed.depth$max.depth[i] = max.sampled.observed.depth$max.sampled[i]
+  }
+}
+
+# Remove observations where max sampled depth = 0
+max.sampled.observed.depth = max.sampled.observed.depth %>%
+  filter(max.sampled != 0)
+
+
+# Lake areas (has to be in m2)
+# 1 km2 = 1000^2 m2
+lake.area = info.0712 %>% 
+  mutate(lake.area = area_km2 * 1000^2) %>%
+  select(sampling_event, lake.area) 
+
+# Join lake areas and maximum depths
+max.depth.lake.area = left_join(max.sampled.observed.depth, lake.area,
+                                by = "sampling_event")
+
+# Estimate hypsography curves (list format)
+hypsography.curves = list()
+
+for (i in 1:nrow(max.depth.lake.area)) {
+  
+  if(!is.na(max.depth.lake.area$max.sampled[i]) &  !is.na(max.depth.lake.area$lake.area[i])) {
+    hypsography.curves[[i]] = approx.bathy(Zmax = max.depth.lake.area$max.sampled[i],
+                                           lkeArea = max.depth.lake.area$lake.area[i],
+                                           method = "cone", 
+                                           zinterval = 0.1)
+    
+    hypsography.curves[[i]]$sampling_event = max.depth.lake.area$sampling_event[i]
+    
+  }
+}
+
+
+# Unlist the hypsography curves 
+hypsography.curves = Reduce(bind_rows, hypsography.curves) %>%
+  select(sampling_event, depths, Area.at.z)
+
+
+
+
+
+
+
+#### RLA4. Lake metrics ====
+
+
+# Data frame of lake metrics
+nvar = 4 # Number of colomns of the data frame
+lake.metrics = data.frame(matrix(nrow = length(unique(info.0712$sampling_event)), ncol = nvar))
+
+# Columns names
+colnames(lake.metrics) = c("sampling_event", "epitemp_C", "metatemp_C", "hypotemp_C")
+
+
+# Sampling events inside data frame
+lake.metrics$sampling_event = unique(info.0712$sampling_event)
+
+
+
+##### RLA4.1 Volumetrically averaged layer temp ====
+
+
+#### Volumetrically averaged epilimnion temp 
+
+for (i in 1:nrow(lake.metrics)) {
+  
+  sampling.event = lake.metrics$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp))  # temperature profile
+  
+  wtr = wtr.depths$temp # temperature
+  depths = wtr.depths$depth # depth
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event) # area profile
+  
+  bthA = bthA.bthD$Area.at.z # area at the depth bethD
+  bthD = bthA.bthD$depths # depth
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton 
+    
+    lake.metrics$epitemp_C[i] = epi.temperature(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD) # computation of the volumnetrically averaged epi temp
+  }
+  
+}
+
+
+
+#### Volumetrically averaged metalimnion temp 
+
+
+meta.temperature <- function(wtr, depths, bthA, bthD){ # function to computer the averaged metalimnion temp 
+  
+  md = rLakeAnalyzer::meta.depths(wtr, depths) # top and bottom of the metalimnion
+  
+  if(is.na(md[1])){
+    avg_temp = NA
+  }else{
+    avg_temp = layer.temperature(md[1],md[2], wtr=wtr, depths=depths, bthA=bthA, bthD=bthD) # averaged temp between the top and bottom of the metalimnion
+  }
+  return(avg_temp)
+}
+
+
+
+for (i in 1:nrow(lake.metrics)){
+  
+  sampling.event = lake.metrics$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp)) # temperature profile
+  
+  wtr = wtr.depths$temp # temperature
+  depths = wtr.depths$depth # depth
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event) # hypsography curves
+  
+  bthA = bthA.bthD$Area.at.z # area at the depth bthD
+  bthD = bthA.bthD$depths # depth
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+    
+    lake.metrics$metatemp_C[i] = meta.temperature(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD) # computation of the volumetrically averaged meta temp
+  }
+}
+
+
+
+
+
+#### Volumetrically averaged hypolimnion temp 
+
+for (i in 1:nrow(lake.metrics)) {
+  
+  sampling.event = lake.metrics$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp))# temperature profile
+  
+  wtr = wtr.depths$temp # temperature
+  depths = wtr.depths$depth # depth
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event) # hypsography curves
+  
+  bthA = bthA.bthD$Area.at.z # area at the depth bthD
+  bthD = bthA.bthD$depths # depth
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+    
+    lake.metrics$hypotemp_C[i] = hypo.temperature(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD) # computation of the volumetrically averaged hypo temp
+  }
+}
+
+
+
+
+# Join those volumetrically averaged temp to the info.0712 data set
+info.0712 = left_join(info.0712, lake.metrics, by = "sampling_event")
+
+
+# Compute difference of temperature between top and bottom layer
+# If only one volumetrically layer averaged temp is present, delaT = 0
+# If 2 volumetrically layer averaged temp are present, deltaT = top layer T - bottom layer T
+# If the 3 volumetrically layer averaged temp are present, deltaT = epi T - hypo T 
+# If none are present, deltaT = NA
+
+info.0712 = info.0712 %>% mutate(deltaT_C = NA)
+
+for (i in 1:nrow(info.0712)) {
+  epitemp.i = info.0712$epitemp_C[i]
+  metatemp.i = info.0712$metatemp_C[i]
+  hypotemp.i = info.0712$hypotemp_C[i]
+  
+  if (is.na(epitemp.i) & is.na(metatemp.i) & is.na(hypotemp.i)) {
+    info.0712$deltaT_C[i] = NA
+  } else if (!is.na(epitemp.i) & !is.na(hypotemp.i)) {
+    info.0712$deltaT_C[i] = epitemp.i - hypotemp.i
+  } else if (!is.na(epitemp.i) & !is.na(metatemp.i)) {
+    info.0712$deltaT_C[i] = epitemp.i - metatemp.i 
+  } else if (!is.na(metatemp.i) & !is.na(hypotemp.i)) {
+    info.0712$deltaT_C[i] = metatemp.i - hypotemp.i
+  } else {
+    info.0712$deltaT_C[i] = 0 
+  }
+}
+
+
+
+
+
+
+#### RLA4.2 Epilimnion thickness ====
+
+info.0712 = info.0712 %>% mutate(epithick_m = NA) 
+
+# Epilimnion thickness (m)
+# If no stratification was observed (top_depth = NA), the epilimnion thickness equals the max sampled depth
+# If a stratification was observed, the epilimnion thickness equals the top depth of the metalimnion
+for (i in 1:nrow(info.0712)) {
+  if(is.na(info.0712$top_depth[i])) {
+    info.0712$epithick_m[i] = info.0712$sampled_depthmax_m[i]
+  } else {
+    info.0712$epithick_m[i] = info.0712$top_depth[i]
+  }
+}
+
+# Epilimnion thickness : maximum sampled depth ratio 
+info.0712 = info.0712 %>% mutate(epithick_pct = epithick_m / sampled_depthmax_m)
+
+
+
+
+
+##### RLA4.3 Average layer density ====
+
+
+layer.dens= data.frame(matrix(nrow = length(unique(info.0712$sampling_event)), ncol = 4)) # empty data frame
+
+colnames(layer.dens) = c("sampling_event", "epidens_kgm3", "metadens_kgm3", "hypodens_kgm3") # names of the empty data frame
+
+
+# Sampling events inside data frame
+layer.dens$sampling_event = unique(info.0712$sampling_event)
+
+
+#### Epilimnion density 
+
+epi.density <- function(wtr, depths, bthA, bthD){ # function to computer the density of the epilimnion  
+  
+  md = rLakeAnalyzer::meta.depths(wtr, depths) # top and bottom of the metalimnion
+  
+  if(is.na(md[1])){
+    dens = layer.density(0,max(depths), wtr=wtr, depths=depths, bthA=bthA, bthD=bthD)
+  }else{
+    dens = layer.density(0,md[1], wtr=wtr, depths=depths, bthA=bthA, bthD=bthD) # density between 0 depth and top of metalimnion
+  }
+  return(dens)
+}
+
+
+
+for (i in 1:length(unique(info.0712$sampling_event))) {
+  
+  sampling.event = layer.dens$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp)) # temperature profile
+  
+  wtr = wtr.depths$temp # temperature
+  depths = wtr.depths$depth # depth
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event) # hypsography curves
+  
+  bthA = bthA.bthD$Area.at.z # area at the depth bthD
+  bthD = bthA.bthD$depths # depth
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+    
+    layer.dens$epidens_kgm3[i] = epi.density(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD) # density of the epilimnion
+  }
+}
+
+
+
+
+
+
+
+
+#### Metalimnion density 
+
+meta.density <- function(wtr, depths, bthA, bthD){ # function to computer the density of the metalimnion  
+  
+  md = rLakeAnalyzer::meta.depths(wtr, depths) # top and bottom of the metalimnion
+  
+  if(is.na(md[1])){
+    dens = NA
+  }else{
+    dens = layer.density(md[1],md[2], wtr=wtr, depths=depths, bthA=bthA, bthD=bthD) # density between the top and bottom of the metalimnion
+  }
+  return(dens)
+}
+
+
+
+for (i in 1:length(unique(info.0712$sampling_event))) {
+  
+  sampling.event = layer.dens$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp)) # temperature profile
+  
+  wtr = wtr.depths$temp # temperature
+  depths = wtr.depths$depth # depth
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event) # hypsography curves
+  
+  bthA = bthA.bthD$Area.at.z # area at the depth bthD
+  bthD = bthA.bthD$depths # depth
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+    
+    layer.dens$metadens_kgm3[i] = meta.density(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD) # density of the metalimnion
+  }
+}
+
+
+
+
+
+
+
+
+
+#### Hypolimnion density 
+
+hypo.density <- function(wtr, depths, bthA, bthD){ # function to computer the density of the hypolimnion 
+  
+  md = rLakeAnalyzer::meta.depths(wtr, depths) # top and bottom of the metalimnion
+  
+  if(is.na(md[2])){
+    dens = NA
+  }else{
+    dens = layer.density(md[2],max(depths), wtr=wtr, depths=depths, bthA=bthA, bthD=bthD) # density between the bottom of the metalimnion and the maximum depth
+  }
+  return(dens)
+}
+
+
+
+for (i in 1:length(unique(info.0712$sampling_event))) {
+  
+  sampling.event = layer.dens$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp)) # temperature profile
+  
+  wtr = wtr.depths$temp # temperature
+  depths = wtr.depths$depth # depth
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event) # hypsography curves
+  
+  bthA = bthA.bthD$Area.at.z # area at the depth bthD
+  bthD = bthA.bthD$depths # depth
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+    
+    layer.dens$hypodens_kgm3[i] = hypo.density(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD) # computation of the density of the hypolimnion
+  }
+}
+
+
+
+
+
+# Join those averaged density to the info.0712 data set
+info.0712 = left_join(info.0712, layer.dens, by = "sampling_event")
+
+# Compute difference of density between top and bottom layer
+# If only one layer density is present, deltaD = 0
+# If 2 layer densities are present, deltaD = top layer density - bottom layer density
+# If the 3 layer densities are present, deltaD = epi density - hypo density  
+# If none are present, deltaD = NA
+
+info.0712 = info.0712 %>% mutate(deltaD_kgm3 = NA)
+
+for (i in 1:nrow(info.0712)) {
+  epidens.i = info.0712$epidens_kgm3[i]
+  metadens.i = info.0712$metadens_kgm3[i]
+  hypodens.i = info.0712$hypodens_kgm3[i]
+  
+  if (is.na(epidens.i) & is.na(metadens.i) & is.na(hypodens.i)) {
+    info.0712$deltaD_kgm3[i] = NA
+  } else if (!is.na(epidens.i) & !is.na(hypodens.i)) {
+    info.0712$deltaD_kgm3[i] = hypodens.i - epidens.i
+  } else if (!is.na(epidens.i) & !is.na(metadens.i)) {
+    info.0712$deltaD_kgm3[i] = metadens.i - epidens.i 
+  } else if (!is.na(metadens.i) & !is.na(hypodens.i)) {
+    info.0712$deltaD_kgm3[i] = hypodens.i - metadens.i
+  } else {
+    info.0712$deltaD_kgm3[i] = 0 
+  }
+}
+
+
+
+
+
+
+#### RLA4.4 Internal energy ====
+
+
+# Computation of the lake internal energy (J)
+
+for (i in 1:length(unique(info.0712$sampling_event))) {
+  
+  sampling.event = info.0712$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp)) # temperature profile
+  
+  wtr = wtr.depths$temp # temperature
+  depths = wtr.depths$depth # profile
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event) # hypsography curves
+  
+  bthA = bthA.bthD$Area.at.z # area at the depth bthD
+  bthD = bthA.bthD$depths # depth
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton   
+    
+    info.0712$intE_Jm2[i] = internal.energy(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD) # computation of the lake internal energy
+  }
+}
+
+
+
+
+
+#### RLA4.5 Thermocline depth ====
+
+
+# Thermocline depth (m) for each sampling event
+thermodepth = profile.0712 %>% group_by(sampling_event) %>%
+  summarize(thermodepth_m = thermo.depth(wtr = temp, depths = depth)) 
+
+# Inclusion of thermocline depth into info.0712 data set 
+info.0712 = left_join(info.0712, thermodepth, by = "sampling_event")
+
+
+
+
+
+#### RLA4.6 Anoxia and hypoxia ====
+
+# Which sampling event are anoxic somewhere in their water column
+# At which depth those sampling event begins to be anoxic ?
+anoxia = profile.0712 %>% filter(DO == 0) %>%
+  group_by(sampling_event) %>%
+  summarize(anoxia = 1, anoxiadepth_m = min(depth)) # minimum depth at which a lake is anoxic (DO = 0)
+
+
+# Which sampling event are hypoxic somewhere in their water column
+# At which depth those sampling event begins to be hypoxic ?
+hypoxia = profile.0712 %>% filter(DO < 2) %>%
+  group_by(sampling_event) %>%
+  summarize(hypoxia = 1, hypoxiadepth_m = min(depth)) # minimum depth at which a lake is hypoxic (DO < 2)
+
+
+# Join anoxia and hypoxia data to the info.0712 data set 
+info.0712 = left_join(info.0712, anoxia, by = "sampling_event") %>%
+  left_join(hypoxia)
+
+
+# For each sampling event present in the profile.0712 data set, change NA to 0 if
+# no anoxia or hypoxia detected
+for (i in 1:nrow(info.0712)) {
+  sampling.event.i = info.0712$sampling_event[i]
+  
+  if(sampling.event.i %in% profile.0712$sampling_event &
+     is.na(info.0712$anoxia[i])) {    # no anoxia detected in this sampling event 
+    info.0712$anoxia[i] = 0
+  }
+  
+  if(sampling.event.i %in% profile.0712$sampling_event &
+     is.na(info.0712$hypoxia[i])) {    # no hypoxia detected in this sampling event 
+    info.0712$hypoxia[i] = 0
+  }
+}
+
+
+
+
+#### Estimated lake volumes (method = cone) 
+# The volume of a lake is its maximum sampled depth * lake area / 3
+
+info.0712 = info.0712 %>%
+  mutate(lakevolume_m3 = (area_km2 * 1000^2) * sampled_depthmax_m / 3) # 1 km2 = 1000^2 m 
+
+
+
+
+#### Anoxia and hypoxia depth ratio 
+
+info.0712 = info.0712 %>%
+  mutate(anoxiadepth_pct = 1 - anoxiadepth_m / sampled_depthmax_m,
+         hypoxiadepth_pct = 1 - hypoxiadepth_m/sampled_depthmax_m) # fractions of anoxic and hypoxic depths
+
+
+# If no anoxia or no hypoxia was observed, the anoxia or hypoxia depth are set at 0
+for (i in 1:nrow(info.0712)) {
+  if (!is.na(info.0712$anoxia[i])) {
+    if(info.0712$anoxia[i] == 0) {
+      info.0712$anoxiadepth_pct[i] = 0
+    }
+  }
+  if (!is.na(info.0712$hypoxia[i])) {
+    if (info.0712$hypoxia[i] == 0) {
+      info.0712$hypoxiadepth_pct[i] = 0
+    }
+  }
+}
+
+
+# Estimated anoxia and hypoxia volumes (method = cone)
+# Function of lake volume and fraction of anoxia (or hypoxia) depth
+
+info.0712 = info.0712 %>% 
+  mutate(anoxiavolume_m3 = lakevolume_m3 * anoxiadepth_pct ^ 3, 
+         hypoxiavolume_m3 = lakevolume_m3 * hypoxiadepth_pct ^ 3)  
+
+# Estimated anoxia and hypoxia volumes (in %)
+
+info.0712 = info.0712 %>%
+  mutate(anoxiavolume_pct = anoxiavolume_m3 / lakevolume_m3,
+         hypoxiavolume_pct = hypoxiavolume_m3 / lakevolume_m3)
+
+
+
+
+
+#### RLA4.7 Schmidt stability ====
+
+
+
+for (i in 1:nrow(info.0712)) {
+  
+  sampling.event = info.0712$sampling_event[i]
+  
+  wtr.depths = profile.0712 %>% 
+    filter(sampling_event == sampling.event, !is.na(temp)) # temperature profile
+  
+  wtr = wtr.depths$temp # temperature
+  depths = wtr.depths$depth # depth
+  
+  bthA.bthD = hypsography.curves %>%
+    filter(sampling_event == sampling.event) # hypsography curves
+  
+  bthA = bthA.bthD$Area.at.z # area at the depth bthD
+  bthD = bthA.bthD$depths # depth
+  
+  if(nrow(wtr.depths) >= 2 & nrow(bthA.bthD) >= 2) { # requirements of the funciton 
+    
+    info.0712$schmidth.stability_Jm2[i] = schmidt.stability(wtr = wtr, depths = depths, bthA = bthA, bthD = bthD) # computation of the Schmidt stability
+  }
+  
+}
+
+
+
+
+
+
+
+
+
+
+#### Data set ready for analysis ====
+
+
+# Select response and explanatory variables 
+strat.0712 = info.0712 %>%
+  # Change variables class
+  mutate(sampling_event = sampling_event,  
+         site_id = as.factor(site_id), 
+         resampled = as.factor(resampled),
+         type = as.factor(type),
+         type_simple = as.factor(type_simple),
+         stratifies = as.factor(stratified),
+         deltaT = as.numeric(deltaT_C), 
+         epithick = as.numeric(epithick_m),
+         thermodepth = as.numeric(thermodepth_m),
+         anoxiaV = as.numeric(anoxiavolume_m3),
+         hypoxiaV = as.numeric(hypoxiavolume_m3),
+         schmidth_stability = as.numeric(schmidth.stability_Jm2),
+         month = as.ordered(month),
+         year = as.ordered(year),
+         lat = as.numeric(lat),
+         lon = as.numeric(lon),
+         elevation = as.factor(elevation_m),
+         ECO9 = as.factor(ECO9),
+         lake_origin = as.factor(lake_origin),
+         area = as.numeric(area_km2),
+         volume = as.numeric(lakevolume_m3),
+         WALA_ratio = as.numeric(WALA_ratio),
+         depth = as.numeric(sampled_depthmax_m),
+         SDI = as.numeric(SLD),
+         forest = as.numeric(pct_forest),
+         agric = as.numeric(pct_agric),
+         precip5 = as.numeric(precip_5),
+         avgtemp5 = as.numeric(avgtemp_5),
+         mintemp5 = as.numeric(mintemp_5),
+         maxtemp5 = as.numeric(maxtemp_5),
+         precip4 = as.numeric(precip_4),
+         avgtemp4 = as.numeric(avgtemp_4),
+         mintemp4 = as.numeric(mintemp_4),
+         maxtemp4 = as.numeric(maxtemp_4),
+         precip3 = as.numeric(precip_3),
+         avgtemp3 = as.numeric(avgtemp_3),
+         mintemp3 = as.numeric(mintemp_3),
+         maxtemp3 = as.numeric(maxtemp_3),
+         precip2 = as.numeric(precip_2),
+         avgtemp2 = as.numeric(avgtemp_2),
+         mintemp2 = as.numeric(mintemp_2),
+         maxtemp2 = as.numeric(maxtemp_2),
+         precip1 = as.numeric(precip_1),
+         avgtemp1 = as.numeric(avgtemp_1),
+         mintemp1 = as.numeric(mintemp_1),
+         maxtemp1 = as.numeric(maxtemp_1),
+         chla = as.numeric(chla_ugL),
+         color = as.numeric(color_PCU),
+         TN = as.numeric(NTL_ugL),
+         TP = as.numeric(PTL_ugL),
+         DOC = as.numeric(DOC_mgL),
+         cond = as.numeric(cond_uScm),
+         turb = as.numeric(turb_NTU),
+         nutrient_color = as.factor(nutrient_color)) %>%
+  filter(visit_no == 1) %>%  # filter for the first visit no only
+  # selection of useful variables
+  select(sampling_event, site_id, resampled,
+         type, type_simple, stratified, deltaT, epithick, thermodepth, anoxiaV, hypoxiaV, schmidth_stability,
+         month, year, lat, lon, elevation, ECO9, lake_origin,
+         area, volume, WALA_ratio, depth,
+         SDI, forest, agric,
+         precip5, avgtemp5, mintemp5, maxtemp5,
+         precip4, avgtemp4, mintemp4, maxtemp4,
+         precip3, avgtemp3, mintemp3, maxtemp3,
+         precip2, avgtemp2, mintemp2, maxtemp2,
+         precip1, avgtemp1, mintemp1, maxtemp1,
+         chla, color, TN, TP, DOC, cond, turb, nutrient_color)
+
+
+
+# Remove the second observation of each sampling event that is present more than one in the data set 
+repeated.sampling.event = strat.0712  %>% group_by(sampling_event) %>% count() %>% filter(n != 1)
+
+for (i in 1:nrow(repeated.sampling.event)) {
+  strat.0712 = strat.0712[-which(strat.0712$sampling_event %in% repeated.sampling.event$sampling_event[i])[2],]
+}
+
+
+# Sampling events as row names
+rownames(strat.0712) = strat.0712$sampling_event
+
+# Remove sampling event from the data set 
+strat.0712 = strat.0712 %>% select(-sampling_event)
+
+
+# Export data set ready for analysis
+
+write.table(strat.0712,
+            file = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/strat_0712.tsv",
             sep = "\t")
 
 
