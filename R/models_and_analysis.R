@@ -13,11 +13,10 @@ library(SoDA)
 
 # Import the processed data sets 
 # The data sets are in the folder "processed"
-info.0712 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/info_0712.tsv", header = TRUE,  sep = '\t')
-profile.0712 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/profile_0712.tsv", header = TRUE,  sep = '\t')
+info.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/info_0712.tsv", header = TRUE,  sep = '\t')
+profile.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/profile_0712.tsv", header = TRUE,  sep = '\t')
 
 
-View(info.0712)
 
 
 #### 1. Some counting ####
@@ -556,7 +555,6 @@ info.0712 = info.0712 %>% mutate(epithick_pct = epithick_m / sampled_depthmax_m)
 
 
 
-View(info.0712 %>% filter((deltaT_C > 80)))
 
 ##### 5.3 Average layer density #####
 
@@ -968,7 +966,7 @@ strat.0712 = strat.0712 %>% select(-sampling_event)
 # Export data set ready for analysis
 
 write.table(strat.0712,
-            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/strat_0712.tsv",
+            file = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/strat_0712.tsv",
             sep = "\t")
 
 

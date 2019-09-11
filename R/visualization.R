@@ -122,7 +122,7 @@ type.plot.resampled = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
   
-ggsave(filename = "type_resampled.pdf", device = "pdf", plot = type.plot.resampled, path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "type_resampled.pdf", device = "pdf", plot = type.plot.resampled, path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -143,7 +143,7 @@ type.plot.all = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "type_all.pdf", plot = type.plot.all, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "type_all.pdf", plot = type.plot.all, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -163,7 +163,7 @@ stratification.plot.resampled = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "stratification_resampled.pdf", plot = stratification.plot.resampled, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "stratification_resampled.pdf", plot = stratification.plot.resampled, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -182,7 +182,7 @@ stratification.plot.all = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "stratification_all.pdf", plot = stratification.plot.all, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "stratification_all.pdf", plot = stratification.plot.all, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -214,7 +214,7 @@ stratification.change = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "stratification_change.pdf", plot = stratification.change, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "stratification_change.pdf", plot = stratification.change, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
  
 
@@ -241,7 +241,7 @@ epi.thickness.resampled = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "epi_thickness_resampled.pdf", plot = epi.thickness.resampled, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "epi_thickness_resampled.pdf", plot = epi.thickness.resampled, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -256,7 +256,7 @@ epi.thickness.resampled.eco = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "epi_thickness_resampled_eco.pdf", plot = epi.thickness.resampled.eco, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "epi_thickness_resampled_eco.pdf", plot = epi.thickness.resampled.eco, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -277,7 +277,7 @@ epi.thickness.all = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "epi_thickness_all.pdf", plot = epi.thickness.all, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "epi_thickness_all.pdf", plot = epi.thickness.all, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -292,7 +292,7 @@ epi.thickness.all.eco = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "epi_thickness_all_eco.pdf", plot = epi.thickness.all.eco, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "epi_thickness_all_eco.pdf", plot = epi.thickness.all.eco, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -314,7 +314,7 @@ deltaT.resampled = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "deltaT_resampled.pdf", plot = deltaT.resampled, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "deltaT_resampled.pdf", plot = deltaT.resampled, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -329,7 +329,7 @@ deltaT.resampled.eco = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "deltaT_resampled_eco.pdf", plot = deltaT.resampled.eco, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "deltaT_resampled_eco.pdf", plot = deltaT.resampled.eco, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -348,7 +348,7 @@ deltaT.all = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "deltaT_all.pdf", plot = deltaT.all, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "deltaT_all.pdf", plot = deltaT.all, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -363,7 +363,7 @@ deltaT.all.eco = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "deltaT_all_eco.pdf", plot = deltaT.all.eco, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "deltaT_all_eco.pdf", plot = deltaT.all.eco, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -388,7 +388,7 @@ delta.density.resampled = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "delta_density_resampled.pdf", plot = delta.density.resampled, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "delta_density_resampled.pdf", plot = delta.density.resampled, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -403,7 +403,7 @@ delta.density.resampled.eco = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "delta_density_resampled_eco.pdf", plot = delta.density.resampled.eco, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "delta_density_resampled_eco.pdf", plot = delta.density.resampled.eco, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -422,7 +422,7 @@ delta.density.all = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "delta_density_all.pdf", plot = delta.density.all, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "delta_density_all.pdf", plot = delta.density.all, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -437,7 +437,7 @@ delta.density.all.eco = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "delta_density_all_eco.pdf", plot = delta.density.all.eco, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "delta_density_all_eco.pdf", plot = delta.density.all.eco, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -465,7 +465,7 @@ hypo.temp.resampled = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "hypo_temp_resampled.pdf", plot = hypo.temp.resampled, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "hypo_temp_resampled.pdf", plot = hypo.temp.resampled, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -481,7 +481,7 @@ hypo.temp.all = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "hypo_temp_all.pdf", plot = hypo.temp.all, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "hypo_temp_all.pdf", plot = hypo.temp.all, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -521,7 +521,7 @@ anoxia.hypoxia.resampled = usa.plot +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-ggsave(filename = "anoxia_hypoxia_resampled.pdf", plot = anoxia.hypoxia.resampled, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "anoxia_hypoxia_resampled.pdf", plot = anoxia.hypoxia.resampled, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -540,7 +540,7 @@ anoxia.depth.resampled = usa.plot +
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
 
-ggsave(filename = "anoxia_depth_resampled.pdf", plot = anoxia.depth.resampled, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "anoxia_depth_resampled.pdf", plot = anoxia.depth.resampled, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -561,7 +561,7 @@ hypoxia.depth.resampled = usa.plot +
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
 
-ggsave(filename = "hypoxia_depth_resampled.pdf", plot = hypoxia.depth.resampled, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "hypoxia_depth_resampled.pdf", plot = hypoxia.depth.resampled, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -586,7 +586,7 @@ anoxia.depth.all = usa.plot +
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
 
-ggsave(filename = "anoxia_depth_all.pdf", plot = anoxia.depth.all, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "anoxia_depth_all.pdf", plot = anoxia.depth.all, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -607,7 +607,7 @@ hypoxia.depth.all = usa.plot +
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
 
-ggsave(filename = "hypoxia_depth_all.pdf", plot = hypoxia.depth.all, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/maps", width = 12, height = 12)
+ggsave(filename = "hypoxia_depth_all.pdf", plot = hypoxia.depth.all, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
@@ -638,7 +638,7 @@ maxdepth.all.violin = ggplot(info.0712a, aes(x = nutrient_color, y = sampled_dep
   scale_y_continuous(name = "Profondeur maximale échantillonnée (m)") 
 
 
-ggsave(filename = "maxdepth_all.pdf", plot = maxdepth.all.violin, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/violin", width = 12, height = 12)
+ggsave(filename = "maxdepth_all.pdf", plot = maxdepth.all.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
 
 
 
@@ -651,7 +651,7 @@ maxdepth.all.eco.violin = ggplot(info.0712a, aes(x = ECO9, y = sampled_depthmax_
   scale_y_continuous(name = "Profondeur maximale échantillonnée (m)") 
 
 
-ggsave(filename = "maxdepth_all_eco.pdf", plot = maxdepth.all.eco.violin, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/violin", width = 12, height = 12)
+ggsave(filename = "maxdepth_all_eco.pdf", plot = maxdepth.all.eco.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
 
 
 
@@ -668,7 +668,7 @@ epithick.all.violin = ggplot(info.0712a.strat, aes(x = nutrient_color, y = epith
   scale_y_continuous(name = "Épaisseur de l'épilimnion (m)") 
 
 
-ggsave(filename = "epithick_all.pdf", plot = epithick.all.violin, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/violin", width = 12, height = 12)
+ggsave(filename = "epithick_all.pdf", plot = epithick.all.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
 
 
 
@@ -682,7 +682,7 @@ epithick.all.eco.violin = ggplot(info.0712a.strat, aes(x = ECO9, y = epithick_m)
   scale_y_continuous(name = "Épaisseur de l'épilimnion (m)") 
 
 
-ggsave(filename = "epithick_all_eco.pdf", plot = epithick.all.eco.violin, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/violin", width = 12, height = 12)
+ggsave(filename = "epithick_all_eco.pdf", plot = epithick.all.eco.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
 
 
 
@@ -702,7 +702,7 @@ deltaT.all.violin = ggplot(info.0712a.strat, aes(x = nutrient_color, y = deltaT_
   scale_y_continuous(name = "Différence de température (oC)") 
 
 
-ggsave(filename = "deltaT_all.pdf", plot = deltaT.all.violin, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/violin", width = 12, height = 12)
+ggsave(filename = "deltaT_all.pdf", plot = deltaT.all.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
 
 
 
@@ -716,7 +716,7 @@ deltaT.all.eco.violin = ggplot(info.0712a.strat, aes(x = ECO9, y = deltaT_C)) +
   scale_y_continuous(name = "Différence de température (oC)") 
 
 
-ggsave(filename = "deltaT_all_eco.pdf", plot = deltaT.all.eco.violin, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/violin", width = 12, height = 12)
+ggsave(filename = "deltaT_all_eco.pdf", plot = deltaT.all.eco.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
 
 
 
@@ -737,7 +737,7 @@ deltaD.all.violin = ggplot(info.0712a.strat, aes(x = nutrient_color, y = deltaD_
   scale_y_continuous(name = "Différence de densité (kg/m3)") 
 
 
-ggsave(filename = "delta_density_all.pdf", plot = deltaD.all.violin, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/violin", width = 12, height = 12)
+ggsave(filename = "delta_density_all.pdf", plot = deltaD.all.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
 
 
 
@@ -751,7 +751,7 @@ deltaD.all.eco.violin = ggplot(info.0712a.strat, aes(x = ECO9, y = deltaD_kgm3))
   scale_y_continuous(name = "Différence de densité (kg/m3)") 
 
 
-ggsave(filename = "delta_density_all_eco.pdf", plot = deltaD.all.eco.violin, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/violin", width = 12, height = 12)
+ggsave(filename = "delta_density_all_eco.pdf", plot = deltaD.all.eco.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
 
 
 
@@ -773,7 +773,7 @@ hypotemp.all.violin = ggplot(info.0712a.strat, aes(x = nutrient_color, y = hypot
   scale_y_continuous(name = "Température moyenne de l'hypolimnion (oC)") 
 
 
-ggsave(filename = "hypotemp_all.pdf", plot = hypotemp.all.violin, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/violin", width = 12, height = 12)
+ggsave(filename = "hypotemp_all.pdf", plot = hypotemp.all.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
 
 
 
@@ -786,7 +786,7 @@ hypotemp.all.eco.violin = ggplot(info.0712a.strat, aes(x = ECO9, y = hypotemp_C)
   scale_y_continuous(name = "Température moyenne de l'hypolimnion (oC)") 
 
 
-ggsave(filename = "hypotemp_all_eco.pdf", plot = hypotemp.all.eco.violin, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/violin", width = 12, height = 12)
+ggsave(filename = "hypotemp_all_eco.pdf", plot = hypotemp.all.eco.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
 
 
 
@@ -806,7 +806,7 @@ anoxia.depth.all.violin = ggplot(info.0712a, aes(x = nutrient_color, y = anoxiad
   scale_y_continuous(name = "Profondeur de l'anoxie (m)") 
 
 
-ggsave(filename = "anoxia_depth_all.pdf", plot = anoxia.depth.all.violin, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/violin", width = 12, height = 12)
+ggsave(filename = "anoxia_depth_all.pdf", plot = anoxia.depth.all.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
 
 
 
@@ -822,7 +822,7 @@ hypoxia.depth.all.violin = ggplot(info.0712a, aes(x = nutrient_color, y = hypoxi
   scale_y_continuous(name = "Profondeur de l'hypoxie (m)") 
 
 
-ggsave(filename = "hypoxia_depth_all.pdf", plot = hypoxia.depth.all.violin, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/violin", width = 12, height = 12)
+ggsave(filename = "hypoxia_depth_all.pdf", plot = hypoxia.depth.all.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
 
 
 
@@ -885,7 +885,7 @@ p <- ggplot(data.for.pie) +
   geom_text(data = filter(data.for.pie, freq != 0), aes(x = type.07 + 0.3, y = type.12, label = freq), size = 3.5) 
 
 
-ggsave(filename = "piechart_colorstrat.pdf", plot = p, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/pie_chart", width = 12, height = 12)
+ggsave(filename = "piechart_colorstrat.pdf", plot = p, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/pie_chart", width = 12, height = 12)
 
 
 
@@ -944,7 +944,7 @@ zepizmax.plot = ggplot(data.for.zepizmax, aes(x = log1p(zmax), y = log1p(zepi), 
         panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black", size = 1))
   
-ggsave(filename = "zepi_zmax.pdf", plot = zepizmax.plot, device = "pdf", path = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/scatter_plot", width = 12, height = 12)
+ggsave(filename = "zepi_zmax.pdf", plot = zepizmax.plot, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/scatter_plot", width = 12, height = 12)
 
 
 
@@ -1116,10 +1116,8 @@ ggplot(data.for.deltaTepihypo2, aes(x = deltaT.atm.avg, y = deltaT.hypo, col = d
         panel.border = element_blank(),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        axis.line = element_line(colour = "black", size = 1))
-  
-
-geom_line(color = "black", size = 1, data = predicted_df, aes(x = zmax, y = zepi.predict)) +
+        axis.line = element_line(colour = "black", size = 1)) +
+  geom_line(color = "black", size = 1, data = predicted_df, aes(x = zmax, y = zepi.predict)) +
   annotate("text", label = paste("adj R2 = ", zepizmaxstatus.R2adj), x = 1, y = 3, size = 5) 
 
 

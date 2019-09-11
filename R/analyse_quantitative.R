@@ -24,20 +24,21 @@ library(SoDA)
 library(vegan)
 
 # Source additional functions
-source("x_panelutils.R")
-source("x_plot.lda.R")
-source("x_triplot.rda.R")
+setwd("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/R/functions")
+source("panelutils.R")
+source("plot.lda.R")
+source("triplot.rda.R")
 
 
 # Load data 
-strat.0712 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/strat_0712.tsv", header = TRUE,  sep = '\t')
+strat.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/strat_0712.tsv", header = TRUE,  sep = '\t')
 
 
 
 
 # Data transformation =========
 
-View(strat.0712) # View the whole data set 
+# View(strat.0712) # View the whole data set 
 dim(strat.0712) # 2287 sampling events and 37 variables 
 colnames(strat.0712) # descriptors 
                     # 2 identification variables (site id and resampled)
@@ -435,7 +436,6 @@ summary(schmidth_stability.deep.select)
 
 # Partial multiple linear regression 
 
-strat.expl.quanti = cbind(strat.quant)
 strat.quanti.= strat.quanti.U[which(strat.0712.U$depth.group == "shallow" & strat.0712.U$stratified == 1),]
 strat.quanti.medium = strat.quanti.U[which(strat.0712.U$depth.group == "medium" & strat.0712.U$stratified == 1),]
 strat.quanti.deep = strat.quanti.U[which(strat.0712.U$depth.group == "deep" & strat.0712.U$stratified == 1),]
@@ -510,41 +510,6 @@ plot(hypoxiaV.varpart, cex = 1.5, Xnames = c("average temperature", "color + TP"
 
 
 
-deltaT.m0 = lm(strat.U.lm$deltaT ~ 1, data = expl.U.lm) # model m0
-deltaT.mtot = lm(strat.U.lm$deltaT ~ depth.group * nutrient_color * maxtemp * mintemp * avgtemp,
-                 data = expl.U.lm) # model mtot
-deltaT.select = step(deltaT.m0, scope=formula(deltaT.mtot), direction="both", trace=0) # variable selection
-summary(deltaT.select)
-
-
-epithick.m0 = lm(strat.U.lm$epithick ~ 1, data = expl.U.lm) # model m0
-epithick.mtot = lm(strat.U.lm$epithick ~ depth.group + nutrient_color + maxtemp + mintemp + avgtemp,
-                 data = expl.U.lm) # model mtot
-epithick.select = step(epithick.m0, scope=formula(epithick.mtot), direction="both", trace=0) # variable selection
-summary(epithick.select)
-
-
-
-
-hypoxiaV.m0 = lm(strat.U.lm$hypoxiaV ~ 1, data = expl.U.lm) # model m0
-hypoxiaV.mtot = lm(strat.U.lm$hypoxiaV ~ depth.group + nutrient_color + maxtemp + mintemp + avgtemp,
-                   data = expl.U.lm) # model mtot
-hypoxiaV.select = step(hypoxiaV.m0, scope=formula(hypoxiaV.mtot), direction="both", trace=0) # variable selection
-summary(hypoxiaV.select)
-
-
-
-
-schmidth_stability.m0 = lm(strat.U.lm$schmidth_stability ~ 1, data = expl.U.lm) # model m0
-schmidth_stability.mtot = lm(strat.U.lm$schmidth_stability ~ depth.group + nutrient_color + maxtemp + mintemp + avgtemp,
-                   data = expl.U.lm) # model mtot
-schmidth_stability.select = step(schmidth_stability.m0, scope=formula(schmidth_stability.mtot), direction="both", trace=0) # variable selection
-summary(schmidth_stability.select)
-
-
-
-
-
 
 # Univariate LDA ===========
 
@@ -566,9 +531,6 @@ table(gr, test$class)
 diag(prop.table(table(gr, test$class),1))
 
 
-plot.lda(lda.out = test, 
-         groups = gr, 
-         plot.sites = 0)
 
 
 
@@ -582,9 +544,8 @@ expl.URT = strat.0712.URT3[, !(names(strat.0712.URT3) %in% "type")]
 
 colnames(expl.URT)
 type.URT = mvpart(gr ~ ., expl.URT, xv = "pick", margin = 0.08, cp = 0, xval = 10, xvmult = 100)
-printcp(test)
 summary(test)
-MRT(test, percent = 10)
+
 
 # Variation partitioning =========
 
@@ -863,7 +824,7 @@ which(vif.cca(strat.U.rda.parci) >= 10) # 0 factor levels have a variance inflat
 
 # Plot of the parcimonious RDA result
 
-pdf(file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/figs/quanti_analysis/strat_U_rda.pdf")
+pdf(file = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/quanti_analysis/strat_U_rda.pdf")
 
 triplot.rda(strat.U.rda.parci, scaling = 2, 
             plot.sites = FALSE, plot.spe = TRUE, plot.env = TRUE, plot.cent = TRUE, 
@@ -1001,22 +962,6 @@ range(strat.U.S15, na.rm = TRUE)
 
 
 
-# Multivariate regression tree =========
-
-
-######## JE SUIS AUSSI RENDU LÀ !! #######
-data.for.pie$type.07 = as.numeric(data.for.pie$type.07)
-data.for.pie$type.12 = as.factor(data.for.pie$type.12)
-
-test = mvpart(data.matrix(data.for.pie$type.12) ~.,
-              data.for.pie[,!(names(data.for.pie) %in% "type.12")])
-test2 = MRT(test, species = "type.12")
-
-
-
-
-
-
 
 
 
@@ -1037,7 +982,6 @@ strat.mvpart = mvpart(data.matrix(strat.quanti.U) ~ .,
                       xv = "pick", 
                       xval = 10,
                       xvmult = 1)
-?mvpart
 
 nrow(strat.quanti.U)
 
@@ -1052,8 +996,8 @@ nrow(strat.quanti.U)
 ### Varia ###
 library(VennDiagram)
 
-draw.pairwise.venn(area1 = nrow(filter(strat.0712, year == 2007)), 
-                   area2 = nrow(filter(strat.0712, year == 2012)),
+draw.pairwise.venn(area1 = nrow(strat.0712 %>% filter(year == 2007)), 
+                   area2 = nrow(strat.0712 %>% filter(year == 2012)),
                    cross.area = nrow(strat.0712.R) / 2, 
                    fill = "blue", cex = rep(3,3))
 
@@ -1093,3 +1037,4 @@ maxdepth.type.boxplot = ggplot(boxplot.type.data, aes(x = type, y = exp(depth) -
 
 
 table(info.0712r2$type.07, info.0712r2$type.12)
+

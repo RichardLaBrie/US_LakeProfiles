@@ -12,8 +12,10 @@
 
 # Libraries
 library("dplyr")
+library("lubridate")
 library("stringr")
 library("tidyr")
+library("zoo")
 
 
 
@@ -25,7 +27,7 @@ library("tidyr")
 
 
 # Import the interim data sets 
-profile.07 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/water_chemistry/nla2007_profile_20091008.tsv", header = TRUE,  sep = '\t')
+profile.07 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/water_chemistry/nla2007_profile_20091008.tsv", header = TRUE,  sep = '\t')
 
 # Rename some variables 
 colnames(profile.07) = tolower(colnames(profile.07)) # variable names in lowercase
@@ -119,7 +121,7 @@ profile.07$layer_nla = as.factor(profile.07$layer_nla)
 #### 1.2 Tidy the profile.12 data set 
 
 # Import the interim data sets 
-profile.12 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/water_chemistry/nla2012_wide_profile_08232016.tsv", header = TRUE,  sep = '\t')
+profile.12 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/water_chemistry/nla2012_wide_profile_08232016.tsv", header = TRUE,  sep = '\t')
 
 
 colnames(profile.12) = tolower(colnames(profile.12)) # variable names in lowercase
@@ -217,7 +219,7 @@ profile.12$layer_nla = as.factor(profile.12$layer_nla)
 
 
 # Import the interim data set 
-info.07 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/site_information/nla2007_sampledlakeinformation_20091113.tsv", header = TRUE,  sep = '\t')
+info.07 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/site_information/nla2007_sampledlakeinformation_20091113.tsv", header = TRUE,  sep = '\t')
 
 
 colnames(info.07) = tolower(colnames(info.07)) # variable names in lowercase
@@ -264,7 +266,7 @@ info.07$lake_origin = tolower(info.07$lake_origin) # values in lowercase letters
 #### 2.2 Tidy the info.12 data set 
 
 # Import the interim data set 
-info.12 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/site_information/nla2012_wide_siteinfo_08232016.tsv", header = TRUE,  sep = '\t', quote = "\\")
+info.12 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/site_information/nla2012_wide_siteinfo_08232016.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
 
 colnames(info.12) = tolower(colnames(info.12)) # variable names in lowercase
@@ -317,7 +319,7 @@ info.12$lake_origin = tolower(info.12$lake_origin) # values in lowercase letters
 #### 3.1 Tidy the secchi.07 data set 
 
 # Import the interim data set 
-secchi.07 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/secchi/nla2007_secchi_20091008.tsv", header = TRUE,  sep = '\t', quote = "\\")
+secchi.07 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/secchi/nla2007_secchi_20091008.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
 colnames(secchi.07) = tolower(colnames(secchi.07)) # variable names in lowercase
 
@@ -349,7 +351,7 @@ secchi.07 = secchi.07 %>% mutate(
 #### 3.2 Tidy the secchi.12 data set 
 
 # Import the interim data set 
-secchi.12 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/secchi/nla2012_secchi_08232016.tsv", header = TRUE,  sep = '\t', quote = "\\")
+secchi.12 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/secchi/nla2012_secchi_08232016.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
 colnames(secchi.12) = tolower(colnames(secchi.12)) # variable names in lowercase
 
@@ -390,7 +392,7 @@ secchi.12 = secchi.12 %>% mutate(
 #### 4.1 Tidy the landscape.07 data set 
 
 # Import the interim data set 
-landscape.07 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/landscape_data/nla2007_basin_landuse_metrics_20061022.tsv", header = TRUE,  sep = '\t', quote = "\\")
+landscape.07 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/landscape_data/nla2007_basin_landuse_metrics_20061022.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
 colnames(landscape.07) = tolower(colnames(landscape.07)) # variable names in lowercase
 
@@ -425,7 +427,7 @@ landscape.07 = landscape.07 %>% mutate(
 
 
 # Import the interim data set 
-landscape.12 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/landscape_data/nla2012_wide_watershed.tsv", header = TRUE,  sep = '\t', quote = "\\")
+landscape.12 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/landscape_data/nla2012_wide_watershed.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
 colnames(landscape.12) = tolower(colnames(landscape.12)) # variable names in lowercase
 
@@ -474,7 +476,7 @@ landscape.12 = landscape.12 %>% mutate(
 #### 5.1 Tidy the chemistry.07 data set 
 
 # Import the interim data set 
-chemistry.07 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/water_chemistry/NLA2007_WaterQuality_20091123.tsv", header = TRUE,  sep = '\t', quote = "\\")
+chemistry.07 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/water_chemistry/NLA2007_WaterQuality_20091123.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
 colnames(chemistry.07) = tolower(colnames(chemistry.07)) # variable names in lowercase
 
@@ -536,7 +538,7 @@ for (i in 1:nrow(chemistry.07)) {
 #### 5.2 Tidy the chemistry.12 data set 
 
 # Import the interim data set 
-chemistry.12 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/water_chemistry/nla2012_waterchem_wide.tsv", header = TRUE,  sep = '\t', quote = "\\")
+chemistry.12 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/water_chemistry/nla2012_waterchem_wide.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
 colnames(chemistry.12) = tolower(colnames(chemistry.12)) # variable names in lowercase
 
@@ -597,7 +599,7 @@ for (i in 1:nrow(chemistry.12)) {
 # Chla data were already present in the chemistry.07 data set 
 
 # Import the interim data set 
-chla.12 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/interim/chlorophyll-a/nla2012_chla_wide.tsv", header = TRUE,  sep = '\t', quote = "\\")
+chla.12 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/interim/chlorophyll-a/nla2012_chla_wide.tsv", header = TRUE,  sep = '\t', quote = "\\")
 
 colnames(chla.12) = tolower(colnames(chla.12)) # variable names in lowercase
 
@@ -633,13 +635,13 @@ chemistry.12 = left_join(chemistry.12, chla.12, by = "UID")
 
 # Import the raw data sets
 # state monthly precipitation (124 years)
-precip.124y = read.csv("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/raw/climate_noaa/110-pcp.csv", header = TRUE, skip = 3)
+precip.124y = read.csv("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/raw/climate_noaa/110-pcp.csv", header = TRUE, skip = 3)
 # state montly average temperature (124 years)
-avgtemp.124y = read.csv("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/raw/climate_noaa/110-tavg.csv", header = TRUE, skip = 3)
+avgtemp.124y = read.csv("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/raw/climate_noaa/110-tavg.csv", header = TRUE, skip = 3)
 # state montly minimum temperature (124 years)
-mintemp.124y = read.csv("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/raw/climate_noaa/110-tmin.csv", header = TRUE, skip = 3)
+mintemp.124y = read.csv("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/raw/climate_noaa/110-tmin.csv", header = TRUE, skip = 3)
 # state montly maximum temperature (124 years)
-maxtemp.124y = read.csv("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/raw/climate_noaa/110-tmax.csv", header = TRUE, skip = 3)
+maxtemp.124y = read.csv("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/raw/climate_noaa/110-tmax.csv", header = TRUE, skip = 3)
 
 
 
@@ -677,7 +679,7 @@ climate.0712 = climate.124y %>% filter(year == 2007 | year == 2012)
 
 
 # States abbreviations
-states = read.csv("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/raw/climate_noaa/states.csv", header = TRUE)
+states = read.csv("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/raw/climate_noaa/states.csv", header = TRUE)
 
 names(states)[names(states) == "State"] = "Location" # State name
 names(states)[names(states) == "Abbreviation"] = "state" # State abbreviation
@@ -694,6 +696,14 @@ climate.0712 = left_join(climate.0712, states, by = "Location") %>%
 
 
 #### 7 Merged data sets ####
+
+
+# Identify sites sampled in both 2007 and 2012
+common.sites = inner_join(info.07, info.12, by = "siteid_07") %>%
+  select(siteid_07, siteid_12) %>%
+  distinct(siteid_07, siteid_12, .keep_all = TRUE)
+dim(common.sites) # 401 repeated sites
+
 
 
 #### 7.1  Merged profile data sets 
@@ -756,7 +766,7 @@ profile.0712$temp[which(profile.0712$temp > 60)] = NA
 
 # Export the processed data set
 write.table(profile.0712,
-            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/profile_0712.tsv",
+            file = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/profile_0712.tsv",
             sep = "\t")
 
 
@@ -765,6 +775,7 @@ write.table(profile.0712,
 
 
 #### 7.2 Merged site information
+
 
 
 # Join site information with Secchi depths
@@ -851,7 +862,7 @@ for (i in 1:nrow(info.0712)) {
   day = info.0712$day[i]
 
   if (!is.na(year) & !is.na(month) & !is.na(day)) {
-    
+
   date.sampled = date(paste(year, month, day, sep = "-")) # date of sampling event
   date.150d = date.sampled - 149 # date 150 days before
   
@@ -900,6 +911,9 @@ for (i in 1:nrow(info.0712)) {
 
 }
 
+
+library("vegan")
+
 climate.W = decostand(climate.W, "total", MARGIN = 1) # proportion of the 150 days period
 
 
@@ -931,12 +945,6 @@ for (i in 1:nrow(info.0712)) {
 # Correction of inconsistencies between levels of lake_origin
 info.0712$lake_origin = str_replace_all(info.0712$lake_origin, "_", "-")
 
-
-# Identify sites sampled in both 2007 and 2012
-common.sites = inner_join(info.07, info.12, by = "siteid_07") %>%
-  select(siteid_07, siteid_12) %>%
-  distinct(siteid_07, siteid_12, .keep_all = TRUE)
-dim(common.sites) # 401 repeated sites
 
 
 # Complete missing siteid_12 values when sampled in 2007
@@ -974,7 +982,7 @@ info.0712$siteid_12 = as.factor(info.0712$siteid_12)
 
 # Export the processed data set
 write.table(info.0712,
-            file = "C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/info_0712.tsv",
+            file = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/info_0712.tsv",
             sep = "\t")
 
 

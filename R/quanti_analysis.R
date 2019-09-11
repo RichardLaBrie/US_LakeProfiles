@@ -13,13 +13,13 @@ library(vegan)
 
 
 # Source additional functions
-setwd("~/Biologie_quantitative_et_computationnelle/Analyse_quantitative_2/Travail_de_session")
+setwd("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/R/functions")
 source("cleanplot.pca.R")
 source("triplot.rda.R")
 
 
 # Load data 
-strat.0712 = read.table("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/data/processed/strat_0712.tsv", header = TRUE,  sep = '\t')
+strat.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/strat_0712.tsv", header = TRUE,  sep = '\t')
 
 
 
@@ -483,3 +483,4 @@ anova(nutricol.temp.rda) # the model is non significant
 
 
 ##### End of code
+
