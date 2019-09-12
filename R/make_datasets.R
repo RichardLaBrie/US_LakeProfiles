@@ -882,6 +882,16 @@ for (i in 1:nrow(info.0712)) {
 
 
 
+# Julian day ====
+
+info.0712$Julian.day = NA # creation of the Julian day variable
+
+for (i in 1:nrow(info.0712)) {
+  date = as_date(paste(info.0712$year[i], info.0712$month[i], info.0712$day[i], sep = "-")) # date of sampling event i (yyyy-mm-dd)
+  info.0712$Julian.day[i] = yday(date) # Julian day of sampling event i 
+}
+
+
 
 
 # Mean climatic observations =======
@@ -2164,6 +2174,7 @@ strat.0712 = info.0712 %>%
          schmidth_stability = as.numeric(schmidth.stability_Jm2),
          month = as.ordered(month),
          year = as.ordered(year),
+         Julian_day = as.numeric(Julian.day),
          lat = as.numeric(lat),
          lon = as.numeric(lon),
          elevation = as.factor(elevation_m),
@@ -2208,7 +2219,7 @@ strat.0712 = info.0712 %>%
   # selection of useful variables
   select(sampling_event, site_id, resampled,
          type, type_simple, stratified, deltaT, epithick, thermodepth, anoxiaV, hypoxiaV, schmidth_stability,
-         month, year, lat, lon, elevation, ECO9, lake_origin,
+         month, year, Julian_day, lat, lon, elevation, ECO9, lake_origin,
          area, volume, WALA_ratio, depth,
          SDI, forest, agric,
          precip5, avgtemp5, mintemp5, maxtemp5,
