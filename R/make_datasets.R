@@ -1535,15 +1535,20 @@ info.0712 = left_join(info.0712, top.bottom.meta, by = "sampling_event") %>%
 
 # Simplified lake type
 # If the lake type is either 3, 4 or 6, it is considered abnormal
-# Those types are regrouped under the type "other"
+# Those types are regrouped under the type "other" (new 4)
+# Lake type # 5 are renamed # 3
 
 info.0712$type_simple = NA
 for (i in 1:nrow(info.0712)) {
+  if(!is.na(info.0712$type[i])) {
   if(info.0712$type[i] %in% c(3, 4, 6)) {
-    info.0712$type_simple[i] = "other"
+    info.0712$type_simple[i] = 4
+  } else if (info.0712$type[i] == 5) {
+    info.0712$type_simple[i] = 3
   } else {
     info.0712$type_simple[i] = info.0712$type[i]
   }
+ }
 }
 
 
@@ -2252,5 +2257,19 @@ write.table(strat.0712,
             file = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/strat_0712.tsv",
             sep = "\t")
 
+
+
+
+
+
+# Change analysis ====
+
+# Reshaping of the data frame for further analysis 
+# Resampled sites only 
+
+info.2007r = strat.0712 %>% filter(resampled == 1, year == 2007) # sampling events in 2007 of resampled sites
+info.2012r = strat.0712 %>% filter(resampled == 1, year == 2012) # sampling events in 2012 of resampled sites
+
+info.0712r = left_join(info.2007r, info.2012r, by = "site_id", suffix = c(".07", ".12")) # Combine 2007 and 2012 sampling events
 
 

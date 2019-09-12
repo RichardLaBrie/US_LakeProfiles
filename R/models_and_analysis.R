@@ -1205,7 +1205,7 @@ maxdepth.type.boxplot = ggplot(boxplot.type.data, aes(x = type, y = exp(depth) -
         axis.line = element_line(colour = "black", size = 1))
 
 
-table(info.0712r2$type.07, info.0712r2$type.12)
+table(info.0712r$type.07, info.0712r$type.12)
 
 
 

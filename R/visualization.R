@@ -59,6 +59,76 @@ ggsave(filename = "density_plots_numeric.pdf", device = "pdf", plot = strat.0712
 
 
 
+# Pie charts ====
+
+# Pie charts of nutrient-color status and lake types in 2007 and 2012
+
+pie.dataframe = as.data.frame(matrix(NA, 4*4*4, 8)) # creation of a data frame of 16 * 4 rows (4 types * 4 types * 4 nutrient-color status) and 8 columns
+colnames(pie.dataframe) = c("nutricol.07","type.07", "type.12", "blue", "brown", "green", "murky", "freq") # column names
+
+# Entering values in the empty data frame as a balanced design
+pie.dataframe$nutricol.07 = c(rep("blue", 16), rep("brown", 16), rep("green", 16), rep("murky",16)) # nutrient-color status in 2007
+pie.dataframe$type.07 = rep(c(1:4), 16) # lake type in 2007
+pie.dataframe$type.12 = rep(c(rep(1,4), rep(2,4), rep(3,4), rep(4,4)),4) # lake type in 2012
+
+
+info.0712r.short = info.0712r %>% select(type_simple.07, type_simple.12, nutrient_color.07, nutrient_color.12) # only keep the variables used in the construction of the pie charts
+
+
+# Number of blue, brown, green and murky lakes in 2012 that were of a specific color in 2007 and type in 2007 and 2012 
+for (i in 1:nrow(pie.dataframe)) { # for every possibility of color in 2007 and type in 2007 and 2012
+  nutricol.07.i = pie.dataframe$nutricol.07[i] # nutrient-color in 2007
+  type.07.i = pie.dataframe$type.07[i] # type in 2007
+  type.12.i = pie.dataframe$type.12[i] # type in 2012
+  
+  types.i = info.0712r.short %>% filter(nutrient_color.07 == nutricol.07.i, type_simple.07 == type.07.i, type_simple.12 == type.12.i) # filter for type.07.i, type.12.i and nutricol.07.i
+  table.nutrient.color = table(types.i$nutrient_color.12) # count the number of blue, brown, green and murky lakes in 2012 of the filtered data
+  
+  pie.dataframe$blue[i] = table.nutrient.color["blue"] # number of blue lakes in 2012
+  pie.dataframe$brown[i] = table.nutrient.color["brown"] # number of brown lakes in 2012
+  pie.dataframe$green[i] = table.nutrient.color["green"] # number of green lakes in 2012
+  pie.dataframe$murky[i] = table.nutrient.color["murky"] # number of murky lakes in 2012
+  
+  pie.dataframe$freq[i] = nrow(types.i) # number of lakes that were of a specific color in 2007 and type in 2007 and 2012
+}
+
+
+
+pie.change <- ggplot(pie.dataframe) + 
+  facet_wrap(~ nutricol.07, ncol=2, labeller = labeller(nutricol.07 = c(blue = "blue 2007", brown = "brown 2007", green = "green 2007", murky = "murky 2007"))) + # 4 panels representing the nutrient-color status in 2007
+  geom_scatterpie(aes(x = type.07, y = type.12, r = log(freq + 1) / 6), data = pie.dataframe, # pie charts of the color-nutrient status in 2012, plotted in a scatter plot of lake type in 2012 againts lake type in 2007
+                  cols = c("blue", "brown", "green", "murky"), color = NA) + coord_equal() + # radius proportionnal to the frequency of lake type in 2007 and 2012 and nutrient-color status in 2007
+  scale_fill_manual(values = c("blue", "brown", "green", "orange")) + # legend labels
+  scale_x_continuous(name = "lake type 2007", breaks = 1:4) + # x axis
+  scale_y_continuous(name = "lake type 2012", breaks = 1:4) + # y axis
+  theme(strip.text.x = element_text(size = 20, face = "bold", color = "black"), # theme customization
+        strip.background = element_rect(fill = "darkgrey"),
+        text = element_text(size = 20),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black", size = 1)) + 
+  labs(fill = "nutrient-color status 2012") +  # legend title
+  geom_text(data = filter(pie.dataframe, freq != 0), aes(x = type.07 + 0.3, y = type.12, label = freq), size = 3.5) # n plotted on graph
+
+
+ggsave(filename = "piechart_colorstrat.pdf", plot = pie.change, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/pie_chart", width = 12, height = 12)
+
+
+
+
+# Some stats
+
+
+# contingency table (proportion) of type in 2007 vs type in 2012
+prop.table(table(info.0712r.short$type_simple.07, info.0712r.short$type_simple.12), 1)
+
+
+info.0712r.short2 = info.0712r.short %>% filter(!is.na(type_simple.07), !is.na(type_simple.12)) # keep only sites where the type is identified in 2007 AND 2012
+freq.type.07 = table(info.0712r.short2$type_simple.07) # frequency of type in 2007
+freq.type.12 = table(info.0712r.short2$type_simple.12) # frequency of type in 2012
+freq.type.12 / freq.type.07 - 1 # % diff of number of each type between 2007 and 2012
+freq.type.12 - freq.type.07 # diff of number of each type between 2007 and 2012
+
 
 
 
@@ -136,15 +206,6 @@ ggplot(top.bottom.meta, aes(x = type, y = max_depth)) +
 
 # Subset of datasets
 info.0712a = info.0712 %>% filter(visit_no == 1) # 2007 and 2012, resampled or non resampled sites
-info.0712r = info.0712 %>% filter(visit_no == 1, resampled == 1) # 2007 and 2012 resampled sites
-
-
-
-
-# Duplicated sampling event 
-# We will take the first ones in the data set (like for our visit no)
-info.0712r = info.0712r[-c(which(info.0712r$sampling_event == as.character("NLA06608-0065-2007-1"))[2],
-                           which(info.0712r$sampling_event == as.character("NLA06608-0071-2007-1"))[2]),]  
 
 
 info.0712a = info.0712a[-c(which(info.0712a$sampling_event == as.character("NLA06608-0042-2007-1"))[2],
@@ -247,11 +308,6 @@ ggsave(filename = "stratification_all.pdf", plot = stratification.plot.all, devi
 
 
 
-# Reshaping resampled data set 
-info.2007r = info.0712r %>% filter(year == 2007)
-info.2012r = info.0712r %>% filter(year == 2012)
-
-info.0712r2 = left_join(info.2007r, info.2012r, by = "site_id", suffix = c(".07", ".12")) 
 
 
 # Change of stratification 
@@ -890,58 +946,6 @@ ggsave(filename = "hypoxia_depth_all.pdf", plot = hypoxia.depth.all.violin, devi
 table(info.0712a$type, info.0712a$nutrient_color)
 table(info.0712a$type, info.0712a$ECO9)
 table(info.0712a$nutrient_color, info.0712a$ECO9)
-
-
-
-
-
-
-
-#### Change analysis #####
-dim(info.0712r2)
-
-data.for.pie = as.data.frame(matrix(NA, 36*4, 8))
-colnames(data.for.pie) = c("nutricol.07","type.07", "type.12", "blue", "brown", "green", "murky", "freq")
-data.for.pie$nutricol.07 = c(rep("blue", 36), rep("brown", 36), rep("green", 36), rep("murky",36))
-data.for.pie$type.07 = rep(1:6, 6*4)
-data.for.pie$type.12 = rep(c(rep(1,6), rep(2,6), rep(3,6), rep(4,6), rep(5,6), rep(6,6)),4)
-
-info.0712r2.short = info.0712r2 %>% select(type.07, type.12, nutrient_color.07, nutrient_color.12)
-
-for (i in 1:nrow(data.for.pie)) {
-  nutricol.07.i = data.for.pie$nutricol.07[i]
-  type.07.i = data.for.pie$type.07[i]
-  type.12.i = data.for.pie$type.12[i]
-  
-  types.i = info.0712r2.short %>% filter(nutrient_color.07 == nutricol.07.i, type.07 == type.07.i, type.12 == type.12.i)
-  table.nutrient.color = table(types.i$nutrient_color.12)
-  
-  data.for.pie$blue[i] = table.nutrient.color["blue"]
-  data.for.pie$brown[i] = table.nutrient.color["brown"]
-  data.for.pie$green[i] = table.nutrient.color["green"]
-  data.for.pie$murky[i] = table.nutrient.color["murky"]
-  
-  data.for.pie$freq[i] = nrow(types.i)
-}
-
-p <- ggplot(data.for.pie) + 
-  facet_wrap(~ nutricol.07, ncol=2, labeller = labeller(nutricol.07 = c(blue = "blue 2007", brown = "brown 2007", green = "green 2007", murky = "murky 2007"))) +
-  geom_scatterpie(aes(x = type.07, y = type.12, r = log(freq + 1) / 6), data = data.for.pie,
-                          cols = c("blue", "brown", "green", "murky"), color = NA) + coord_equal() +
-  scale_fill_manual(values = c("blue", "brown", "green", "orange")) +
-  scale_x_continuous(name = "lake type 2007", breaks = 1:6) +
-  scale_y_continuous(name = "lake type 2012", breaks = 1:6) +
-  theme(strip.text.x = element_text(size = 10, face = "bold", color = "black"),
-        strip.background = element_rect(fill = "darkgrey"), 
-        panel.border = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        axis.line = element_line(colour = "black", size = 1)) + 
-  labs(fill = "nutrient-color status 2012") + 
-  geom_text(data = filter(data.for.pie, freq != 0), aes(x = type.07 + 0.3, y = type.12, label = freq), size = 3.5) 
-
-
-ggsave(filename = "piechart_colorstrat.pdf", plot = p, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/pie_chart", width = 12, height = 12)
 
 
 
