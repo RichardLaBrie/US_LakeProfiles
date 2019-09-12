@@ -26,6 +26,17 @@ strat.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_La
 
 # Data set preparation =========
 
+# The analysis presented here were conducted on a slightly different data set, where there was no climatic variables averaged over 1, 2, 3 or 4 months
+# The climatic variables averaged over the 5 months (or 150 days) before the sampling date were names differently
+
+# Rename those variables according to their previous name
+names(strat.0712)[names(strat.0712) == "avgtemp5"] = "avgtemp"
+names(strat.0712)[names(strat.0712) == "mintemp5"] = "mintemp"
+names(strat.0712)[names(strat.0712) == "maxtemp5"] = "maxtemp"
+names(strat.0712)[names(strat.0712) == "precip5"] = "precip"
+
+
+
 ### Processed data from the National Aquatic Resource Surveys (NARS) are here made ready for analysis
 
 
