@@ -1,13 +1,66 @@
 ### Francis Banville - Université de Montréal
-### July 8th 2019
+### September 12th 2019
 
 
 # Libraries
-library(dplyr)
-library(lsmeans)
-library(maps)
-library(ggplot2)
-library(scatterpie)
+
+library("dplyr")
+library("ggplot2")
+library("lsmeans")
+library("maps")
+library("purrr")
+library("scatterpie")
+
+
+# Import the processed data sets 
+profile.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/profile_0712.tsv", header = TRUE,  sep = '\t')
+info.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/info_0712.tsv", header = TRUE,  sep = '\t')
+strat.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/strat_0712.tsv", header = TRUE,  sep = '\t')
+
+
+
+
+# Density plots of raw data ====
+
+
+# Density plots and histograms of every numeric variable
+# Comparaison of 2007 and 2012
+
+
+strat.0712.gathered = strat.0712 %>%
+  discard(names(strat.0712) %in% c("month", "resampled", "stratified", "type", "year")) %>% # discard some columns
+  keep(is.numeric) %>% # keep only numeric columns
+  gather() # convert to key-value pairs (in order to use it in facet_wrap below)
+
+year.gathered = strat.0712 %>%
+  select(year) %>% # keep year
+  gather() # convert to key-value pairs
+
+
+year.gathered.value = rep(year.gathered$value, nrow(strat.0712.gathered) / nrow(year.gathered)) # repetition of the year vector so it can be added to the strat.0712.gathered data frame
+
+strat.0712.gathered = cbind(strat.0712.gathered, year.gathered$value) # combine the gathered data frames
+
+strat.0712.gathered.density = strat.0712.gathered %>% # density plots of every numerical variable (grouped by year)
+  ggplot(aes(value)) + # plot the values
+  facet_wrap(.~ key, scales = 'free') + # in separate panels
+  stat_density(aes(group = allo3, fill = as.factor(allo3)), position='dodge', alpha = 0.5) + # as density
+  scale_fill_discrete(name = "year") # legend name
+
+
+
+ggsave(filename = "density_plots_numeric.pdf", device = "pdf", plot = strat.0712.gathered.density, path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/density_plots", width = 12, height = 12)
+
+
+
+
+
+
+
+
+
+
+#######################################################################3
 
 
 # Required R code (make_datasets.R)

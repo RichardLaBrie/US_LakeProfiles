@@ -1,4 +1,18 @@
-#### 1. Some counting ####
+### Francis Banville - Université de Montréal
+### September 12th 2019
+
+### Analysis of the processed data sets 
+
+
+
+# Import the processed data sets 
+profile.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/profile_0712.tsv", header = TRUE,  sep = '\t')
+info.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/info_0712.tsv", header = TRUE,  sep = '\t')
+strat.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/strat_0712.tsv", header = TRUE,  sep = '\t')
+
+
+
+#### 1. Some counting ====
 
 ### Some exploratory analysis are first done on the processed data frames
 
@@ -15,9 +29,9 @@ length(unique(filter(info.0712, resampled == 1)$site_id))
 # We looked for maximum dept in 2007 since we didn't have those data in 2012
 deep.sites = info.0712 %>% filter(resampled == 1, year == 2007, visit_no == 1, depthmax_m >=5) %>%
   distinct()
-(a = length(unique(deep.sites$site_id)))
-(b = length(unique(filter(info.0712, resampled == 1)$site_id)))
-a / b
+(a = length(unique(deep.sites$site_id))) # number of deep lakes
+(b = length(unique(filter(info.0712, resampled == 1)$site_id))) # total number of lakes
+a / b # proportion of deep lakes
 
 # What if we look for maximum sampled depth of resampled sites?
 deep.sample = profile.0712 %>%
@@ -25,18 +39,18 @@ deep.sample = profile.0712 %>%
   group_by(site_id) %>%
   summarise(max.depth = max(depth)) %>%
   filter(max.depth >= 5)
-(a = length(unique(deep.sample$site_id)))
-(b = length(unique(filter(profile.0712, resampled == 1)$site_id)))
-a / b
+(a = length(unique(deep.sample$site_id))) # number of deep lakes
+(b = length(unique(filter(profile.0712, resampled == 1)$site_id))) # total number of lakes
+a / b # proportion of deep lakes
 
 # And now, what is we look for maximum sampled depth for every site (not only resampled ones)?
 deep.sample.all = profile.0712 %>%
   group_by(site_id) %>%
   summarise(max.depth = max(depth)) %>%
   filter(max.depth >= 5)
-(a = length(unique(deep.sample.all$site_id)))
-(b = length(unique(profile.0712$site_id)))
-a / b
+(a = length(unique(deep.sample.all$site_id))) # number of deep lakes
+(b = length(unique(profile.0712$site_id))) # total number of lakes
+a / b # proportion of deep lakes
 
 
 
@@ -44,32 +58,34 @@ a / b
 # Repeated lakes
 repeated.meta = profile.0712 %>%
   filter(resampled == 1, layer_nla == "M")
-(a = length(unique(repeated.meta$site_id)))
-(b = length(unique(filter(profile.0712, resampled == 1)$site_id)))
-a / b
+(a = length(unique(repeated.meta$site_id))) # number of lakes
+(b = length(unique(filter(profile.0712, resampled == 1)$site_id))) # total number of lakes
+a / b # proportion of lakes
+
 
 # All lakes
 all.meta = profile.0712 %>%
   filter(layer_nla == "M")
-(a = length(unique(all.meta$site_id)))
-(b = length(unique(profile.0712$site_id)))
-a / b
+(a = length(unique(all.meta$site_id))) # number of lakes
+(b = length(unique(profile.0712$site_id))) # total number of lakes
+a / b # proportion of lakes
 
 
 # How many lakes have an hypolimnion (according to NLA layers)?
 # Repeated lakes
 repeated.hypo = profile.0712 %>%
   filter(resampled == 1, layer_nla == "H")
-(a = length(unique(repeated.hypo$site_id)))
-(b = length(unique(filter(profile.0712, resampled == 1)$site_id)))
-a / b
+(a = length(unique(repeated.hypo$site_id))) # number of lakes
+(b = length(unique(filter(profile.0712, resampled == 1)$site_id))) # total number of lakes
+a / b # proportion
+
 
 # All lakes
 all.hypo = profile.0712 %>%
   filter(layer_nla == "H")
-(a = length(unique(all.hypo$site_id)))
-(b = length(unique(profile.0712$site_id)))
-a / b
+(a = length(unique(all.hypo$site_id))) # number of lakes
+(b = length(unique(profile.0712$site_id))) # total number of lakes
+a / b # proportion
 
 
 # How many sites were not statified (according to NLA layers)?
@@ -77,16 +93,16 @@ a / b
 # Repeated lakes
 repeated.non.strat = profile.0712 %>%
   filter(resampled == 1, layer_nla == "M" | layer_nla == "M")
-(a = length(unique(repeated.non.strat$site_id)))
-(b = length(unique(filter(profile.0712, resampled == 1)$site_id)))
-(b - a) / b
+(a = length(unique(repeated.non.strat$site_id))) # number of lakes
+(b = length(unique(filter(profile.0712, resampled == 1)$site_id))) # total number of lakes
+(b - a) / b # proportion
 
 
 # All lakes
 all.non.strat = profile.0712 %>%
   filter(layer_nla == "M" | layer_nla == "M")
-(a = length(unique(all.non.strat$site_id)))
-(b = length(unique(profile.0712$site_id)))
+(a = length(unique(all.non.strat$site_id))) # number of lakes
+(b = length(unique(profile.0712$site_id))) # total number of lakes
 (b - a) / b
 
 
@@ -103,9 +119,10 @@ for (i in 1:length(repeated.epi.sites)) {
     count.epi = count.epi + 1
   }
 }
-count.epi
-(b = length(unique(filter(profile.0712, resampled == 1)$site_id)))
-count.epi / b
+count.epi # number of lakes that have an epilimnion and a metalimnion (according to NLA)
+(b = length(unique(filter(profile.0712, resampled == 1)$site_id))) # total number of lakes
+count.epi / b # proportion
+
 
 # All lakes
 all.epi = profile.0712 %>%
@@ -118,9 +135,27 @@ for (i in 1:length(all.epi.sites)) {
     count.epi = count.epi + 1
   }
 }
-count.epi
-(b = length(unique(profile.0712$site_id)))
-count.epi / b
+count.epi # number of lakes that have an epilimnion and a metalimnion (according to NLA)
+(b = length(unique(profile.0712$site_id))) # total number of lakes
+count.epi / b # proportion
+
+
+
+
+
+
+
+
+
+
+
+
+##########################################################################3
+
+
+
+
+
 
 
 
