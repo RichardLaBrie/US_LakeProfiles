@@ -1,8 +1,10 @@
 ### Francis Banville - Université de Montréal
-### September 12th 2019
+### September 19th 2019
+
+### The majority of the figures are computed here
 
 
-# Libraries
+# Libraries ====
 
 library("dplyr")
 library("ggplot2")
@@ -13,9 +15,9 @@ library("scatterpie")
 
 
 # Import the processed data sets 
-profile.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/profile_0712.tsv", header = TRUE,  sep = '\t')
-info.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/info_0712.tsv", header = TRUE,  sep = '\t')
-strat.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/strat_0712.tsv", header = TRUE,  sep = '\t')
+profile.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/profile_0712.tsv", header = TRUE,  sep = '\t') # profile data set (each observation is a depth in a sampling event)
+info.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/info_0712.tsv", header = TRUE,  sep = '\t') # information data set (each observation is a sampling event)
+strat.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/data/processed/strat_0712.tsv", header = TRUE,  sep = '\t') # information data set with results from rLakeAnalyser (each observation is a sampling event)
 
 
 
@@ -27,7 +29,7 @@ strat.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_La
 # Comparaison of 2007 and 2012
 
 
-strat.0712.gathered = strat.0712 %>%
+strat.0712.gathered = strat.0712 %>% # data frame used to compute the figure
   discard(names(strat.0712) %in% c("month", "resampled", "stratified", "type", "year")) %>% # discard some columns
   keep(is.numeric) %>% # keep only numeric columns
   gather() # convert to key-value pairs (in order to use it in facet_wrap below)
@@ -44,7 +46,7 @@ strat.0712.gathered = cbind(strat.0712.gathered, year.gathered$value) # combine 
 strat.0712.gathered.density = strat.0712.gathered %>% # density plots of every numerical variable (grouped by year)
   ggplot(aes(value)) + # plot the values
   facet_wrap(.~ key, scales = 'free') + # in separate panels
-  stat_density(aes(group = allo3, fill = as.factor(allo3)), position='dodge', alpha = 0.5) + # as density
+  stat_density(aes(group = year.gathered.value, fill = as.factor(year.gathered.value)), position='dodge', alpha = 0.5) + # as density
   scale_fill_discrete(name = "year") # legend name
 
 
@@ -133,90 +135,360 @@ freq.type.12 - freq.type.07 # diff of number of each type between 2007 and 2012
 
 
 
-#######################################################################3
 
 
-# Required R code (make_datasets.R)
-# source("C:/Users/Francis Banville/Documents/Biologie_quantitative_et_computationnelle/Travaux_dirigés/Travail_dirige_II/US_LakeProfiles/R/models_and_analysis.R")
+
+# Graph Zepi vs Zmax ====
+
+# Only sites sampled once, stratified with an epilimnion
+data.for.zepizmax = strat.0712 %>% filter(resampled == 0, stratified == 1, !is.na(nutrient_color), type != 3) %>%
+  mutate(zmax = depth, zepi = epithick) %>% # maximum depth and depth of the epilimnion
+  select(zmax, zepi, nutrient_color)
+
+# linear model without nutrient-color specification
+lm_fit <- lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax) # linear model with logarithmic transformation
+predicted_df <- data.frame(zepi.predict = predict(lm_fit, data.for.zepizmax), zmax = log1p(data.for.zepizmax$zmax)) # prediction of depth of epilimnion from maximum depth
 
 
-#### 1. Maximum depth of different lake types #### 
+# linear model with nutrient-color specification
+zepizmaxstatus.lm = lm(log1p(zepi) ~ log1p(zmax) * nutrient_color, data = data.for.zepizmax) 
+zepizmaxstatus.R2adj = round(RsquareAdj(zepizmaxstatus.lm)$adj.r.squared, 3) # adjusted R2
+summary(zepizmaxstatus.lm)
+anova(zepizmaxstatus.lm) # everything significant
+zepizmaxstatus.lm$coefficients # obtain slopes
+m.lst <- lstrends(zepizmaxstatus.lm, "nutrient_color", var = "zmax") # confidence intervals of slopes
+pairs(m.lst) # statistically different slopes 
+
+
+
+# Individual linear models for blue, brown, green and murky lakes only, respectively
+zepizmax.lm.blue = lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax %>% filter(nutrient_color == "blue")) # linear model for blue lakes
+zepizmax.lm.brown = lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax %>% filter(nutrient_color == "brown")) # linear model for blue lakes
+zepizmax.lm.green = lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax %>% filter(nutrient_color == "green")) # linear model for blue lakes
+zepizmax.lm.murky = lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax %>% filter(nutrient_color == "murky")) # linear model for blue lakes
+
+confint(zepizmax.lm.blue, level = .77) # confidence interval for slope and intercept of blue lakes linear model
+confint(zepizmax.lm.brown, level = .77) # confidence interval for slope and intercept of brown lakes linear model
+confint(zepizmax.lm.green, level = .77) # confidence interval for slope and intercept of green lakes linear model
+confint(zepizmax.lm.murky, level = .77) # confidence interval for slope and intercept of murky lakes linear model
+
+
+
+# Examine residual graph (for blue lakes)
+zepizmax.lm.blue = lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax %>% filter(nutrient_color == "blue")) # linear model for blue lakes
+resid.fitted.blue = as.data.frame(matrix(NA, nrow(data.for.zepizmax %>% filter(nutrient_color == "blue")),2)) # empty data frame
+colnames(resid.fitted.blue) = c("resid", "fitted") # column names of the empty data frame
+resid.fitted.blue$resid = resid(zepizmax.lm.blue) # residuals of the linear model
+resid.fitted.blue$fitted = predict(zepizmax.lm.blue, data.for.zepizmax %>% filter(nutrient_color == "blue")) # fitted values
+shapiro.test(resid.fitted.blue$resid) # test of normality of residuals
+plot(zepizmax.lm.blue, 3) # approximatively homoscedastic
+plot(zepizmax.lm.blue, 2) # approximatively normal
+
+
+# Plot of maximum depth vs depth of the epilimnion
+zepizmax.plot = ggplot(data.for.zepizmax, aes(x = zmax, y = zepi, col = nutrient_color)) + 
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) + # linear model on graph
+  geom_abline(color = "black", lty = "dotted", intercept = 0, slope = 1) + # line 1:1
+  # some graph customization
+  scale_color_manual(name = "nutrient-color status", values = c("blue", "brown", "green", "orange")) +
+  scale_x_continuous(name = "profondeur maximale (m)", trans = "log10") + # logarithmic scale
+  scale_y_continuous(name = "profondeur de l'épilimnion (m)", trans = "log10", breaks = c(0.1, 1, 3, 10)) + # logarithmic scale
+  annotate("text", label = "1:1 line", x = 20, y = 30) +
+  annotate("text", label = paste("adj R2 = ", zepizmaxstatus.R2adj), x = 2, y = 10, size = 5) + # adj R2
+  theme(strip.background = element_blank(), # some customs
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black", size = 1),
+        text = element_text(size = 20))
+
+ggsave(filename = "zepi_zmax.pdf", plot = zepizmax.plot, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/scatter_plot", width = 12, height = 12)
+
+
+
+
+
+
+
+
+
+
+
+
+# Graph % Zepi vs Zmax ====
+
+# Only sites sampled once, stratified with an epilimnion
+data.for.zepizmax = strat.0712 %>% filter(resampled == 0, stratified == 1, !is.na(nutrient_color), type != 3) %>%
+  mutate(zmax = depth, zepi = epithick / depth) %>% # maximum depth and % of the epilimnion on total depth
+  select(zmax, zepi, nutrient_color)
+
+# linear model without nutrient-color specification
+lm_fit <- lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax) # linear model with logarithmic transformation
+predicted_df <- data.frame(zepi.predict = predict(lm_fit, data.for.zepizmax), zmax = log1p(data.for.zepizmax$zmax)) # prediction of % depth of epilimnion from maximum depth
+
+# linear model with nutrient-color specification
+zepizmaxstatus.lm = lm(log1p(zepi) ~ log1p(zmax) * nutrient_color, data = data.for.zepizmax) 
+zepizmaxstatus.R2adj = round(RsquareAdj(zepizmaxstatus.lm)$adj.r.squared, 3) # adjusted R2
+summary(zepizmaxstatus.lm)
+anova(zepizmaxstatus.lm) # everything significant
+zepizmaxstatus.lm$coefficients # obtain slopes
+m.lst <- lstrends(zepizmaxstatus.lm, "nutrient_color", var = "zmax") # confidence intervals of slopes
+pairs(m.lst) # statistically different slopes 
+
+confint(zepizmaxstatus.lm) # confidence interval for slopes and intercept of the total model
+
+
+# Individual linear models for blue, brown, green and murky lakes only, respectively
+zepizmax.lm.blue = lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax %>% filter(nutrient_color == "blue")) # linear model for blue lakes
+zepizmax.lm.brown = lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax %>% filter(nutrient_color == "brown")) # linear model for blue lakes
+zepizmax.lm.green = lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax %>% filter(nutrient_color == "green")) # linear model for blue lakes
+zepizmax.lm.murky = lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax %>% filter(nutrient_color == "murky")) # linear model for blue lakes
+
+confint(zepizmax.lm.blue, level = .77) # confidence interval for slope and intercept of blue lakes linear model
+confint(zepizmax.lm.brown, level = .77) # confidence interval for slope and intercept of brown lakes linear model
+confint(zepizmax.lm.green, level = .77) # confidence interval for slope and intercept of green lakes linear model
+confint(zepizmax.lm.murky, level = .77) # confidence interval for slope and intercept of murky lakes linear model
+
+
+
+# Examine residual graph (for blue lakes)
+zepizmax.lm.blue = lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax %>% filter(nutrient_color == "blue")) # linear model for blue lakes
+resid.fitted.blue = as.data.frame(matrix(NA, nrow(data.for.zepizmax %>% filter(nutrient_color == "blue")),2)) # empty data frame
+colnames(resid.fitted.blue) = c("resid", "fitted") # column names of the empty data frame
+resid.fitted.blue$resid = resid(zepizmax.lm.blue) # residuals of the linear model
+resid.fitted.blue$fitted = predict(zepizmax.lm.blue, data.for.zepizmax %>% filter(nutrient_color == "blue")) # fitted values
+shapiro.test(resid.fitted.blue$resid) # test of normality of residuals
+plot(zepizmax.lm.blue, 3) # approximatively homoscedastic
+plot(zepizmax.lm.blue, 2) # approximatively normal
+
+
+# Plot of % maximum depth vs depth of the epilimnion
+pctzepizmax.plot = ggplot(data.for.zepizmax, aes(x = zmax, y = zepi, col = nutrient_color)) + 
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) + # linear model on graph
+  geom_abline(color = "black", lty = "dotted", intercept = 0, slope = 1) + # line 1:1
+  # some graph customization
+  scale_color_manual(name = "nutrient-color status", values = c("blue", "brown", "green", "orange")) +
+  scale_x_continuous(name = "profondeur maximale (m)", trans = "log10") + # logarithmic scale
+  scale_y_continuous(name = "profondeur de l'épilimnion (%)", trans = "log10", breaks = c(0.1, 1, 3, 10)) + # logarithmic scale
+  annotate("text", label = "1:1 line", x = 20, y = 30) +
+  annotate("text", label = paste("adj R2 = ", zepizmaxstatus.R2adj), x = 2, y = 10, size = 5) + # adj R2
+  theme(strip.background = element_blank(), # some customs
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black", size = 1),
+        text = element_text(size = 20))
+
+ggsave(filename = "pctzepi_zmax.pdf", plot = pctzepizmax.plot, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/scatter_plot", width = 12, height = 12)
+
+
+
+
+
+
+
+# Scatter plots with Julien day ====
+
+data.for.julien = strat.0712 %>% filter(resampled == 0) # data frame with no resampled sites 
+
+
+#  DeltaT function of Julian day scatter plot 
+julien.deltaT.plot = ggplot(data.for.julien, aes(x = Julian_day, y = deltaT)) + 
+  geom_point(alpha = 0.5, col = "red") +
+  geom_smooth(se = TRUE, col = "black") + # linear model on graph
+  # some graph customization
+  scale_x_continuous(name = "Julian day") + 
+  scale_y_continuous(name = "Layer temperature difference (0C)") + 
+  theme(strip.background = element_blank(), # some customs
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black", size = 1),
+        text = element_text(size = 20))
+
+ggsave(filename = "julien_deltaT.pdf", plot = julien.deltaT.plot, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/scatter_plot", width = 12, height = 12)
+
+
+
+
+# Epilimnion thickness function of Julian day scatter plot
+julian.epithick.plot = ggplot(data.for.julien, aes(x = Julian_day, y = epithick)) + 
+  geom_point(alpha = 0.5, col = "red") +
+  geom_smooth(se = TRUE, col = "black") + # linear model on graph
+  # some graph customization
+  scale_x_continuous(name = "Julian day") + 
+  scale_y_continuous(name = "Epilimnetic thickness (m)") + 
+  theme(strip.background = element_blank(), # some customs
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black", size = 1),
+        text = element_text(size = 20))
+
+
+ggsave(filename = "julien_epithick.pdf", plot = julian.epithick.plot, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/scatter_plot", width = 12, height = 12)
+
+
+
+# Hypoxia volume function of Julian day scatter plot
+julian.hypoxiaV.plot = ggplot(data.for.julien, aes(x = Julian_day, y = hypoxiaV)) + 
+  geom_point(alpha = 0.5, col = "red") +
+  geom_smooth(se = TRUE, col = "black") + # linear model on graph
+  # some graph customization
+  scale_x_continuous(name = "Julian day") + 
+  scale_y_continuous(name = "Hypoxia volume (m3)", trans = "log10") + 
+  theme(strip.background = element_blank(), # some customs
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black", size = 1),
+        text = element_text(size = 20))
+
+
+ggsave(filename = "julien_hypoxiaV.pdf", plot = julian.hypoxiaV.plot, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/scatter_plot", width = 12, height = 12)
+
+
+
+# Schmidt stability function of Julian day scatter plot
+julian.schmidt.plot = ggplot(data.for.julien, aes(x = Julian_day, y = schmidth_stability)) + 
+  geom_point(alpha = 0.5, col = "red") +
+  geom_smooth(se = TRUE, col = "black") + # linear model on graph
+  # some graph customization
+  scale_x_continuous(name = "Julian day") + 
+  scale_y_continuous(name = "Schmidt stability (J/m2)", trans = "log10") + 
+  theme(strip.background = element_blank(), # some customs
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black", size = 1),
+        text = element_text(size = 20))
+
+
+ggsave(filename = "julien_schmidt.pdf", plot = julian.schmidt.plot, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/scatter_plot", width = 12, height = 12)
+
+
+
+
+
+# Maximum depth of different lake types ====
 
 
 ## Counts 
 
-number.types.all = top.bottom.meta %>% 
-  group_by(type) %>%
-  summarise(number = n())
-
-
-
+number.types.all = strat.0712 %>% 
+  filter(resampled == 1) %>% # resampled lakes oly
+  group_by(type_simple, year) %>%
+  summarise(number = n()) # number of lakes per lake type and year 
 
 
 
 ## Histograms
 
 # All sampling event
-ggplot(top.bottom.meta, aes(x = max_depth, fill = type)) +
-  geom_histogram(position = "identity", colour= "grey40" , alpha = 0.8, bins = 15, show.legend = FALSE) +
-  facet_grid(. ~ type) +
-  scale_fill_brewer(type = "qual", palette = 2) +
+type.year.histo = ggplot(strat.0712, aes(x = depth, fill = type_simple)) + # histogram of maximum depth per lake type
+  geom_histogram(position = "identity", colour= "grey40" , alpha = 0.8, bins = 15, show.legend = FALSE) + # customs
+  facet_grid(. ~ type_simple) + # facet by lake type (simple)
+ # customs
   scale_x_continuous(name = "Maximum sampled depth (m)") +
   scale_y_continuous(name = "Count")
 
 
+ggsave(filename = "depth_type.pdf", plot = type.year.histo, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/histograms", width = 12, height = 12)
 
-## Density plots
+
+
+## Boxplots
+
+# All sampling event
+boxplot.type.data = strat.0712 %>% filter(!is.na(type_simple), resampled == 0) # data for boxplot, non resampled lakes
+
+maxdepth.type.boxplot = ggplot(boxplot.type.data, aes(x = type_simple, y = depth)) + # boxplot of maximum depth by type 
+  geom_boxplot(aes(fill = year), show.legend = TRUE, size = 0.7, na.rm = TRUE) + # fill = year
+  facet_grid(. ~ type_simple) + # facet by lake type (simple)
+  # customs
+  scale_fill_manual(values = c("blue", "orange"),
+                    labels = c("2007", "2012")) +
+  scale_x_discrete(name = "lake type") +
+  scale_y_continuous(name = "maximal depth (m)") +
+  theme(strip.background = element_blank(), 
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black", size = 1),
+        text = element_text(size = 20))
+
+ggsave(filename = "depth_type_boxplot.pdf", plot = maxdepth.type.boxplot, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/box_plots", width = 12, height = 12)
+
+
+
+
+
+
+
+
+
+
+## Maximum sampled depth with lake types ====
 
 # All sampling event
 mean.max.depth.all = top.bottom.meta %>% 
   group_by(type) %>%
-  summarise(grp.mean = mean(max_depth)) # mean of maximum depths by lake type
+  summarise(grp.mean = mean(max_depth)) # mean of maximum depths by lake type (before the uncommon types were joined)
 
-ggplot(top.bottom.meta, aes(x = max_depth, color = type)) +
+
+#### Density plot 
+
+depth.type.density.plot = ggplot(top.bottom.meta, aes(x = max_depth, color = type)) + # density plot of maximum sampled depths (facetted with lake types)
   geom_density(size = 0.8) + 
   geom_vline(data = mean.max.depth.all, aes(xintercept = grp.mean, color = type),
              linetype = 3, size = 0.8, show.legend = FALSE) +
+  # customs
   scale_color_brewer(type = "qual", palette = 2) +
   scale_x_continuous(name = "Maximum sampled depth (m)") +
   scale_y_continuous(name = "Density")
 
 
+ggsave(filename = "depth_type_density.pdf", plot = depth.type.density.plot, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/density_plots", width = 12, height = 12)
 
 
-## Violin plots
 
-# All sampling event
-ggplot(top.bottom.meta, aes(x = type, y = max_depth)) +
+
+#### Violin plot
+
+depth.type.density.violin = ggplot(top.bottom.meta, aes(x = type, y = max_depth)) + # violin plot of maximum sampled depths (facetted with lake types)
   geom_violin(aes(color = type), show.legend = FALSE, size = 0.7) +
   geom_boxplot(width = 0.05, alpha = 0.4) +
-  geom_text(data = number.types.all, aes(label = paste0("N = ", number.types.all$number)),
-            y = 105, size = 3.5, colour="grey20") +
+  # customs
   scale_color_brewer(type = "qual", palette = 2) +
   scale_x_discrete(name = "Lake type") +
   scale_y_continuous(name = "Maximum sampled depth (m)", limits = c(0, 105)) 
 
 
+ggsave(filename = "depth_type_violin.pdf", plot = depth.type.density.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
 
 
 
 
-#### Maps ####
+
+
+
+
+# Maps ====
 
 
 # Subset of datasets
-info.0712a = info.0712 %>% filter(visit_no == 1) # 2007 and 2012, resampled or non resampled sites
+info.0712a = strat.0712 # 2007 and 2012, resampled or non resampled sites
+info.0712a$type = as.factor(info.0712a$type) # change lake type class
+                                             # lake type before the weird ones were joined                                             
 
 
-info.0712a = info.0712a[-c(which(info.0712a$sampling_event == as.character("NLA06608-0042-2007-1"))[2],
-                         which(info.0712a$sampling_event == as.character("NLA06608-0061-2007-1"))[2],
-                         which(info.0712a$sampling_event == as.character("NLA06608-0065-2007-1"))[2],
-                         which(info.0712a$sampling_event == as.character("NLA06608-0071-2007-1"))[2],
-                         which(info.0712a$sampling_event == as.character("NLA06608-0078-2007-1"))[2],
-                         which(info.0712a$sampling_event == as.character("NLA06608-0129-2007-1"))[2],
-                         which(info.0712a$sampling_event == as.character("NLA06608-0169-2007-1"))[2],
-                         which(info.0712a$sampling_event == as.character("NLA06608-0225-2007-1"))[2],
-                         which(info.0712a$sampling_event == as.character("NLA06608-0228-2007-1"))[2]),]  
+info.0712r = strat.0712 %>% filter(resampled == 1) # 2007 and 2012 resampled sites
+info.0712r$type = as.factor(info.0712r$type) # change lake type class
+                                           # lake type before the weird ones were joined
+
+
 
 
 # General US map with state borders 
@@ -226,13 +498,16 @@ usa.plot = ggplot() +
   coord_fixed(1.3) 
 
 
-# Distribution of the type of lakes sampled in 2007 AND 2012
+
+
+#### Distribution of the type of lakes sampled in 2007 AND 2012
 type.plot.resampled = usa.plot +
-  geom_point(data = info.0712r, aes(x = lon, y = lat, col = type, size = sampled_depthmax_m), alpha = 0.8) +
+  geom_point(data = info.0712r, aes(x = lon, y = lat, col = type, size = depth), alpha = 0.8) + # the point size is function of the maximal sampled depth
   scale_color_brewer(type = "qual", palette = 2, 
                      labels =  c("1 (epi-meta-hypo)", "2 (epi-meta)", "3 (meta-hypo)",
-                                 "4 (epi-hypo)", "5 (epi)", "6 (meta)")) +
-  facet_grid(rows = vars(year)) +
+                                 "4 (epi-hypo)", "5 (epi)", "6 (meta)")) + # colors and labels
+  facet_grid(rows = vars(year)) + # facet by year
+  # customs
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   labs(size = "Profondeur maximale échantillonnée (m)", col = "Type de lac") +
@@ -247,13 +522,14 @@ ggsave(filename = "type_resampled.pdf", device = "pdf", plot = type.plot.resampl
 
 
 
-# Distribution of the type of every lake 
+#### Distribution of the type of every lake 
 type.plot.all = usa.plot +
-  geom_point(data = info.0712a, aes(x = lon, y = lat, col = type, size = sampled_depthmax_m), alpha = 0.8) +
+  geom_point(data = info.0712a, aes(x = lon, y = lat, col = type, size = depth), alpha = 0.8) + # the point size is function of the maximal sampled depth
   scale_color_brewer(type = "qual", palette = 2, 
                      labels =  c("1 (epi-meta-hypo)", "2 (epi-meta)", "3 (meta-hypo)",
-                                 "4 (epi-hypo)", "5 (epi)", "6 (meta)")) +
-  facet_grid(rows = vars(year)) +
+                                 "4 (epi-hypo)", "5 (epi)", "6 (meta)")) + # colors and labels
+  facet_grid(rows = vars(year)) + # facet by year
+  # customs
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   labs(size = "Profondeur maximale échantillonnée (m)", col = "Type de lac") +
@@ -267,13 +543,15 @@ ggsave(filename = "type_all.pdf", plot = type.plot.all, device = "pdf", path = "
 
 
 
-# Distribution of resampled lake stratification (yes or no)
+#### Distribution of resampled lake stratification (yes or no)
 
 stratification.plot.resampled = usa.plot +
-  geom_point(data = info.0712r, aes(x = lon, y = lat, col = as.factor(stratified), size = sampled_depthmax_m), alpha = 0.8) +
+  geom_point(data = info.0712r, aes(x = lon, y = lat, col = as.factor(stratified), size = depth), alpha = 0.8) + # the point size is function of the maximal sampled depth
+  scale_color_brewer(type = "qual", palette = 2) + # colors
   scale_color_manual(values = c("red", "blue"),
-                     labels =  c("0", "1")) +
-  facet_grid(rows = vars(year)) +
+                     labels =  c("0", "1")) + # colors
+  facet_grid(rows = vars(year)) + # facet by year
+  # customs
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   labs(size = "Profondeur maximale échantillonnée (m)", col = "Stratification") +
@@ -286,13 +564,15 @@ ggsave(filename = "stratification_resampled.pdf", plot = stratification.plot.res
 
 
 
-# Distribution of every lake stratification (yes or no)
+#### Distribution of every lake stratification (yes or no)
 
 stratification.plot.all = usa.plot +
-  geom_point(data = info.0712a, aes(x = lon, y = lat, col = as.factor(stratified), size = sampled_depthmax_m), alpha = 0.8) +
-  scale_color_manual(values = c("red", "blue"),
-                     labels =  c("0", "1")) +
-  facet_grid(rows = vars(year)) +
+  geom_point(data = info.0712a, aes(x = lon, y = lat, col = as.factor(stratified), size = depth), alpha = 0.8) + # the point size is function of the maximal sampled depth
+  scale_color_brewer(type = "qual", palette = 2) + # color 
+  scale_color_manual(values = c("red", "blue"), 
+                     labels =  c("0", "1")) + # color
+  facet_grid(rows = vars(year)) + # facet by year
+  # customs
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   labs(size = "Profondeur maximale échantillonnée (m)", col = "Stratification") +
@@ -309,17 +589,23 @@ ggsave(filename = "stratification_all.pdf", plot = stratification.plot.all, devi
 
 
 
-
 # Change of stratification 
-info.0712r2 = info.0712r2 %>% mutate(stratification_change = stratified.12 - stratified.07)
+info.2007r = strat.0712 %>% filter(resampled == 1, year == 2007) # sampling events in 2007 of resampled sites
+info.2012r = strat.0712 %>% filter(resampled == 1, year == 2012) # sampling events in 2012 of resampled sites
+
+info.0712r = left_join(info.2007r, info.2012r, by = "site_id", suffix = c(".07", ".12")) # Combine 2007 and 2012 sampling events
+
+info.0712r2 = info.0712r %>% mutate(stratification_change = stratified.12 - stratified.07) # change of stratification
 
 
-# Distribution of change of stratification 
+
+#### Distribution of change of stratification 
 
 stratification.change = usa.plot +
-  geom_point(data = info.0712r2, aes(x = lon.12, y = lat.12, col = as.factor(stratification_change), size = sampled_depthmax_m.12), alpha = 0.8) +
+  geom_point(data = info.0712r2, aes(x = lon.12, y = lat.12, col = as.factor(stratification_change), size = depth.12), alpha = 0.8) + # the point size is function of the maximal sampled depth
   scale_color_manual(values = c("red", "grey", "blue"),
-                     labels =  c("1 -> 0", "Aucun", "0 -> 1")) +
+                     labels =  c("1 -> 0", "Aucun", "0 -> 1")) + # color
+  # customs
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   labs(col = "Changement de stratification", size = "Profondeur maximale échantillonnée (m)") +
@@ -333,20 +619,20 @@ ggsave(filename = "stratification_change.pdf", plot = stratification.change, dev
 
 
 
-# Distribution of epilimnetic thickness of stratified lakes
+#### Distribution of epilimnetic thickness of stratified lakes
 
-info.0712r.strat = info.0712r %>% filter(stratified == 1)
-info.0712a.strat = info.0712a %>% filter(stratified == 1)
-
+info.0712r.strat = strat.0712 %>% filter(resampled == 1, stratified == 1) # resampled and stratified lakes
+info.0712a.strat = info.0712a %>% filter(stratified == 1) # stratified lakes, resampled site or not
 
 
 
 # Resampled sites by nutrient-color status
 epi.thickness.resampled = usa.plot +
-  geom_point(data = info.0712r.strat, aes(x = lon, y = lat, col = nutrient_color, size = epithick_m), alpha = 0.8) +
+  geom_point(data = info.0712r.strat, aes(x = lon, y = lat, col = nutrient_color, size = epithick), alpha = 0.8) + # the point size is function of the epi thickness
   scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
+                     labels = c("bleu", "brun", "vert", "boueux")) + # color
+  facet_grid(rows = vars(year)) + # facet by year
+  # customs
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   labs(size = "Épaisseur de l'épilimnion (m)", col = "Statut couleur-nutriment") +
@@ -360,8 +646,9 @@ ggsave(filename = "epi_thickness_resampled.pdf", plot = epi.thickness.resampled,
 
 # Resampled sites by ecoregions
 epi.thickness.resampled.eco = usa.plot +
-  geom_point(data = info.0712r.strat, aes(x = lon, y = lat, col = ECO9, size = epithick_m), alpha = 0.8) +
-  facet_grid(rows = vars(year)) +
+  geom_point(data = info.0712r.strat, aes(x = lon, y = lat, col = ECO9, size = epithick), alpha = 0.8) + # the point size is function of the epi thickness
+  facet_grid(rows = vars(year)) + # facet by year
+  # customs
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   labs(size = "Épaisseur de l'épilimnion (m)", col = "Écorégion") +
@@ -379,10 +666,11 @@ ggsave(filename = "epi_thickness_resampled_eco.pdf", plot = epi.thickness.resamp
 
 # Every site by nutrient-color status
 epi.thickness.all = usa.plot +
-  geom_point(data = info.0712a.strat, aes(x = lon, y = lat, col = nutrient_color, size = epithick_m), alpha = 0.8) +
+  geom_point(data = info.0712a.strat, aes(x = lon, y = lat, col = nutrient_color, size = epithick), alpha = 0.8) +  # the point size is function of the epi thickness
   scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
+                     labels = c("bleu", "brun", "vert", "boueux")) + # color
+  facet_grid(rows = vars(year)) + # facet by year
+  # customs
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   labs(size = "Épaisseur de l'épilimnion (m)", col = "Statut couleur-nutriment") +
@@ -393,11 +681,11 @@ ggsave(filename = "epi_thickness_all.pdf", plot = epi.thickness.all, device = "p
 
 
 
-
 # Every site by ecoregions
 epi.thickness.all.eco = usa.plot +
-  geom_point(data = info.0712a.strat, aes(x = lon, y = lat, col = ECO9, size = epithick_m), alpha = 0.8) +
-  facet_grid(rows = vars(year)) +
+  geom_point(data = info.0712a.strat, aes(x = lon, y = lat, col = ECO9, size = epithick), alpha = 0.8) + # the point size is function of the epi thickness
+  facet_grid(rows = vars(year)) + # facet by year
+  # customs
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   labs(size = "Épaisseur de l'épilimnion (m)", col = "Écorégion") +
@@ -411,15 +699,16 @@ ggsave(filename = "epi_thickness_all_eco.pdf", plot = epi.thickness.all.eco, dev
 
 
 
-# Distribution of lake stability (delta temperature)
+#### Distribution of lake stability (delta temperature)
 
 
 # Resampled sites by nutrient-color status
 deltaT.resampled = usa.plot +
-  geom_point(data = info.0712r.strat, aes(x = lon, y = lat, col = nutrient_color, size = deltaT_C), alpha = 0.8) +
+  geom_point(data = info.0712r.strat, aes(x = lon, y = lat, col = nutrient_color, size = deltaT), alpha = 0.8) + # the point size is function of the deltaT
   scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
+                     labels = c("bleu", "brun", "vert", "boueux")) + # color
+  facet_grid(rows = vars(year)) + # facet by year
+  # customs
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   labs(size = "Différence de température (0C)", col = "Statut couleur-nutriment") +
@@ -433,8 +722,9 @@ ggsave(filename = "deltaT_resampled.pdf", plot = deltaT.resampled, device = "pdf
 
 # Resampled sites by ecoregions
 deltaT.resampled.eco = usa.plot +
-  geom_point(data = info.0712r.strat, aes(x = lon, y = lat, col = ECO9, size = deltaT_C), alpha = 0.8) +
-  facet_grid(rows = vars(year)) +
+  geom_point(data = info.0712r.strat, aes(x = lon, y = lat, col = ECO9, size = deltaT), alpha = 0.8) + # the point size is function of the deltaT
+  facet_grid(rows = vars(year)) + # facet by year
+  # customs
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   labs(size = "Différence de température (0C)", col = "Écorégion") +
@@ -450,10 +740,11 @@ ggsave(filename = "deltaT_resampled_eco.pdf", plot = deltaT.resampled.eco, devic
 
 # Every site by nutrient-color status
 deltaT.all = usa.plot +
-  geom_point(data = info.0712a.strat, aes(x = lon, y = lat, col = nutrient_color, size = deltaT_C), alpha = 0.8) +
+  geom_point(data = info.0712a.strat, aes(x = lon, y = lat, col = nutrient_color, size = deltaT), alpha = 0.8) + # the point size is function of the deltaT
   scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
+                     labels = c("bleu", "brun", "vert", "boueux")) + # color
+  facet_grid(rows = vars(year)) + # facet by year
+  # customs
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   labs(size = "Différence de température (0C)", col = "Statut couleur-nutriment") +
@@ -467,8 +758,9 @@ ggsave(filename = "deltaT_all.pdf", plot = deltaT.all, device = "pdf", path = "C
 
 # Every site by ecoregions
 deltaT.all.eco = usa.plot +
-  geom_point(data = info.0712a.strat, aes(x = lon, y = lat, col = ECO9, size = deltaT_C), alpha = 0.8) +
-  facet_grid(rows = vars(year)) +
+  geom_point(data = info.0712a.strat, aes(x = lon, y = lat, col = ECO9, size = deltaT), alpha = 0.8) + # the point size is function of the deltaT
+  facet_grid(rows = vars(year)) + # facet by year
+  # customs
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   labs(size = "Différence de température (0C)", col = "Écorégion") +
@@ -485,150 +777,39 @@ ggsave(filename = "deltaT_all_eco.pdf", plot = deltaT.all.eco, device = "pdf", p
 
 
 
-# Distribution of lake stability (delta density)
+#### Anoxia and hypoxia distribution 
 
+                                        
+info.0712r = info.0712 %>% filter(resampled == 1) %>% # 2007 and 2012 resampled sites
+  mutate(anoxia_hypoxia = NA) # empty variable for anoxia and hypoxia
 
-# Resampled sites by nutrient-color status
-delta.density.resampled = usa.plot +
-  geom_point(data = info.0712r.strat, aes(x = lon, y = lat, col = nutrient_color, size = deltaD_kgm3), alpha = 0.8) +
-  scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
-  scale_x_continuous(name = "lon") +
-  scale_y_continuous(name = "lat") +
-  labs(size = "Différence de densité (kg/m3)", col = "Statut couleur-nutriment") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"))
-
-ggsave(filename = "delta_density_resampled.pdf", plot = delta.density.resampled, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
-
-
-
-
-# Resampled sites by ecoregions
-delta.density.resampled.eco = usa.plot +
-  geom_point(data = info.0712r.strat, aes(x = lon, y = lat, col = ECO9, size = deltaD_kgm3), alpha = 0.8) +
-  facet_grid(rows = vars(year)) +
-  scale_x_continuous(name = "lon") +
-  scale_y_continuous(name = "lat") +
-  labs(size = "Différence de densité (kg/m3)", col = "Écorégion") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"))
-
-ggsave(filename = "delta_density_resampled_eco.pdf", plot = delta.density.resampled.eco, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
-
-
-
-
-
-
-# Every site by nutrient-color status
-delta.density.all = usa.plot +
-  geom_point(data = info.0712a.strat, aes(x = lon, y = lat, col = nutrient_color, size = deltaD_kgm3), alpha = 0.8) +
-  scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
-  scale_x_continuous(name = "lon") +
-  scale_y_continuous(name = "lat") +
-  labs(size = "Différence de densité (kg/m3)", col = "Statut couleur-nutriment") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"))
-
-ggsave(filename = "delta_density_all.pdf", plot = delta.density.all, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
-
-
-
-
-# Every site by ecoregions
-delta.density.all.eco = usa.plot +
-  geom_point(data = info.0712a.strat, aes(x = lon, y = lat, col = ECO9, size = deltaD_kgm3), alpha = 0.8) +
-  facet_grid(rows = vars(year)) +
-  scale_x_continuous(name = "lon") +
-  scale_y_continuous(name = "lat") +
-  labs(size = "Différence de densité (kg/m3)", col = "Écorégion") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"))
-
-ggsave(filename = "delta_density_all_eco.pdf", plot = delta.density.all.eco, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
-
-
-
-
-
-
-
-
-# Distribution of averaged hypolimnetic temperature
-
-info.0712r.hypo = info.0712r.strat %>% filter(type %in% c(1,3,4))
-info.0712a.hypo = info.0712a.strat %>% filter(type %in% c(1,3,4))
-
-
-
-
-hypo.temp.resampled = usa.plot +
-  geom_point(data = info.0712r.hypo, aes(x = lon, y = lat, col = hypotemp_C, size = sampled_depthmax_m), alpha = 0.8) +
-  scale_x_continuous(name = "lon") +
-  scale_y_continuous(name = "lat") +
-  facet_grid(rows = vars(year)) +
-  scale_colour_gradient2(low = "blue", mid = "white",
-                         high = "red", midpoint = 17.5) +
-  labs(col = "Température moyenne de l'hypolimnion (oC)", size = "Profondeur maximale échantillonnée (m)") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"))
-
-ggsave(filename = "hypo_temp_resampled.pdf", plot = hypo.temp.resampled, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
-
-
-
-
-hypo.temp.all = usa.plot +
-  geom_point(data = info.0712a.hypo, aes(x = lon, y = lat, col = hypotemp_C, size = sampled_depthmax_m), alpha = 0.8) +
-  scale_x_continuous(name = "lon") +
-  scale_y_continuous(name = "lat") +
-  facet_grid(rows = vars(year)) +
-  scale_colour_gradient2(low = "blue", mid = "white",
-                         high = "red", midpoint = 17.5) +
-  labs(col = "Température moyenne de l'hypolimnion (oC)", size = "Profondeur maximale échantillonnée (m)") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"))
-
-ggsave(filename = "hypo_temp_all.pdf", plot = hypo.temp.all, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
-
-
-
-
-
-
-
-
-# Anoxia and hypoxia distribution 
 
 # If the lake is anoxic and hypoxic, we consider that it is anoxic
 for (i in 1:nrow(info.0712r)) {
   if(!is.na(info.0712r$anoxia[i])) {
       if (info.0712r$anoxia[i] == 1) {
-    info.0712r$anoxia_hypoxia[i] = "anoxia" 
+    info.0712r$anoxia_hypoxia[i] = "anoxia" # anoxic lake
     } else if (!is.na(info.0712r$anoxia[i])) { 
       if (info.0712r$hypoxia[i] == 1) {
-    info.0712r$anoxia_hypoxia[i] = "hypoxia" 
+    info.0712r$anoxia_hypoxia[i] = "hypoxia" # hypoxic lake
   }
       }else {
-    info.0712r$anoxia_hypoxia[i] = "no hypoxia"
+    info.0712r$anoxia_hypoxia[i] = "no hypoxia" # non hypoxic lake
       }
   }
 }
 
 
 
-
+# anoxia or hypoxia of resampled sites 
 anoxia.hypoxia.resampled = usa.plot +
-  geom_point(data = info.0712r, aes(x = lon, y = lat, col = anoxia_hypoxia, size = sampled_depthmax_m), alpha = 0.8) +
+  geom_point(data = info.0712r, aes(x = lon, y = lat, col = anoxia_hypoxia, size = depth), alpha = 0.8) + # the point size is function of the maximum sampled depth
   scale_x_continuous(name = "lon") +
   scale_y_continuous(name = "lat") +
   scale_color_manual(values = c("red", "brown", "grey"),
-                     labels = c("anoxie", "hypoxie", "aucune hypoxie")) +
-  facet_grid(rows = vars(year)) +
+                     labels = c("anoxie", "hypoxie", "aucune hypoxie")) + # color
+  facet_grid(rows = vars(year)) + # facet by year
+  # customs
   labs(col = "Oxygénation du lac", size = "Profondeur maximale échantillonnée (m)") +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
@@ -640,112 +821,23 @@ ggsave(filename = "anoxia_hypoxia_resampled.pdf", plot = anoxia.hypoxia.resample
 
 
 
-anoxia.depth.resampled = usa.plot +
-  geom_point(data = info.0712r, aes(x = lon, y = lat, size = anoxiadepth_m, col = nutrient_color), alpha = 0.8) +
-  scale_x_continuous(name = "lon") +
-  scale_y_continuous(name = "lat") +
-  scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
-  labs(col = "Statut couleur-nutriment", size = "Profondeur de l'anoxie (m)") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"))
-
-
-ggsave(filename = "anoxia_depth_resampled.pdf", plot = anoxia.depth.resampled, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
 
 
 
 
+#  Violin plots ====
 
 
+# All sites, resampled or not 
 
-
-hypoxia.depth.resampled = usa.plot +
-  geom_point(data = info.0712r, aes(x = lon, y = lat, size = hypoxiadepth_m, col = nutrient_color), alpha = 0.8) +
-  scale_x_continuous(name = "lon") +
-  scale_y_continuous(name = "lat") +
-  scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
-  labs(col = "Statut couleur-nutriment", size = "Profondeur de l'hypoxie (m)") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"))
-
-
-ggsave(filename = "hypoxia_depth_resampled.pdf", plot = hypoxia.depth.resampled, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
-
-
-
-
-
-
-
-
-
-
-
-
-anoxia.depth.all = usa.plot +
-  geom_point(data = info.0712a, aes(x = lon, y = lat, size = anoxiadepth_m, col = nutrient_color), alpha = 0.8) +
-  scale_x_continuous(name = "lon") +
-  scale_y_continuous(name = "lat") +
-  scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
-  labs(col = "Statut couleur-nutriment", size = "Profondeur de l'anoxie (m)") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"))
-
-
-ggsave(filename = "anoxia_depth_all.pdf", plot = anoxia.depth.all, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
-
-
-
-
-
-
-
-
-hypoxia.depth.all = usa.plot +
-  geom_point(data = info.0712a, aes(x = lon, y = lat, size = hypoxiadepth_m, col = nutrient_color), alpha = 0.8) +
-  scale_x_continuous(name = "lon") +
-  scale_y_continuous(name = "lat") +
-  scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
-  labs(col = "Statut couleur-nutriment", size = "Profondeur de l'hypoxie (m)") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"))
-
-
-ggsave(filename = "hypoxia_depth_all.pdf", plot = hypoxia.depth.all, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
-
-
-
-
-
-
-
-
-
-
-
-
-#####  Violon plots ####
-
-
-
-
-
-
-
-maxdepth.all.violin = ggplot(info.0712a, aes(x = nutrient_color, y = sampled_depthmax_m)) +
+# maximum sampled depth and nutrient-color status
+maxdepth.all.violin = ggplot(info.0712a, aes(x = nutrient_color, y = depth)) +
   geom_violin(aes(color = nutrient_color), show.legend = FALSE, size = 0.7) +
-  geom_boxplot(width = 0.05, alpha = 0.4) +
+  geom_boxplot(width = 0.05, alpha = 0.4) +  # custom
   scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
+                     labels = c("bleu", "brun", "vert", "boueux")) + # color
+  facet_grid(rows = vars(year)) + # facet by year
+  # custom
   scale_x_discrete(name = "Statut couleur-nutriment") +
   scale_y_continuous(name = "Profondeur maximale échantillonnée (m)") 
 
@@ -754,11 +846,12 @@ ggsave(filename = "maxdepth_all.pdf", plot = maxdepth.all.violin, device = "pdf"
 
 
 
-
-maxdepth.all.eco.violin = ggplot(info.0712a, aes(x = ECO9, y = sampled_depthmax_m)) +
+# maximum sampled dpeth and ecoregions
+maxdepth.all.eco.violin = ggplot(info.0712a, aes(x = ECO9, y = depth)) +
   geom_violin(aes(color = ECO9), show.legend = FALSE, size = 0.7) +
-  geom_boxplot(width = 0.05, alpha = 0.4) +
-  facet_grid(rows = vars(year)) +
+  geom_boxplot(width = 0.05, alpha = 0.4) + # custom
+  facet_grid(rows = vars(year)) + # facet by year
+  # custom
   scale_x_discrete(name = "Écorégion") +
   scale_y_continuous(name = "Profondeur maximale échantillonnée (m)") 
 
@@ -769,13 +862,14 @@ ggsave(filename = "maxdepth_all_eco.pdf", plot = maxdepth.all.eco.violin, device
 
 
 
-
-epithick.all.violin = ggplot(info.0712a.strat, aes(x = nutrient_color, y = epithick_m)) +
+# epilimnetic thickness and nutrient-color status
+epithick.all.violin = ggplot(info.0712a.strat, aes(x = nutrient_color, y = epithick)) +
   geom_violin(aes(color = nutrient_color), show.legend = FALSE, size = 0.7) +
-  geom_boxplot(width = 0.05, alpha = 0.4) +
+  geom_boxplot(width = 0.05, alpha = 0.4) + # custom
   scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
+                     labels = c("bleu", "brun", "vert", "boueux")) + # color
+  facet_grid(rows = vars(year)) + # facet by year
+  # custom
   scale_x_discrete(name = "Statut couleur-nutriment") +
   scale_y_continuous(name = "Épaisseur de l'épilimnion (m)") 
 
@@ -785,11 +879,12 @@ ggsave(filename = "epithick_all.pdf", plot = epithick.all.violin, device = "pdf"
 
 
 
-
-epithick.all.eco.violin = ggplot(info.0712a.strat, aes(x = ECO9, y = epithick_m)) +
+# epilimnetic thickness and ecoregions
+epithick.all.eco.violin = ggplot(info.0712a.strat, aes(x = ECO9, y = epithick)) +
   geom_violin(aes(color = ECO9), show.legend = FALSE, size = 0.7) +
-  geom_boxplot(width = 0.05, alpha = 0.4) +
-  facet_grid(rows = vars(year)) +
+  geom_boxplot(width = 0.05, alpha = 0.4) + # custom
+  facet_grid(rows = vars(year)) + # facet by year
+  # custom
   scale_x_discrete(name = "Écorégion") +
   scale_y_continuous(name = "Épaisseur de l'épilimnion (m)") 
 
@@ -803,13 +898,14 @@ ggsave(filename = "epithick_all_eco.pdf", plot = epithick.all.eco.violin, device
 
 
 
-
-deltaT.all.violin = ggplot(info.0712a.strat, aes(x = nutrient_color, y = deltaT_C)) +
+# deltaT and nutrient-color status
+deltaT.all.violin = ggplot(info.0712a.strat, aes(x = nutrient_color, y = deltaT)) +
   geom_violin(aes(color = nutrient_color), show.legend = FALSE, size = 0.7) +
-  geom_boxplot(width = 0.05, alpha = 0.4) +
+  geom_boxplot(width = 0.05, alpha = 0.4) + # custom
   scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
+                     labels = c("bleu", "brun", "vert", "boueux")) + # color
+  facet_grid(rows = vars(year)) + # facet by year
+  # custom
   scale_x_discrete(name = "Statut couleur-nutriment") +
   scale_y_continuous(name = "Différence de température (oC)") 
 
@@ -819,11 +915,12 @@ ggsave(filename = "deltaT_all.pdf", plot = deltaT.all.violin, device = "pdf", pa
 
 
 
-
-deltaT.all.eco.violin = ggplot(info.0712a.strat, aes(x = ECO9, y = deltaT_C)) +
-  geom_violin(aes(color = ECO9), show.legend = FALSE, size = 0.7) +
-  geom_boxplot(width = 0.05, alpha = 0.4) +
-  facet_grid(rows = vars(year)) +
+# deltaT and ecoregions
+deltaT.all.eco.violin = ggplot(info.0712a.strat, aes(x = ECO9, y = deltaT)) +
+  geom_violin(aes(color = ECO9), show.legend = FALSE, size = 0.7) + 
+  geom_boxplot(width = 0.05, alpha = 0.4) + # custom
+  facet_grid(rows = vars(year)) + # facet by year
+  # custom
   scale_x_discrete(name = "Écorégion") +
   scale_y_continuous(name = "Différence de température (oC)") 
 
@@ -834,350 +931,4 @@ ggsave(filename = "deltaT_all_eco.pdf", plot = deltaT.all.eco.violin, device = "
 
 
 
-
-
-
-
-
-deltaD.all.violin = ggplot(info.0712a.strat, aes(x = nutrient_color, y = deltaD_kgm3)) +
-  geom_violin(aes(color = nutrient_color), show.legend = FALSE, size = 0.7) +
-  geom_boxplot(width = 0.05, alpha = 0.4) +
-  scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
-  scale_x_discrete(name = "Statut couleur-nutriment") +
-  scale_y_continuous(name = "Différence de densité (kg/m3)") 
-
-
-ggsave(filename = "delta_density_all.pdf", plot = deltaD.all.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
-
-
-
-
-
-deltaD.all.eco.violin = ggplot(info.0712a.strat, aes(x = ECO9, y = deltaD_kgm3)) +
-  geom_violin(aes(color = ECO9), show.legend = FALSE, size = 0.7) +
-  geom_boxplot(width = 0.05, alpha = 0.4) +
-  facet_grid(rows = vars(year)) +
-  scale_x_discrete(name = "Écorégion") +
-  scale_y_continuous(name = "Différence de densité (kg/m3)") 
-
-
-ggsave(filename = "delta_density_all_eco.pdf", plot = deltaD.all.eco.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
-
-
-
-
-
-
-
-
-
-
-
-hypotemp.all.violin = ggplot(info.0712a.strat, aes(x = nutrient_color, y = hypotemp_C)) +
-  geom_violin(aes(color = nutrient_color), show.legend = FALSE, size = 0.7) +
-  geom_boxplot(width = 0.05, alpha = 0.4) +
-  scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
-  scale_x_discrete(name = "Statut couleur-nutriment") +
-  scale_y_continuous(name = "Température moyenne de l'hypolimnion (oC)") 
-
-
-ggsave(filename = "hypotemp_all.pdf", plot = hypotemp.all.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
-
-
-
-
-hypotemp.all.eco.violin = ggplot(info.0712a.strat, aes(x = ECO9, y = hypotemp_C)) +
-  geom_violin(aes(color = ECO9), show.legend = FALSE, size = 0.7) +
-  geom_boxplot(width = 0.05, alpha = 0.4) +
-  facet_grid(rows = vars(year)) +
-  scale_x_discrete(name = "Écorégion") +
-  scale_y_continuous(name = "Température moyenne de l'hypolimnion (oC)") 
-
-
-ggsave(filename = "hypotemp_all_eco.pdf", plot = hypotemp.all.eco.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
-
-
-
-
-
-
-
-
-
-anoxia.depth.all.violin = ggplot(info.0712a, aes(x = nutrient_color, y = anoxiadepth_m)) +
-  geom_violin(aes(color = nutrient_color), show.legend = FALSE, size = 0.7) +
-  geom_boxplot(width = 0.05, alpha = 0.4) +
-  scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
-  scale_x_discrete(name = "Statut couleur-nutriment") +
-  scale_y_continuous(name = "Profondeur de l'anoxie (m)") 
-
-
-ggsave(filename = "anoxia_depth_all.pdf", plot = anoxia.depth.all.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
-
-
-
-
-
-hypoxia.depth.all.violin = ggplot(info.0712a, aes(x = nutrient_color, y = hypoxiadepth_m)) +
-  geom_violin(aes(color = nutrient_color), show.legend = FALSE, size = 0.7) +
-  geom_boxplot(width = 0.05, alpha = 0.4) +
-  scale_color_manual(values = c("blue", "brown", "green", "orange"),
-                     labels = c("bleu", "brun", "vert", "boueux")) +
-  facet_grid(rows = vars(year)) +
-  scale_x_discrete(name = "Statut couleur-nutriment") +
-  scale_y_continuous(name = "Profondeur de l'hypoxie (m)") 
-
-
-ggsave(filename = "hypoxia_depth_all.pdf", plot = hypoxia.depth.all.violin, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/violin", width = 12, height = 12)
-
-
-
-
-
-
-#### Some tables ####
-
-table(info.0712a$type, info.0712a$nutrient_color)
-table(info.0712a$type, info.0712a$ECO9)
-table(info.0712a$nutrient_color, info.0712a$ECO9)
-
-
-
-
-
-
-
-#### Graph Zepi vs Zmax ####
-
-# Only sites sampled once, stratified with an epilimnion
-data.for.zepizmax = info.0712a %>% filter(resampled == 0, stratified == 1, !is.na(nutrient_color), type != 3) %>%
-  mutate(zmax = sampled_depthmax_m, zepi = epithick_m) %>%
-  select(zmax, zepi, nutrient_color)
-
-# linear model without nutrient-color specification
-lm_fit <- lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax)
-predicted_df <- data.frame(zepi.predict = predict(lm_fit, data.for.zepizmax), zmax = log1p(data.for.zepizmax$zmax))
-
-# linear model with nutrient-color specification
-zepizmaxstatus.lm = lm(log1p(zepi) ~ log1p(zmax) * nutrient_color, data = data.for.zepizmax)
-zepizmaxstatus.R2adj = round(RsquareAdj(zepizmaxstatus.lm)$adj.r.squared, 3) # adjusted R2
-summary(zepizmaxstatus.lm)
-anova(zepizmaxstatus.lm)
-zepizmaxstatus.lm$coefficients # obtain slopes
-m.lst <- lstrends(zepizmaxstatus.lm, "nutrient_color", var = "zmax")
-pairs(m.lst) 
-
-
-
-# Examine residual graph (for blue lakes)
-zepizmax.lm.blue = lm(log1p(zepi) ~ log1p(zmax), data = data.for.zepizmax %>% filter(nutrient_color == "blue"))
-resid.fitted.blue = as.data.frame(matrix(NA, nrow(data.for.zepizmax %>% filter(nutrient_color == "blue")),2))
-colnames(resid.fitted.blue) = c("resid", "fitted")
-resid.fitted.blue$resid = resid(zepizmax.lm.blue)
-resid.fitted.blue$fitted = predict(zepizmax.lm.blue, data.for.zepizmax %>% filter(nutrient_color == "blue"))
-shapiro.test(resid.fitted.blue$resid)
-plot(zepizmax.lm.blue, 3) # approximatively homoscedastic
-plot(zepizmax.lm.blue, 2) # approximatively normal
-
-
-  
-# Plot log(z epi + 1) vs log(z max + 1)
-zepizmax.plot = ggplot(data.for.zepizmax, aes(x = log1p(zmax), y = log1p(zepi), col = nutrient_color)) +
-  geom_point(alpha = 0.5) +
-  geom_smooth(method = "lm", se = FALSE) +
-  geom_line(color = "black", size = 1, data = predicted_df, aes(x = zmax, y = zepi.predict)) +
-  geom_abline(color = "black", lty = "dotted", intercept = 0, slope = 1) +
-  scale_color_manual(name = "nutrient-color status", values = c("blue", "brown", "green", "orange")) +
-  scale_x_continuous(name = "log(z max + 1) (m)", limits = c(0, 4)) +
-  scale_y_continuous(name = "log(z epi + 1) (m)", limits = c(0, 4)) +
-  annotate("text", label = "1:1 line", x = 3.8, y = 3.9) +
-  annotate("text", label = paste("adj R2 = ", zepizmaxstatus.R2adj), x = 1, y = 3, size = 5) +
-  theme(strip.background = element_blank(), 
-        panel.border = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        axis.line = element_line(colour = "black", size = 1))
-  
-ggsave(filename = "zepi_zmax.pdf", plot = zepizmax.plot, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/scatter_plot", width = 12, height = 12)
-
-
-
-
-
-
-
-
-#### Maps deltaT épi and deltaT hypo ####
-
-# lakes stratified in 2007 AND 2012
-data.for.deltaTepihypo = info.0712r2 %>% 
-  filter(stratified.07 == 1, stratified.12 == 1) %>%
-  mutate(deltaT.epi = epitemp_C.12 - epitemp_C.07, 
-         deltaT.hypo = hypotemp_C.12 - hypotemp_C.07,
-         deltaT.atm.avg = avgtemp_C.12 - avgtemp_C.07, 
-         deltaT.atm.max = maxtemp_C.12 - maxtemp_C.07,
-         deltaT.atm.min = mintemp_C.12 - mintemp_C.07,
-         lat = lat.12, lon = lon.12, 
-         depth = sampled_depthmax_m.12, area = area_km2.12, 
-         deltaP = PTL_ugL.12 - PTL_ugL.07,
-         deltacol = color_PCU.12 - color_PCU.07) %>%
-select(deltaT.epi, deltaT.hypo, deltaT.atm.avg, deltaT.atm.max, deltaT.atm.min, lat, lon, depth, deltaP, deltacol) 
-
-
-
-# General US map
-usa = map_data("state") 
-usa.plot = ggplot() + 
-  geom_polygon(data = usa, aes(x=long, y = lat, group = group), fill = NA, color = "grey") + 
-  coord_fixed(1.3) 
-
-
-# Map of deltaT epi
-deltaT.epi.plot = usa.plot +
-  geom_point(data = data.for.deltaTepihypo, aes(x = lon, y = lat, fill = deltaT.epi, size = depth), shape = 21, col = "black") +
-  scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
-  scale_x_continuous(name = "lon") +
-  scale_y_continuous(name = "lat") +
-  labs(size = "maximal depth (m)", fill = "change in temperature (0C)") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black", size = 1))
-
-
-
-
-# Map of deltaT hypo
-deltaT.hypo.plot = usa.plot +
-  geom_point(data = data.for.deltaTepihypo %>% filter(!is.na(deltaT.hypo)), aes(x = lon, y = lat, fill = deltaT.hypo, size = depth), shape = 21, col = "black") +
-  scale_fill_gradient2(low = "blue", mid = "white", high = "red") +
-  scale_x_continuous(name = "lon") +
-  scale_y_continuous(name = "lat") +
-  labs(size = "maximal depth (m)", fill = "change in temperature (0C)") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black", size = 1))
-
-
-
-
-
-
-##### Some tests (to complete) ####
-
-# Retain complete observations only
-data.for.deltaTepihypo2 = na.exclude(data.for.deltaTepihypo)
-
-deltaTs = data.for.deltaTepihypo2 %>% select(deltaT.atm.avg, deltaT.atm.max, deltaT.atm.min)
-deltaTs.pca = rda(deltaTs, scale = TRUE)
-summary(deltaTs.pca, scaling = 1) # 99,32 % of variation with first axis
-data.for.deltaTepihypo2$deltaT.atm.PCA = -scores(deltaTs.pca, scaling = 1)$sites[,1] # site scores as temperature variable
-
-
-deltaT.epihypo = data.for.deltaTepihypo2[,c("deltaT.epi", "deltaT.hypo")]
-deltaT.exp = data.for.deltaTepihypo2[,c("deltaT.atm.PCA", "depth", "deltaP", "deltacol")]
-deltaT.rda = rda(deltaT.epihypo ~ deltaT.atm.PCA + depth + deltaP + deltacol, data = deltaT.exp)
-RsquareAdj(deltaT.rda)$r.squared
-anova(deltaT.rda, by = "axis", permutations = how(nperm = 999))
-
-mod0 = rda(deltaT.epihypo ~ 1, data = deltaT.exp)
-ordistep(mod0, 
-         scope = formula(deltaT.rda),
-         direction = "both", 
-         permutations = how(nperm = 499))
-
-
-
-
-
-deltaT.epi.lm = lm(deltaT.epihypo$deltaT.epi ~ deltaT.atm.PCA * deltaP * deltacol + depth, data = deltaT.exp)
-deltaT.R2adj = round(RsquareAdj(deltaT.epi.lm)$adj.r.squared, 3) # adjusted R2
-summary(deltaT.epi.lm)
-anova(zepizmaxstatus.lm)
-zepizmaxstatus.lm$coefficients # obtain slopes
-m.lst <- lstrends(zepizmaxstatus.lm, "nutrient_color", var = "zmax")
-pairs(m.lst) 
-
-
-for(i in 1:nrow(data.for.deltaTepihypo2)) {
-  deltaP = data.for.deltaTepihypo2$deltaP[i]
-  deltacol = data.for.deltaTepihypo2$deltacol[i]
-  
-  if(deltaP >= 0 & deltacol >= 0) {
-    data.for.deltaTepihypo2$deltanutricol[i] = 2
-  } else if(deltaP >= 0 & deltacol < 0) {
-    data.for.deltaTepihypo2$deltanutricol[i] = 1
-  } else if(deltaP <  0 & deltacol >= 0) {
-      data.for.deltaTepihypo2$deltanutricol[i] = 0
-  } else if(deltaP <  0 & deltacol < 0) {
-      data.for.deltaTepihypo2$deltanutricol[i] = -1
-  }
-}
-
-data.for.deltaTepihypo2$deltanutricol = as.factor(data.for.deltaTepihypo2$deltanutricol)
-
-table(data.for.deltaTepihypo2$deltanutricol)
-
-
-
-
-
-
-
-
-#### Delta hypo vs delta epi
-
-deltaT.lm = lm(deltaT.hypo ~ deltaT.atm.PCA * deltanutricol, data = data.for.deltaTepihypo2)
-deltaT.R2adj = round(RsquareAdj(deltaT.lm)$adj.r.squared, 3) # adjusted R2
-summary(deltaT.lm)
-anova(deltaT.lm)
-deltaT.lm$coefficients # obtain slopes
-deltaT.lst <- lstrends(deltaT.lm, "deltanutricol", var = "deltaT.atm.PCA")
-pairs(deltaT.lst) 
-
-
-deltaT.epiatm.Rsq = round(RsquareAdj(lm(deltaT.epi ~ deltaT.atm.avg * deltanutricol + depth, data = data.for.deltaTepihypo2))$adj.r.squared, 3)
-ggplot(data.for.deltaTepihypo2, aes(x = deltaT.atm.avg, y = deltaT.epi, col = deltanutricol, size = depth)) +
-  geom_point(alpha = 0.5) +
-  geom_smooth(method = "lm", se = FALSE) +
-  geom_abline(color = "black", lty = "dotted", intercept = 0, slope = 1) +
-  scale_color_manual(name = "differences in nutrient and color", values = c("blue", "brown", "green", "orange"),
-                     labels = c("bluer", "browner", "greener", "murkier")) +
-  scale_x_continuous(name = "difference in averaged atmospheric temperature (oC)") +
-  scale_y_continuous(name = "difference in epilimnetic temperature (oC)") +
-  annotate("text", label = "1:1 line", x = 5, y = 6) +
-  annotate("text", label = paste("adj R2 = ", deltaT.epiatm.Rsq), x = -5, y = 10, size = 5) +
-  theme(strip.background = element_blank(), 
-        panel.border = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        axis.line = element_line(colour = "black", size = 1))
-
-
-
-
-
-
-deltaT.hypoatm.Rsq = round(RsquareAdj(lm(deltaT.hypo ~ deltaT.atm.avg * deltanutricol + depth, data = data.for.deltaTepihypo2))$adj.r.squared, 3)
-ggplot(data.for.deltaTepihypo2, aes(x = deltaT.atm.avg, y = deltaT.hypo, col = deltanutricol, size = depth)) +
-  geom_point(alpha = 0.5) +
-  geom_smooth(method = "lm", se = FALSE) +
-  geom_abline(color = "black", lty = "dotted", intercept = 0, slope = 1) +
-  scale_color_manual(name = "differences in nutrient and color", values = c("blue", "brown", "green", "orange"),
-                     labels = c("bluer", "browner", "greener", "murkier")) +
-  scale_x_continuous(name = "difference in averaged atmospheric temperature (oC)") +
-  scale_y_continuous(name = "difference in hypolimnetic temperature (oC)") +
-  annotate("text", label = "1:1 line", x = 5, y = 6) +
-  annotate("text", label = paste("adj R2 = ", deltaT.hypoatm.Rsq), x = -5, y = 10, size = 5) +
-  theme(strip.background = element_blank(), 
-        panel.border = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        axis.line = element_line(colour = "black", size = 1)) +
-  geom_line(color = "black", size = 1, data = predicted_df, aes(x = zmax, y = zepi.predict)) +
-  annotate("text", label = paste("adj R2 = ", zepizmaxstatus.R2adj), x = 1, y = 3, size = 5) 
-
-
+#### END OF CODE

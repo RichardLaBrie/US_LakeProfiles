@@ -1,5 +1,5 @@
 ### Francis Banville - Université de Montréal
-### September 12th 2019
+### September 19th 2019
 
 ### The interim data sets, obtained from OpenRefine, are here tidied and merged to form processed data sets
 ### The sections of our script first refer to the indicators identified by the NARS 
@@ -16,6 +16,7 @@ library("lubridate")
 library("rLakeAnalyzer")
 library("stringr")
 library("tidyr")
+library("vegan")
 library("zoo")
 
 
@@ -2273,3 +2274,7 @@ info.2012r = strat.0712 %>% filter(resampled == 1, year == 2012) # sampling even
 info.0712r = left_join(info.2007r, info.2012r, by = "site_id", suffix = c(".07", ".12")) # Combine 2007 and 2012 sampling events
 
 
+
+
+
+##### END OF CODE
