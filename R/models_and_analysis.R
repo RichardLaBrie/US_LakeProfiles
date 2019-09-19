@@ -13,9 +13,6 @@ strat.0712 = read.table("C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_La
 
 
 
-
-
-
 #### 1. Some counting ====
 
 ### Some exploratory analysis are first done on the processed data frames

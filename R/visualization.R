@@ -777,54 +777,6 @@ ggsave(filename = "deltaT_all_eco.pdf", plot = deltaT.all.eco, device = "pdf", p
 
 
 
-#### Anoxia and hypoxia distribution 
-
-                                        
-info.0712r = info.0712 %>% filter(resampled == 1) %>% # 2007 and 2012 resampled sites
-  mutate(anoxia_hypoxia = NA) # empty variable for anoxia and hypoxia
-
-
-# If the lake is anoxic and hypoxic, we consider that it is anoxic
-for (i in 1:nrow(info.0712r)) {
-  if(!is.na(info.0712r$anoxia[i])) {
-      if (info.0712r$anoxia[i] == 1) {
-    info.0712r$anoxia_hypoxia[i] = "anoxia" # anoxic lake
-    } else if (!is.na(info.0712r$anoxia[i])) { 
-      if (info.0712r$hypoxia[i] == 1) {
-    info.0712r$anoxia_hypoxia[i] = "hypoxia" # hypoxic lake
-  }
-      }else {
-    info.0712r$anoxia_hypoxia[i] = "no hypoxia" # non hypoxic lake
-      }
-  }
-}
-
-
-
-# anoxia or hypoxia of resampled sites 
-anoxia.hypoxia.resampled = usa.plot +
-  geom_point(data = info.0712r, aes(x = lon, y = lat, col = anoxia_hypoxia, size = depth), alpha = 0.8) + # the point size is function of the maximum sampled depth
-  scale_x_continuous(name = "lon") +
-  scale_y_continuous(name = "lat") +
-  scale_color_manual(values = c("red", "brown", "grey"),
-                     labels = c("anoxie", "hypoxie", "aucune hypoxie")) + # color
-  facet_grid(rows = vars(year)) + # facet by year
-  # customs
-  labs(col = "Oxygénation du lac", size = "Profondeur maximale échantillonnée (m)") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"))
-
-ggsave(filename = "anoxia_hypoxia_resampled.pdf", plot = anoxia.hypoxia.resampled, device = "pdf", path = "C:/Users/franc/Documents/Maitrise/Travaux_diriges/US_LakeProfiles/figs/maps", width = 12, height = 12)
-
-
-
-
-
-
-
-
-
-
 #  Violin plots ====
 
 
