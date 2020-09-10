@@ -1,0 +1,39 @@
+---
+title: "LakePulseFormat"
+author: "Richard LaBrie"
+date: "10/09/2020"
+output: html_document
+---
+
+#This script transforms the large tsv file from NLA 2007 and 2012 sampling into individual csv files for each lake
+```{r}
+data0712 = read.table("../preprocessing/data/processed/profile_0712.tsv", sep = "\t", header = T)
+
+#Remove second visit to lake
+data0712 = data0712[which(data0712$visit_no != 2),]
+
+
+#Change ":" to "_"
+data0712$site_id = chartr(old = ":", new = "_", data0712$site_id)
+
+#Separate 2007 and 2012
+data07 = data0712[which(data0712$year == "2007"),]
+data12 = data0712[which(data0712$year == "2012"),]
+
+#Find all "lake names"
+names07 = unique(data07$site_id)
+names12 = unique(data12$site_id)
+
+
+#write csv files for each lakes
+for(i in 1:length(names07))
+{
+  write.csv(paste0("../data/2007/",names07[i],".csv"), x = data07[which(data07$site_id == names07[i]),], fileEncoding = "UTF-8")
+}
+
+for(i in 1:length(names12))
+{
+  write.csv(paste0("../data/2012/",names07[i],".csv"), x = data12[which(data12$site_id == names12[i]),], fileEncoding = "UTF-8")
+}
+
+```

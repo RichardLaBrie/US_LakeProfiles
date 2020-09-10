@@ -1,0 +1,3 @@
+"","sampling_event","site_id","visit_no","depth","year","month","day","temp","DO","PH","cond","layer_nla","resampled"
+"22226","NLA12_WI-132-2012-1","NLA12_WI-132",1,0,2012,9,6,24.6,8.6,9.1,360,"E",0
+"22227","NLA12_WI-132-2012-1","NLA12_WI-132",1,0.5,2012,9,6,24.6,8.7,9,360,"E",0

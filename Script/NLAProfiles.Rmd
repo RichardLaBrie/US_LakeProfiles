@@ -1,0 +1,45 @@
+---
+title: "StrataNLA"
+author: "Richard LaBrie"
+date: "10/09/2020"
+output: html_document
+---
+
+```{R}
+library("oce")
+library("rLakeAnalyzer")
+library("rMR")
+
+home_strata_fct <- function(FileList, Year, ColumnNames, sal.dens = T)
+{
+  output = matrix(nrow=4, ncol=length(FileList))
+  colnames(output) = FileList
+  for(i in 1:length(FileList))
+  {
+    data = read.table(paste0("../data/Binned/",Year,"/", FileList[i]), skip = 2)
+    colnames(data) = ColumnNames
+    filename = substr(x = FileList[i], 1, 6)
+
+  
+    if(length(data$Temperature_C[!is.na(data$Temperature_C)]) < length(data$Temperature_C))    data = data[-grep("NaN", data$Temperature_C),]
+  
+    if(sal.dens == T)    temp = meta.depths(wtr = data$Temperature_C, depths = data$Depth_m, sal = data$Salinity_PSU)
+    else temp = meta.depths(wtr = data$Temperature_C, depths = data$Depth_m)
+  
+    output[1,i] = min(data$Depth_m)
+    output[4,i] = max(data$Depth_m)
+    output[2,i] = if((max(data$Temperature_C)-min(data$Temperature_C)) > 1) temp[1]  else -1
+    output[3,i] = if((max(data$Temperature_C)-min(data$Temperature_C)) > 1) temp[2]  else -1
+    colnames(output)[i] <- paste(filename)
+  }
+return(output)
+}
+
+```
+
+```{r}
+
+allfiles17 = list.files("../data/Binned/2017")
+
+
+```
