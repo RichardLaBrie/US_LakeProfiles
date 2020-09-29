@@ -5,41 +5,425 @@ date: "10/09/2020"
 output: html_document
 ---
 
+#Load libraries and functions
 ```{R}
 library("oce")
 library("rLakeAnalyzer")
 library("rMR")
 
-home_strata_fct <- function(FileList, Year, ColumnNames, sal.dens = T)
+
+home_strata_fct <- function(FileList, Year)
 {
   output = matrix(nrow=4, ncol=length(FileList))
   colnames(output) = FileList
   for(i in 1:length(FileList))
   {
-    data = read.table(paste0("../data/Binned/",Year,"/", FileList[i]), skip = 2)
-    colnames(data) = ColumnNames
-    filename = substr(x = FileList[i], 1, 6)
+    data = read.csv(paste0("../data/",Year,"/", FileList[i]))
+    filename = unlist(strsplit(FileList[i],split = "[.]"))[1]
 
   
-    if(length(data$Temperature_C[!is.na(data$Temperature_C)]) < length(data$Temperature_C))    data = data[-grep("NaN", data$Temperature_C),]
+    if(length(data$temp[!is.na(data$temp)]) < length(data$temp))    data = data[-which(is.na(data$temp)),]
+    if(length(unique(data$temp) == "NA") == 1)
+    {
+      output[1,i] = -1
+      output[2,i] = -1
+      output[3,i] = -1
+      output[4,i] = -1
+      colnames(output)[i] <- paste(filename)
+      next
+    }
+    temporaire = meta.depths(wtr = data$temp, depths = data$depth)
   
-    if(sal.dens == T)    temp = meta.depths(wtr = data$Temperature_C, depths = data$Depth_m, sal = data$Salinity_PSU)
-    else temp = meta.depths(wtr = data$Temperature_C, depths = data$Depth_m)
-  
-    output[1,i] = min(data$Depth_m)
-    output[4,i] = max(data$Depth_m)
-    output[2,i] = if((max(data$Temperature_C)-min(data$Temperature_C)) > 1) temp[1]  else -1
-    output[3,i] = if((max(data$Temperature_C)-min(data$Temperature_C)) > 1) temp[2]  else -1
+    output[1,i] = min(data$depth)
+    output[4,i] = max(data$depth)
+    output[2,i] = if((max(data$temp)-min(data$temp)) > 1) temporaire[1]  else -1
+    output[3,i] = if((max(data$temp)-min(data$temp)) > 1) temporaire[2]  else -1
     colnames(output)[i] <- paste(filename)
   }
 return(output)
 }
 
+source('./MetalimnionWetzel.R', encoding = 'UTF-8')
+source('./AOU.R', encoding = 'UTF-8')
+source('./VolAOU.R', encoding = 'UTF-8')
+source('./VolTemp.R', encoding = 'UTF-8')
+source('./SedVar.R', encoding = 'UTF-8')
+
+```
+
+#Load and transform data
+```{r}
+metadata0712 = read.table("../data/info_0712.tsv", sep = "\t", header = T)
+Temp_sat = read.csv("../nla_noaa-master/data//processed/temp_noaa_output.csv", row.names = 1)
+allfiles07 = list.files("../data/Preprocessing/2007")
+allfiles12 = list.files("../data/Preprocessing/2012")
+
+#Remove lakes with max depth less than 2m
+deeplist07 = list()
+deeplist12 = list()
+for(i in 1:length(allfiles07))
+{
+  data = read.csv(paste0("../data/Preprocessing/2007/",allfiles07[i]))
+  if(max(data$depth) >=2) deeplist07[[i]] = i
+}
+for(i in 1:length(allfiles12))
+{
+  data = read.csv(paste0("../data/Preprocessing/2012/",allfiles12[i]))
+  if(max(data$depth) >=2) deeplist12[[i]] = i
+}
+deep07 = allfiles07[unlist(deeplist07)] #962 lakes deeper than 2m
+deep12 = allfiles12[unlist(deeplist12)] #854 lakes deeper than 2m
+
+#Select lakes with latitude >40°
+allmore40 = metadata0712[which(metadata0712$lat >= 40),]
+deep07.temp = unlist(strsplit(deep07, ".csv"))
+deep12.temp = unlist(strsplit(deep12, ".csv"))
+
+metadata.more40deep07 = allmore40[match(deep07.temp, allmore40$site_id),]
+indexNA07 = list()
+for(i in 1:dim(metadata.more40deep07)[1])
+{
+  if(all(is.na(metadata.more40deep07[i,])))  indexNA07[[i]] = i
+}
+indexNA07 = unlist(indexNA07)
+metadata.more40deep07 = metadata.more40deep07[-indexNA07,]
+
+metadata.more40deep12= allmore40[match(deep12.temp, allmore40$site_id),]
+indexNA12 = list()
+for(i in 1:dim(metadata.more40deep12)[1])
+{
+  if(all(is.na(metadata.more40deep12[i,])))  indexNA12[[i]] = i
+}
+indexNA12 = unlist(indexNA12)
+metadata.more40deep12 = metadata.more40deep12[-indexNA12,]
+
+
+#Select correspoding filenames
+deeplat07 = deep07[match(metadata.more40deep07$site_id, deep07.temp)] #531 lakes deeper than 2m and >40°N
+deeplat12 = deep12[match(metadata.more40deep12$site_id, deep12.temp)] #503 lakes deeper than 2m and >40°N
+
+#remove temporary objects
+rm(deep07.temp)
+rm(deep12.temp)
+
+
+#calculate metalimnion strata for all lakes in 2007 and 2012
+strata07 = home_strata_temp(deeplat07, 2007)
+strata12 = home_strata_temp(deeplat12, 2012)
+
+#Select those that have a hypolimnion
+hypo07 = strata07[,which(strata07[3,] != -1 & strata07[3,] != strata07[4,])]
+hypo12 = strata12[,which(strata12[3,] != -1 & strata12[3,] != strata12[4,])]
+
+
+##Calculate O2 saturation
+O2sat07 = Eq.Ox.conc(temp.C = Temp_sat[c(1:531), "temp_mean_min_1m"],
+                     elevation.m = metadata.more40deep07[,"elevation_m"],
+                     out.DO.meas = "mg/L")
+names(O2sat07) = Temp_sat$station[c(1:531)]
+O2sat12 = Eq.Ox.conc(temp.C = Temp_sat[c(532:1034), "temp_mean_min_1m"],
+                     elevation.m = metadata.more40deep12[,"elevation_m"],
+                     out.DO.meas = "mg/L")
+names(O2sat12) = Temp_sat$station[c(532:1034)]
+
+#Remove lakes w/o hypolimnion
+O2sat07 = O2sat07[which(strata07[3,] != -1 & strata07[3,] != strata07[4,])]
+O2sat12 = O2sat12[which(strata12[3,] != -1 & strata12[3,] != strata12[4,])]
+metadata.hypo07 = metadata.more40deep07[which(strata07[3,] != -1 & strata07[3,] != strata07[4,]),]
+metadata.hypo12 = metadata.more40deep12[which(strata12[3,] != -1 & strata12[3,] != strata12[4,]),]
+
+#Remove lakes w/o DO measurements
+index07 = list()
+for(i in 1:dim(hypo07)[2])
+{
+  data = read.csv(paste0("../data/Preprocessing/2007/",colnames(hypo07)[i], ".csv"), row.names = 1)
+  if(all(is.na(data$DO))) index07[[i]] = i
+}
+
+index07 = unlist(index07)
+index12 = 187 #DO value only at the surface
+
+O2sat07 = O2sat07[-index07]
+hypo07 = hypo07[,-index07]
+metadata.hypo07 = metadata.hypo07[-index07,]
+
+O2sat12 = O2sat12[-index12]
+hypo12 = hypo12[,-index12]
+metadata.hypo12 = metadata.hypo12[-index12,]
+
+#Remove lakes where average hypo DO > saturation DO (Burns 1995)
+index07 = list()
+for(i in 1:dim(hypo07)[2])
+{
+  data = read.csv(paste0("../data/Preprocessing/2007/",colnames(hypo07)[i], ".csv"), row.names = 1)
+  if(mean(data$DO[which(data$depth>=hypo07[3,i] & data$depth <= hypo07[4,i])]) >= O2sat07[i]) index07[[i]] = i
+}
+index07 = unlist(index07)
+
+O2sat07 = O2sat07[-index07]
+hypo07 = hypo07[,-index07]
+metadata.hypo07 = metadata.hypo07[-index07,]
+
+
+index12 = list()
+for(i in c(1:190))#dim(hypo12)[2]
+{
+  data = read.csv(paste0("../data/Preprocessing/2012/",colnames(hypo12)[i], ".csv"), row.names = 1)
+  if(i==72 || i==74|| i==99|| i==110|| i==145|| i==167|| i==176) next #these lacs have missing anoxic values at the bottom, which will be filled to adequately estimate AOU 
+  if(mean(data$DO[which(data$depth>=hypo12[3,i] & data$depth <= hypo12[4,i])]) >= O2sat12[i]) index12[[i]] = i
+}
+index12 = unlist(index12)
+
+O2sat12 = O2sat12[-index12]
+hypo12 = hypo12[,-index12]
+metadata.hypo12 = metadata.hypo12[-index12,]
+
+
+#Calculate AOU
+AOU07 = AOU(hypo07, 2007, O2sat07)
+AOU12 = AOU(hypo12, 2012, O2sat12)
+
+#Calculate volumetric AOU
+Area07 = metadata.hypo07$area_km2*1000*1000
+Area12 = metadata.hypo12$area_km2*1000*1000
+
+VolAOU07 = VolumetricAOU(AOU07, Area07)
+VolAOU12 = VolumetricAOU(AOU12, Area12)
+
+#Calculate volumetric oxygen content
+VolO207 = list()
+for(i in 1:length(AOU07))
+{
+  VolO207[[i]] = cbind(Depth=AOU07[[i]][,1], Sat=O2sat07[i])
+}
+VolO212 = list()
+for(i in 1:length(AOU12))
+{
+  VolO212[[i]] = cbind(Depth=AOU12[[i]][,1], Sat=O2sat12[i])
+}
+
+VolSat07 = VolumetricAOU(VolO207, Area07)
+VolSat12 = VolumetricAOU(VolO212, Area12)
+
+#Percentage of O2 consumed
+RelO207 = VolAOU07/VolSat07*100 #Range from -27% (surtaturated) to 100% (all O2 is consumed)
+RelO212 = VolAOU12/VolSat12*100 #Range from -9% (sursaturated) to 100% 
+
+#Calculate hypolimnion temperature weighted mean
+VolT07 = VolTemp(hypo07, 2007, Area07)
+VolT12 = VolTemp(hypo12, 2012, Area12)
+
+#Calculate sediment and volume to sediment ratio
+SedVar07 = SedArea(hypo07, 2007, Area07)
+SedVar12 = SedArea(hypo12, 2012, Area12)
+
+#Combined dataframes
+metadata.hypo07 = cbind(metadata.hypo07, RelO207, VolT07, SedVar07)
+metadata.hypo12 = cbind(metadata.hypo12, RelO212, VolT12, SedVar12)
+
+#Export all useful dataframes
+write.csv(RelO207, "../data/Processed/RelO207.csv", fileEncoding = "UTF-8")
+write.csv(hypo07, "../data/Processed/hypo07.csv", fileEncoding = "UTF-8")
+write.csv(metadata.hypo07, "../data/Processed/metadata.hypo07.csv", fileEncoding = "UTF-8")
+
+write.csv(RelO212, "../data/Processed/RelO212.csv", fileEncoding = "UTF-8")
+write.csv(hypo12, "../data/Processed/hypo12.csv", fileEncoding = "UTF-8")
+write.csv(metadata.hypo12, "../data/Processed/metadata.hypo12.csv", fileEncoding = "UTF-8")
 ```
 
 ```{r}
 
-allfiles17 = list.files("../data/Binned/2017")
+RelO207 = read.csv("../data/Processed/RelO207.csv", row.names = 1)
+hypo07 = read.csv("../data/Processed/hypo07.csv", row.names = 1)
+metadata.hypo07 = read.csv("../data/Processed/metadata.hypo07.csv", row.names = 1)
+colnames(metadata.hypo07)[62] = "RelO2"
+colnames(metadata.hypo07)[63] = "VolT"
+
+RelO212 = read.csv("../data/Processed/RelO212.csv", row.names = 1)
+hypo12 = read.csv("../data/Processed/hypo12.csv", row.names = 1)
+metadata.hypo12 = read.csv("../data/Processed/metadata.hypo12.csv", row.names = 1)
+metadata.hypo12 = cbind(metadata.hypo12, RelO212)
+colnames(metadata.hypo12)[62] = "RelO2"
+colnames(metadata.hypo12)[63] = "VolT"
+
+require(randomForest)
+
+
+#Select useful column
+Selection = c("lat", "lon","area_km2", "elevation_m", "sampled_depthmax_m", "basinarea_km2", "chla_ugL", "NTL_ugL", "PTL_ugL", "DOC_mgL", "color_PCU", "VolT", "SedArea", "VoltoSedArea", "HypoThick", "WALA_ratio", "pct_forest", "pct_agric", "RelO2", "Julian.day", "nutrient_color")#, "secchi_m"
+data07 = metadata.hypo07[,Selection]
+data07[,c(3:16)] = log(data07[,c(3:16)]+1)
+data07[,c(3:16)] = scale(data07[,c(3:16)])
+data07[,c(17,18)] = logit(data07[,c(17,18)])
+
+#TEST
+data07[which(data07$RelO2 == min(data07$RelO2)),"RelO2"] = 0 #Run 3 times
+data07$RelO2 = logit(data07$RelO2)
+
+data12 = metadata.hypo12[,Selection]
+
+pdf("../output/Distributions07.pdf")
+for(i in 1:20)
+{
+    hist(data07[,i], main = colnames(data07[i]))
+}
+dev.off()
+
+set.seed(101)
+train07 = sample(1:nrow(metadata.hypo07), 130)
+rf.hypo07 = randomForest(RelO2~., data=data07, subset = train07)
+rf.hypo07
+
+rfparty07 = cforest(RelO2 ~ ., data=data07, controls=cforest_control(mtry=2, mincriterion=0))
+summary(lm(predict(rfparty07)~data07$RelO2))
+plot(predict(rfparty07) ~ data07$RelO2,
+     xlab = "Calculted O2 deficit (logit transformed)",
+     xlim = c(-4,4),
+     ylim = c(-2,3),
+     ylab = "Predicted O2 deficit (logit transformed)",
+     las = 1)
+abline(lm(predict(rfparty07)~data07$RelO2))
+
+rfparty12 = cforest(RelO2 ~ ., data=data12, controls=cforest_control(mtry=2, mincriterion=0))
+summary(lm(predict(rfparty12)~RelO212[,1]))
+plot(predict(rfparty12) ~ RelO212[,1],
+     xlab = "Calculted O2 deficit (%)",
+     ylab = "Predicted O2 deficit (%)",
+     las = 1)
+
+rfparty0712 = cforest(RelO2 ~ ., data=rbind(data07,data12), controls = cforest_control(mtry=2, mincriterion=0))
+summary(lm(predict(rfparty0712)~c(RelO207[,1],RelO212[,1])))
+plot(predict(rfparty0712) ~ c(RelO207[,1],RelO212[,1]),
+     xlab = "Calculted O2 deficit (%)",
+     ylab = "Predicted O2 deficit (%)",
+     las = 1)
+
+oob.err = double(13)
+test.err = double(13)
+
+for(mtry in 1:19){
+  fit = randomForest(RelO2~., data = data07, subset=train07, mtry=mtry, ntree = 130)
+  oob.err[mtry] = fit$mse[130]
+  pred = predict(fit, data07[-train07,])
+  test.err[mtry] = with(data07[-train07,], mean( (data07[-train07,"RelO2"]-pred)^2))
+}
+
+matplot(1:mtry, cbind(test.err, oob.err), pch = 23, col = c("red", "blue"), type = "b", ylab="Mean Squared Error")
+legend("topright", legend = c("Test", "OOB"), pch = 23, col = c("red", "blue"))
+```
+
+#Preliminary graph: profiles
+```{r}
+pdf(file = paste0("../output/2007/AllProfiles.pdf"), width = 14, height = 4)
+for(i in 1:length(allfiles07)){
+  data = read.csv(paste0("../data/2007/", allfiles07[i]))
+  
+   if(length(unique(data$temp) == "NA") == 1) data$temp = 1
+
+  filename = unlist(strsplit(allfiles07[i],split = "[.]"))[1]
+  
+  density = rLakeAnalyzer::water.density(data$temp, sal = data$temp * 0)
+  
+
+  par(mfrow=c(1,3))
+  par(mar=c(5,5,4,1)+0.1)
+  plot(data$depth~data$temp,
+     ylim = rev(range(data$depth)),
+     las = 1,
+     xlab = "Temperature (°C)",
+     ylab = "Depth (m)",
+     pch = 16,
+     col = "red",
+     cex = 1.8,
+     cex.axis = 1.8,
+     cex.lab = 1.8)
+  mtext(paste(filename), side = 3, at = max(data$temp[!is.nan(data$temp)]), cex = 1.8)
+  if(strata07[2,i] != -1) abline(h = strata07[2,i], lty=2, lwd=2, col = "blue")
+  if(strata07[3,i] != -1) abline(h = strata07[3,i], lty=2, lwd=2, col = "blue")
+  
+  plot(data$depth~density,
+     ylim = rev(range(data$depth)),
+     las = 1,
+     xlab = "Density",
+     ylab = "Depth (m)",
+     pch = 16,
+     col = "green",
+     cex = 1.8,
+     cex.axis = 1.8,
+     cex.lab = 1.8)
+  if(strata07[2,i] != -1) abline(h = strata07[2,i], lty=2, lwd=2, col = "blue")
+  if(strata07[3,i] != -1) abline(h = strata07[3,i], lty=2, lwd=2, col = "blue")
+  
+  plot(data$depth~data$DO,
+     ylim = rev(range(data$depth)),
+     las = 1,
+     xlim = c(0,12),
+     xlab = "Oxygen (mg/L)",
+     ylab = "Depth (m)",
+     pch = 16,
+     col = "gold",
+     cex = 1.8,
+     cex.axis = 1.8,
+     cex.lab = 1.8)
+  if(strata07[2,i] != -1) abline(h = strata07[2,i], lty=2, lwd=2, col = "blue")
+  if(strata07[3,i] != -1) abline(h = strata07[3,i], lty=2, lwd=2, col = "blue")
+}
+dev.off()
+
+pdf(file = paste0("../output/2012/AllProfiles.pdf"), width = 14, height = 4)
+for(i in 1:length(allfiles12)){
+  data = read.csv(paste0("../data/2012/", allfiles12[i]))
+  if(length(unique(data$temp) == "NA") == 1) data$temp = 1
+  filename = unlist(strsplit(allfiles12[i],split = "[.]"))[1]
+  
+  density = rLakeAnalyzer::water.density(data$temp, sal = data$temp * 0)
+  
+
+  par(mfrow=c(1,3))
+  par(mar=c(5,5,4,1)+0.1)
+  plot(data$depth~data$temp,
+     ylim = rev(range(data$depth)),
+     las = 1,
+     xlab = "Temperature (°C)",
+     ylab = "Depth (m)",
+     pch = 16,
+     col = "red",
+     cex = 1.8,
+     cex.axis = 1.8,
+     cex.lab = 1.8)
+  mtext(paste(filename), side = 3, at = max(data$temp[!is.nan(data$temp)]), cex = 1.8)
+  if(strata12[2,i] != -1) abline(h = strata12[2,i], lty=2, lwd=2, col = "blue")
+  if(strata12[3,i] != -1) abline(h = strata12[3,i], lty=2, lwd=2, col = "blue")
+  
+  plot(data$depth~density,
+     ylim = rev(range(data$depth)),
+     las = 1,
+     xlab = "Density",
+     ylab = "Depth (m)",
+     pch = 16,
+     col = "green",
+     cex = 1.8,
+     cex.axis = 1.8,
+     cex.lab = 1.8)
+  if(strata12[2,i] != -1) abline(h = strata12[2,i], lty=2, lwd=2, col = "blue")
+  if(strata12[3,i] != -1) abline(h = strata12[3,i], lty=2, lwd=2, col = "blue")
+  
+  plot(data$depth~data$DO,
+     ylim = rev(range(data$depth)),
+     las = 1,
+     xlim = c(0,12),
+     xlab = "Oxygen (mg/L)",
+     ylab = "Depth (m)",
+     pch = 16,
+     col = "gold",
+     cex = 1.8,
+     cex.axis = 1.8,
+     cex.lab = 1.8)
+  if(strata12[2,i] != -1) abline(h = strata12[2,i], lty=2, lwd=2, col = "blue")
+  if(strata12[3,i] != -1) abline(h = strata12[3,i], lty=2, lwd=2, col = "blue")
+}
+dev.off()
+
 
 
 ```

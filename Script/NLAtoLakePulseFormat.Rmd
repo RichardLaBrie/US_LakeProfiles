@@ -33,7 +33,7 @@ for(i in 1:length(names07))
 
 for(i in 1:length(names12))
 {
-  write.csv(paste0("../data/2012/",names07[i],".csv"), x = data12[which(data12$site_id == names12[i]),], fileEncoding = "UTF-8")
+  write.csv(paste0("../data/2012/",names12[i],".csv"), x = data12[which(data12$site_id == names12[i]),], fileEncoding = "UTF-8")
 }
 
 ```
