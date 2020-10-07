@@ -10,7 +10,9 @@ output: html_document
 library("oce")
 library("rLakeAnalyzer")
 library("rMR")
-
+library("missForest")
+library("party")
+library("randomForest")
 
 home_strata_fct <- function(FileList, Year)
 {
@@ -43,11 +45,44 @@ home_strata_fct <- function(FileList, Year)
 return(output)
 }
 
+home_thermo_fct <- function(FileList, Year)
+{
+  output = matrix(nrow=4, ncol=length(FileList))
+  colnames(output) = FileList
+  for(i in 1:length(FileList))
+  {
+    data = read.csv(paste0("../data/Preprocessing/",Year,"/", FileList[i]))
+    data = data[-1,]
+    filename = unlist(strsplit(FileList[i],split = "[.]"))[1]
+
+  
+    if(length(data$temp[!is.na(data$temp)]) < length(data$temp))    data = data[-which(is.na(data$temp)),]
+    if(length(unique(data$temp) == "NA") == 1)
+    {
+      output[1,i] = -1
+      output[2,i] = -1
+      output[3,i] = -1
+      output[4,i] = -1
+      colnames(output)[i] <- paste(filename)
+      next
+    }
+    temporaire = thermo.depth(wtr = data$temp, depths = data$depth)
+  
+    output[1,i] = min(data$depth)
+    output[4,i] = max(data$depth)
+    output[2,i] = if((max(data$temp)-min(data$temp)) > 1) temporaire[1]  else -1
+    output[3,i] = ifelse((max(data$temp)-min(data$temp)) > 1, ifelse(length(data$depth[which(abs(temporaire-data$depth) == min(abs(temporaire-data$depth)))])==2, data$depth[which(abs(temporaire-data$depth) == min(abs(temporaire-data$depth)))][2], data$depth[which(abs(temporaire-data$depth) == min(abs(temporaire-data$depth)))]), -1)
+    colnames(output)[i] <- paste(filename)
+  }
+return(output)
+}
+
 source('./MetalimnionWetzel.R', encoding = 'UTF-8')
 source('./AOU.R', encoding = 'UTF-8')
 source('./VolAOU.R', encoding = 'UTF-8')
 source('./VolTemp.R', encoding = 'UTF-8')
 source('./SedVar.R', encoding = 'UTF-8')
+
 
 ```
 
@@ -106,7 +141,7 @@ deeplat12 = deep12[match(metadata.more40deep12$site_id, deep12.temp)] #503 lakes
 rm(deep07.temp)
 rm(deep12.temp)
 
-
+#Hypolimnion
 #calculate metalimnion strata for all lakes in 2007 and 2012
 strata07 = home_strata_temp(deeplat07, 2007)
 strata12 = home_strata_temp(deeplat12, 2012)
@@ -152,31 +187,31 @@ hypo12 = hypo12[,-index12]
 metadata.hypo12 = metadata.hypo12[-index12,]
 
 #Remove lakes where average hypo DO > saturation DO (Burns 1995)
-index07 = list()
-for(i in 1:dim(hypo07)[2])
-{
-  data = read.csv(paste0("../data/Preprocessing/2007/",colnames(hypo07)[i], ".csv"), row.names = 1)
-  if(mean(data$DO[which(data$depth>=hypo07[3,i] & data$depth <= hypo07[4,i])]) >= O2sat07[i]) index07[[i]] = i
-}
-index07 = unlist(index07)
+# index07 = list()
+# for(i in 1:dim(hypo07)[2])
+# {
+#   data = read.csv(paste0("../data/Preprocessing/2007/",colnames(hypo07)[i], ".csv"), row.names = 1)
+#   if(mean(data$DO[which(data$depth>=hypo07[3,i] & data$depth <= hypo07[4,i])]) >= O2sat07[i]) index07[[i]] = i
+# }
+# index07 = unlist(index07)
+# 
+# O2sat07 = O2sat07[-index07]
+# hypo07 = hypo07[,-index07]
+# metadata.hypo07 = metadata.hypo07[-index07,]
 
-O2sat07 = O2sat07[-index07]
-hypo07 = hypo07[,-index07]
-metadata.hypo07 = metadata.hypo07[-index07,]
 
-
-index12 = list()
-for(i in c(1:190))#dim(hypo12)[2]
-{
-  data = read.csv(paste0("../data/Preprocessing/2012/",colnames(hypo12)[i], ".csv"), row.names = 1)
-  if(i==72 || i==74|| i==99|| i==110|| i==145|| i==167|| i==176) next #these lacs have missing anoxic values at the bottom, which will be filled to adequately estimate AOU 
-  if(mean(data$DO[which(data$depth>=hypo12[3,i] & data$depth <= hypo12[4,i])]) >= O2sat12[i]) index12[[i]] = i
-}
-index12 = unlist(index12)
-
-O2sat12 = O2sat12[-index12]
-hypo12 = hypo12[,-index12]
-metadata.hypo12 = metadata.hypo12[-index12,]
+# index12 = list()
+# for(i in c(1:190))#dim(hypo12)[2]
+# {
+#   data = read.csv(paste0("../data/Preprocessing/2012/",colnames(hypo12)[i], ".csv"), row.names = 1)
+#   if(i==72 || i==74|| i==99|| i==110|| i==145|| i==167|| i==176) next #these lacs have missing anoxic values at the bottom, which will be filled to adequately estimate AOU 
+#   if(mean(data$DO[which(data$depth>=hypo12[3,i] & data$depth <= hypo12[4,i])]) >= O2sat12[i]) index12[[i]] = i
+# }
+# index12 = unlist(index12)
+# 
+# O2sat12 = O2sat12[-index12]
+# hypo12 = hypo12[,-index12]
+# metadata.hypo12 = metadata.hypo12[-index12,]
 
 
 #Calculate AOU
@@ -217,9 +252,178 @@ VolT12 = VolTemp(hypo12, 2012, Area12)
 SedVar07 = SedArea(hypo07, 2007, Area07)
 SedVar12 = SedArea(hypo12, 2012, Area12)
 
+#Create binary variable for hypoxia and anoxia
+hypox07 = list()
+for(i in c(1:dim(hypo07)[2]))
+{
+  data = read.csv(paste0("../data/Preprocessing/2007/",colnames(hypo07)[i], ".csv"), row.names = 1)
+  if(min(data$DO, na.rm = T) <= 2) {hypox07[[i]] = 1} else {hypox07[[i]]=0}
+}
+
+anox07 = list()
+for(i in c(1:dim(hypo07)[2]))
+{
+  data = read.csv(paste0("../data/Preprocessing/2007/",colnames(hypo07)[i], ".csv"), row.names = 1)
+  if(min(data$DO, na.rm = T) <= 0.5) {anox07[[i]] = 1} else {anox07[[i]]=0}
+}
+
+hypox12 = list()
+for(i in c(1:dim(hypo12)[2]))
+{
+  data = read.csv(paste0("../data/Preprocessing/2012/",colnames(hypo12)[i], ".csv"), row.names = 1)
+  if(min(data$DO, na.rm = T) <= 2) {hypox12[[i]] = 1} else {hypox12[[i]]=0}
+}
+
+anox12 = list()
+for(i in c(1:dim(hypo12)[2]))
+{
+  data = read.csv(paste0("../data/Preprocessing/2012/",colnames(hypo12)[i], ".csv"), row.names = 1)
+  if(min(data$DO, na.rm = T) <= 0.5) {anox12[[i]] = 1} else {anox12[[i]]=0}
+}
+
+hypox07 = as.factor(unlist(hypox07))
+anox07 = as.factor(unlist(anox07))
+hypox12 = as.factor(unlist(hypox12))
+anox12 = as.factor(unlist(anox12))
+
 #Combined dataframes
-metadata.hypo07 = cbind(metadata.hypo07, RelO207, VolT07, SedVar07)
-metadata.hypo12 = cbind(metadata.hypo12, RelO212, VolT12, SedVar12)
+metadata.hypo07 = cbind(metadata.hypo07, RelO207, VolT07, SedVar07, hypox07, anox07)
+metadata.hypo12 = cbind(metadata.hypo12, RelO212, VolT12, SedVar12, hypox12, anox12)
+
+#######################
+#Thermocline
+#calculate thermocline for all lakes in 2007 and 2012
+strata07 = home_thermo_fct(deeplat07, 2007)
+strata12 = home_thermo_fct(deeplat12, 2012)
+
+#Select those that have a thermocline
+thermo07 = strata07[,which(strata07[3,] != -1 & strata07[3,] != strata07[4,])]
+thermo12 = strata12[,which(strata12[3,] != -1 & strata12[3,] != strata12[4,])]
+
+##Calculate O2 saturation
+O2sat07.th = Eq.Ox.conc(temp.C = Temp_sat[c(1:531), "temp_mean_min_1m"],
+                     elevation.m = metadata.more40deep07[,"elevation_m"],
+                     out.DO.meas = "mg/L")
+names(O2sat07.th) = Temp_sat$station[c(1:531)]
+O2sat12.th = Eq.Ox.conc(temp.C = Temp_sat[c(532:1034), "temp_mean_min_1m"],
+                     elevation.m = metadata.more40deep12[,"elevation_m"],
+                     out.DO.meas = "mg/L")
+names(O2sat12.th) = Temp_sat$station[c(532:1034)]
+
+
+#Remove lakes w/o thermocline
+O2sat07.th = O2sat07.th[which(strata07[3,] != -1 & strata07[3,] != strata07[4,])]
+O2sat12.th = O2sat12.th[which(strata12[3,] != -1 & strata12[3,] != strata12[4,])]
+metadata.thermo07 = metadata.more40deep07[which(strata07[3,] != -1 & strata07[3,] != strata07[4,]),]
+metadata.thermo12 = metadata.more40deep12[which(strata12[3,] != -1 & strata12[3,] != strata12[4,]),]
+
+
+#Remove lakes w/o DO measurements
+index07 = list()
+for(i in 1:dim(thermo07)[2])
+{
+  data = read.csv(paste0("../data/Preprocessing/2007/",colnames(thermo07)[i], ".csv"), row.names = 1)
+  if(all(is.na(data$DO))) index07[[i]] = i
+}
+
+index07 = unlist(index07)
+
+index12 = list()
+for(i in 1:dim(thermo12)[2])
+{
+  data = read.csv(paste0("../data/Preprocessing/2012/",colnames(thermo12)[i], ".csv"), row.names = 1)
+  if(all(is.na(data$DO))) index12[[i]] = i
+}
+
+index12 = unlist(index12)
+
+O2sat07.th = O2sat07.th[-index07]
+thermo07 = thermo07[,-index07]
+metadata.thermo07 = metadata.thermo07[-index07,]
+
+O2sat12.th = O2sat12.th[-index12]
+thermo12 = thermo12[,-index12]
+metadata.thermo12 = metadata.thermo12[-index12,]
+
+
+#Calculate AOU
+AOU07.th = AOU(thermo07, 2007, O2sat07.th)
+AOU12.th = AOU(thermo12, 2012, O2sat12.th)
+
+#Calculate volumetric AOU
+Area07.th = metadata.thermo07$area_km2*1000*1000
+Area12.th = metadata.thermo12$area_km2*1000*1000
+VolAOU07.th = VolumetricAOU(AOU07.th, Area07.th)
+VolAOU12.th = VolumetricAOU(AOU12.th, Area12.th)
+
+
+#Calculate volumetric oxygen content
+VolO207.th = list()
+for(i in 1:length(AOU07.th))
+{
+  VolO207.th[[i]] = cbind(Depth=AOU07.th[[i]][,1], Sat=O2sat07.th[i])
+}
+VolO212.th = list()
+for(i in 1:length(AOU12.th))
+{
+  VolO212.th[[i]] = cbind(Depth=AOU12.th[[i]][,1], Sat=O2sat12.th[i])
+}
+
+VolSat07.th = VolumetricAOU(VolO207.th, Area07.th)
+VolSat12.th = VolumetricAOU(VolO212.th, Area12.th)
+
+#Percentage of O2 consumed
+RelO207.th = VolAOU07.th/VolSat07.th*100 #Range from -27% (surtaturated) to 100% (all O2 is consumed)
+RelO212.th = VolAOU12.th/VolSat12.th*100 #Range from -9% (sursaturated) to 100% 
+
+
+#Calculate hypolimnion temperature weighted mean
+VolT07.th = VolTemp(thermo07, 2007, Area07.th)
+VolT12.th = VolTemp(thermo12, 2012, Area12.th)
+
+#Calculate sediment and volume to sediment ratio
+SedVar07.th = SedArea(thermo07, 2007, Area07.th)
+SedVar12.th = SedArea(thermo12, 2012, Area12.th)
+
+
+#Create binary variable for hypoxia and anoxia
+hypox07.th = list()
+for(i in c(1:dim(thermo07)[2]))
+{
+  data = read.csv(paste0("../data/Preprocessing/2007/",colnames(thermo07)[i], ".csv"), row.names = 1)
+  if(min(data$DO, na.rm = T) <= 2) {hypox07.th[[i]] = 1} else {hypox07.th[[i]]=0}
+}
+
+anox07.th = list()
+for(i in c(1:dim(thermo07)[2]))
+{
+  data = read.csv(paste0("../data/Preprocessing/2007/",colnames(thermo07)[i], ".csv"), row.names = 1)
+  if(min(data$DO, na.rm = T) <= 0.5) {anox07.th[[i]] = 1} else {anox07.th[[i]]=0}
+}
+
+hypox12.th = list()
+for(i in c(1:dim(thermo12)[2]))
+{
+  data = read.csv(paste0("../data/Preprocessing/2012/",colnames(thermo12)[i], ".csv"), row.names = 1)
+  if(min(data$DO, na.rm = T) <= 2) {hypox12.th[[i]] = 1} else {hypox12.th[[i]]=0}
+}
+
+anox12.th = list()
+for(i in c(1:dim(thermo12)[2]))
+{
+  data = read.csv(paste0("../data/Preprocessing/2012/",colnames(thermo12)[i], ".csv"), row.names = 1)
+  if(min(data$DO, na.rm = T) <= 0.5) {anox12.th[[i]] = 1} else {anox12.th[[i]]=0}
+}
+
+hypox07.th = as.factor(unlist(hypox07.th))
+anox07.th = as.factor(unlist(anox07.th))
+hypox12.th = as.factor(unlist(hypox12.th))
+anox12.th = as.factor(unlist(anox12.th))
+
+
+#Combined dataframes
+metadata.thermo07 = cbind(metadata.thermo07, RelO207.th, VolT07.th, SedVar07.th, hypox07.th, anox07.th)
+metadata.thermo12 = cbind(metadata.thermo12, RelO212.th, VolT12.th, SedVar12.th, hypox12.th, anox12.th)
 
 #Export all useful dataframes
 write.csv(RelO207, "../data/Processed/RelO207.csv", fileEncoding = "UTF-8")
@@ -238,29 +442,42 @@ hypo07 = read.csv("../data/Processed/hypo07.csv", row.names = 1)
 metadata.hypo07 = read.csv("../data/Processed/metadata.hypo07.csv", row.names = 1)
 colnames(metadata.hypo07)[62] = "RelO2"
 colnames(metadata.hypo07)[63] = "VolT"
+colnames(metadata.hypo07)[67] = "Hypox"
+colnames(metadata.hypo07)[68] = "Anox"
+
+MF.hypo07 = missForest(metadata.hypo07[,-c(1,2,9,10,11,14,35,36,38)])
+MF.hypo07 = MF.hypo07$ximp
+MF.hypo07[212,"secchi_m"] = MF.hypo07[212,"depthmax_m"]
+MF.hypo07$Transp.index = MF.hypo07$secchi_m / MF.hypo07$sampled_depthmax_m
 
 RelO212 = read.csv("../data/Processed/RelO212.csv", row.names = 1)
 hypo12 = read.csv("../data/Processed/hypo12.csv", row.names = 1)
 metadata.hypo12 = read.csv("../data/Processed/metadata.hypo12.csv", row.names = 1)
-metadata.hypo12 = cbind(metadata.hypo12, RelO212)
 colnames(metadata.hypo12)[62] = "RelO2"
 colnames(metadata.hypo12)[63] = "VolT"
+colnames(metadata.hypo12)[67] = "Hypox"
+colnames(metadata.hypo12)[68] = "Anox"
+MF.hypo12 = missForest(metadata.hypo12[,-c(1,2,9,10,11,14,35,36,38)])
+MF.hypo12 = MF.hypo12$ximp
+MF.hypo12$Transp.index = MF.hypo12$secchi_m / MF.hypo12$sampled_depthmax_m
+
+
+
 
 require(randomForest)
 
 
 #Select useful column
-Selection = c("lat", "lon","area_km2", "elevation_m", "sampled_depthmax_m", "basinarea_km2", "chla_ugL", "NTL_ugL", "PTL_ugL", "DOC_mgL", "color_PCU", "VolT", "SedArea", "VoltoSedArea", "HypoThick", "WALA_ratio", "pct_forest", "pct_agric", "RelO2", "Julian.day", "nutrient_color")#, "secchi_m"
-data07 = metadata.hypo07[,Selection]
-data07[,c(3:16)] = log(data07[,c(3:16)]+1)
-data07[,c(3:16)] = scale(data07[,c(3:16)])
-data07[,c(17,18)] = logit(data07[,c(17,18)])
+Selection = c("lat", "lon","area_km2", "elevation_m", "sampled_depthmax_m", "basinarea_km2", "chla_ugL", "NTL_ugL", "PTL_ugL", "DOC_mgL", "secchi_m", "color_PCU", "VolT", "SedArea", "VoltoSedArea", "HypoThick", "WALA_ratio", "pct_forest", "pct_agric", "Julian.day", "nutrient_color", "Hypox", "Anox","Transp.index", "RelO2")
+#ratio dynamique: profondeur moyenne/racine3 de l'aire
+data07 = MF.hypo07[,Selection]
+# data07[,c(3:17)] = log(data07[,c(3:17)]+1)
+# data07[,c(3:17)] = scale(data07[,c(3:17)])
+# data07[,c(18,19)] = logit(data07[,c(18,19)])
 
 #TEST
-data07[which(data07$RelO2 == min(data07$RelO2)),"RelO2"] = 0 #Run 3 times
-data07$RelO2 = logit(data07$RelO2)
-
-data12 = metadata.hypo12[,Selection]
+# data07[which(data07$RelO2 == min(data07$RelO2)),"RelO2"] = 0 #Run 3 times
+# data07$RelO2 = logit(data07$RelO2)
 
 pdf("../output/Distributions07.pdf")
 for(i in 1:20)
@@ -269,12 +486,126 @@ for(i in 1:20)
 }
 dev.off()
 
-set.seed(101)
+set.seed(110)
 train07 = sample(1:nrow(metadata.hypo07), 130)
-rf.hypo07 = randomForest(RelO2~., data=data07, subset = train07)
+test07 = which(!1:nrow(metadata.hypo07) %in% train07)
+out.mat = matrix(nrow = length(Selection)-1)
+rownames(out.mat) = Selection[-22]
+for(i in 1:(length(Selection)-1))
+{
+  data07.temp = data07[,-i]
+  rf.hypo07 = randomForest(RelO2~., data=data07.temp, subset = train07)
+  rf.test07 = predict(rf.hypo07, newdata = data07.temp[test07,])
+  out.mat[i,1] = mean(abs(data07.temp[test07,"RelO2"] - rf.test07))
+}
+as.matrix(out.mat[order(out.mat, decreasing = T),])
+
 rf.hypo07
+rf.test07 = predict(rf.hypo07, newdata = data07[test07,])
+
+#Combined data sets
+Selection = c("lat", "lon","area_km2", "elevation_m", "sampled_depthmax_m", "basinarea_km2", "chla_ugL", "NTL_ugL", "PTL_ugL", "DOC_mgL", "secchi_m", "color_PCU", "VolT", "SedArea", "VoltoSedArea", "HypoThick", "WALA_ratio", "pct_forest", "pct_agric", "Julian.day", "nutrient_color", "Hypox", "Anox", "Transp.index", "RelO2")
+#ratio dynamique: profondeur moyenne/racine3 de l'aire
+data0712 = rbind(MF.hypo07[,Selection], MF.hypo12[,Selection])
+data0712$DOC_umol = data0712$DOC_mgL/12.0107*1000
+data0712$NTL_umol = data0712$NTL_ugL/14.0067
+data0712$PTL_umol = data0712$PTL_ugL/30.973762
+data0712$RatioNP = log(data0712$NTL_umol) / log(data0712$PTL_umol)
+
+data0712 = cbind(data0712[,-c(8,9,10,25)], RelO2=data0712[,"RelO2"])
+
+# data0712[,c(3:17)] = log(data0712[,c(3:17)]+1)
+# data0712[,c(3:17,21,22,23)] = scale(data0712[,c(3:17,21,22,23)])
+# data0712[,c(18,19)] = logit(data0712[,c(18,19)])
+
+set.seed(101)
+train0712 = sample(1:nrow(data0712), 0.6*nrow(data0712))
+test0712 = which(!1:nrow(data0712) %in% train0712)
+out.mat = matrix(nrow = dim(data0712)[2])
+rownames(out.mat) = c("All", colnames(data0712)[-length(colnames(data0712))])
+rf.hypo0712 = randomForest(RelO2~., data=data0712, subset = train0712)
+rf.test0712 = predict(rf.hypo0712, newdata = data0712[test0712,])
+out.mat[1,1] = mean(abs(data0712[test0712,"RelO2"] - rf.test0712))
+for(i in 1:(dim(data0712)[2]-1))
+{
+  data0712.temp = data0712[,-i]
+  rf.hypo0712 = randomForest(RelO2~., data=data0712.temp, subset = train0712)
+  rf.test0712 = predict(rf.hypo0712, newdata = data0712.temp[test0712,])
+  out.mat[i+1,1] = mean(abs(data0712.temp[test0712,"RelO2"] - rf.test0712))
+}
+as.matrix(out.mat[order(out.mat, decreasing = T),])
+
+summary(lm(rf.test0712 ~ data0712[test0712,"RelO2"]))
+plot(rf.test0712 ~ data0712[test0712,"RelO2"],
+     xlab = expression(Calculted~O[2]~deficit),
+     # xlim = c(-4,4),
+     # ylim = c(-2,3),
+     ylab = expression(Predicted~O[2]~deficit),
+     las = 1)
+abline(lm(rf.test0712 ~ data0712[test0712,"RelO2"]))
+
+
+rtparty0712 = ctree(RelO2 ~ ., data=data0712, controls=cforest_control(mtry=2, mincriterion=0))
+pdf("../output/tree0712.pdf", width = 30, height = 15)
+plot(rtparty0712)
+dev.off()
+
+#Test with very few variables
+Sub.select = c("NTL_umol", "sampled_depthmax_m", "secchi_m", "WALA_ratio", "DOC_umol", "PTL_umol", "chla_ugL", "Julian.day", "VolT","pct_forest", "Transp.index", "RelO2")#"Hypox"
+
+all.pairs = list()
+counter = 1
+for(i in 1:(length(Sub.select)-2))
+{
+  for(j in (i+1):(length(Sub.select)-1))
+  {
+    #if(j==length(Sub.select)-1) break
+    pair = c(i,j)
+    all.pairs[[counter]] = pair
+    counter = counter+1
+  }
+}
+
+sub.data0712 = data0712[,Sub.select]
+set.seed(101)
+train0712 = sample(1:nrow(sub.data0712), 0.6*nrow(sub.data0712))
+test0712 = which(!1:nrow(sub.data0712) %in% train0712)
+out.mat = matrix(nrow = length(all.pairs)+1)
+rownames(out.mat) = rep("All",length(all.pairs)+1)
+
+rf.hypo0712.main = randomForest(RelO2~., data=sub.data0712, subset = train0712)
+rf.test0712.main = predict(rf.hypo0712.main, newdata = sub.data0712[test0712,])
+out.mat[1,1] = mean(abs(sub.data0712[test0712,"RelO2"] - rf.test0712.main))
+
+for(i in 1:length(all.pairs))
+{
+  sub.data0712.temp = sub.data0712[,-all.pairs[[i]]]
+  rf.hypo0712 = randomForest(RelO2~., data=sub.data0712.temp, subset = train0712)
+  rf.test0712 = predict(rf.hypo0712, newdata = sub.data0712.temp[test0712,])
+  out.mat[i+1,1] = mean(abs(sub.data0712.temp[test0712,"RelO2"] - rf.test0712))
+  rownames(out.mat)[i+1] = paste(colnames(sub.data0712)[all.pairs[[i]]][1],colnames(sub.data0712)[all.pairs[[i]]][2],sep="-")
+}
+as.matrix(out.mat[order(out.mat, decreasing = T),])
+plot(rf.test0712.main ~ sub.data0712[test0712,"RelO2"])
+summary(lm(rf.test0712.main ~ sub.data0712[test0712,"RelO2"]))
+
+rtparty0712 = ctree(RelO2 ~ ., data=sub.data0712, controls=cforest_control(mtry=2, mincriterion=2))
+plot(rtparty0712)
+
+rfparty0712 = cforest(RelO2 ~ ., data=sub.data0712, controls=cforest_control(mtry=2, mincriterion=0))
+varimp(rfparty0712)[order(varimp(rfparty0712),decreasing = T)]
+
 
 rfparty07 = cforest(RelO2 ~ ., data=data07, controls=cforest_control(mtry=2, mincriterion=0))
+rtparty07 = ctree(RelO2 ~ ., data=data07, controls=cforest_control(mtry=2, mincriterion=0), )
+getwd()
+pdf("../output/tree.pdf", width = 30, height = 15)
+plot(rtparty07)
+dev.off()
+
+varimp(rfparty07, )[order(varimp(rfparty07),decreasing = T)]
+
+
 summary(lm(predict(rfparty07)~data07$RelO2))
 plot(predict(rfparty07) ~ data07$RelO2,
      xlab = "Calculted O2 deficit (logit transformed)",
@@ -283,6 +614,11 @@ plot(predict(rfparty07) ~ data07$RelO2,
      ylab = "Predicted O2 deficit (logit transformed)",
      las = 1)
 abline(lm(predict(rfparty07)~data07$RelO2))
+
+
+
+data12 = metadata.hypo12[,Selection]
+
 
 rfparty12 = cforest(RelO2 ~ ., data=data12, controls=cforest_control(mtry=2, mincriterion=0))
 summary(lm(predict(rfparty12)~RelO212[,1]))
