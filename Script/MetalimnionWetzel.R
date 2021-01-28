@@ -4,7 +4,7 @@ home_strata_temp <- function(FileList, Year)
   colnames(output) = FileList
   for(i in 1:length(FileList))
   {
-    data = read.csv(paste0("../data/Preprocessing/",Year,"/", FileList[i]))
+    data = read.csv(paste0(dirname(getwd()),"/data/Preprocessing/",Year,"/", FileList[i]))
     filename = unlist(strsplit(FileList[i], ".csv"))
     
     if(length(data$temp[!is.na(data$temp)]) < length(data$temp))    data = data[!is.na(data$temp),]
@@ -30,7 +30,7 @@ home_strata_temp <- function(FileList, Year)
       }
       delta_temp_depth = delta_temp/delta_depth*-1 #Calculer les degree/metre en valeur positive
       
-      if(max(delta_temp_depth) < 1)
+      if(max(delta_temp_depth) <= 1)
       {
         output[2,i] = -1
         output[3,i] = -1
