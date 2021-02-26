@@ -19,67 +19,75 @@ library(randomForestExplainer)
 library(dplyr)
 
 
-home_strata_fct <- function(FileList, Year)
-{
-  output = matrix(nrow=4, ncol=length(FileList))
-  colnames(output) = FileList
-  for(i in 1:length(FileList))
-  {
-    data = read.csv(paste0("../data/",Year,"/", FileList[i]))
-    filename = unlist(strsplit(FileList[i],split = "[.]"))[1]
+# home_strata_fct <- function(FileList, Year)
+# {
+#   output = matrix(nrow=4, ncol=length(FileList))
+#   colnames(output) = FileList
+#   for(i in 1:length(FileList))
+#   {
+#     data = read.csv(paste0("../data/",Year,"/", FileList[i]))
+#     filename = unlist(strsplit(FileList[i],split = "[.]"))[1]
+# 
+#   
+#     if(length(data$temp[!is.na(data$temp)]) < length(data$temp))    data = data[-which(is.na(data$temp)),]
+#     if(length(unique(data$temp) == "NA") == 1)
+#     {
+#       output[1,i] = -1
+#       output[2,i] = -1
+#       output[3,i] = -1
+#       output[4,i] = -1
+#       colnames(output)[i] <- paste(filename)
+#       next
+#     }
+#     temporaire = meta.depths(wtr = data$temp, depths = data$depth)
+#   
+#     output[1,i] = min(data$depth)
+#     output[4,i] = max(data$depth)
+#     output[2,i] = if((max(data$temp)-min(data$temp)) > 1) temporaire[1]  else -1
+#     output[3,i] = if((max(data$temp)-min(data$temp)) > 1) temporaire[2]  else -1
+#     colnames(output)[i] <- paste(filename)
+#   }
+# return(output)
+# }
 
-  
-    if(length(data$temp[!is.na(data$temp)]) < length(data$temp))    data = data[-which(is.na(data$temp)),]
-    if(length(unique(data$temp) == "NA") == 1)
-    {
-      output[1,i] = -1
-      output[2,i] = -1
-      output[3,i] = -1
-      output[4,i] = -1
-      colnames(output)[i] <- paste(filename)
-      next
+# home_thermo_fct <- function(FileList, Year)
+# {
+#   output = matrix(nrow=4, ncol=length(FileList))
+#   colnames(output) = FileList
+#   for(i in 1:length(FileList))
+#   {
+#     data = read.csv(paste0("../data/Preprocessing/",Year,"/", FileList[i]))
+#     data = data[-1,]
+#     filename = unlist(strsplit(FileList[i],split = "[.]"))[1]
+# 
+#   
+#     if(length(data$temp[!is.na(data$temp)]) < length(data$temp))    data = data[-which(is.na(data$temp)),]
+#     if(length(unique(data$temp) == "NA") == 1)
+#     {
+#       output[1,i] = -1
+#       output[2,i] = -1
+#       output[3,i] = -1
+#       output[4,i] = -1
+#       colnames(output)[i] <- paste(filename)
+#       next
+#     }
+#     temporaire = thermo.depth(wtr = data$temp, depths = data$depth)
+#   
+#     output[1,i] = min(data$depth)
+#     output[4,i] = max(data$depth)
+#     output[2,i] = if((max(data$temp)-min(data$temp)) > 1) temporaire[1]  else -1
+#     output[3,i] = ifelse((max(data$temp)-min(data$temp)) > 1, ifelse(length(data$depth[which(abs(temporaire-data$depth) == min(abs(temporaire-data$depth)))])==2, data$depth[which(abs(temporaire-data$depth) == min(abs(temporaire-data$depth)))][2], data$depth[which(abs(temporaire-data$depth) == min(abs(temporaire-data$depth)))]), -1)
+#     colnames(output)[i] <- paste(filename)
+#   }
+# return(output)
+# }
+
+decimalplaces <- function(x) {
+    if ((x %% 1) != 0) {
+        nchar(strsplit(sub('0+$', '', as.character(x)), ".", fixed=TRUE)[[1]][[2]])
+    } else {
+        return(0)
     }
-    temporaire = meta.depths(wtr = data$temp, depths = data$depth)
-  
-    output[1,i] = min(data$depth)
-    output[4,i] = max(data$depth)
-    output[2,i] = if((max(data$temp)-min(data$temp)) > 1) temporaire[1]  else -1
-    output[3,i] = if((max(data$temp)-min(data$temp)) > 1) temporaire[2]  else -1
-    colnames(output)[i] <- paste(filename)
-  }
-return(output)
-}
-
-home_thermo_fct <- function(FileList, Year)
-{
-  output = matrix(nrow=4, ncol=length(FileList))
-  colnames(output) = FileList
-  for(i in 1:length(FileList))
-  {
-    data = read.csv(paste0("../data/Preprocessing/",Year,"/", FileList[i]))
-    data = data[-1,]
-    filename = unlist(strsplit(FileList[i],split = "[.]"))[1]
-
-  
-    if(length(data$temp[!is.na(data$temp)]) < length(data$temp))    data = data[-which(is.na(data$temp)),]
-    if(length(unique(data$temp) == "NA") == 1)
-    {
-      output[1,i] = -1
-      output[2,i] = -1
-      output[3,i] = -1
-      output[4,i] = -1
-      colnames(output)[i] <- paste(filename)
-      next
-    }
-    temporaire = thermo.depth(wtr = data$temp, depths = data$depth)
-  
-    output[1,i] = min(data$depth)
-    output[4,i] = max(data$depth)
-    output[2,i] = if((max(data$temp)-min(data$temp)) > 1) temporaire[1]  else -1
-    output[3,i] = ifelse((max(data$temp)-min(data$temp)) > 1, ifelse(length(data$depth[which(abs(temporaire-data$depth) == min(abs(temporaire-data$depth)))])==2, data$depth[which(abs(temporaire-data$depth) == min(abs(temporaire-data$depth)))][2], data$depth[which(abs(temporaire-data$depth) == min(abs(temporaire-data$depth)))]), -1)
-    colnames(output)[i] <- paste(filename)
-  }
-return(output)
 }
 
 source('./MetalimnionWetzel.R', encoding = 'UTF-8')
@@ -89,90 +97,374 @@ source('./VolTemp.R', encoding = 'UTF-8')
 source('./SedVar.R', encoding = 'UTF-8')
 source('./Trunc_cone.R', encoding = 'UTF-8')
 source('./deltaT.R', encoding = 'UTF-8')
+source('./LatitudeCorrection.R', encoding = 'UTF-8')
 
 ```
 
 #Load and transform data
 ```{r}
 metadata0712 = read.table("../data/info_0712.tsv", sep = "\t", header = T)
+morpho = read.csv("../data/output_morpho.csv", row.names = 1)
+colnames(morpho)[1] = "site_id"
 #Temp_sat = read.csv("../nla_noaa-master/data//processed/temp_noaa_output.csv", row.names = 1)
-allfiles07 = list.files("../data/Preprocessing/2007")
-allfiles12 = list.files("../data/Preprocessing/2012")
 
-#Remove lakes with max depth less than 2m
-deeplist07 = list()
-deeplist12 = list()
-for(i in 1:length(allfiles07))
-{
-  data = read.csv(paste0("../data/Preprocessing/2007/",allfiles07[i]))
-  if(max(data$depth) >=2) deeplist07[[i]] = i
+#Matching morpho data with metadata
+morpho.index = metadata0712$site_id %in% morpho$site_id
+data0712 = metadata0712[morpho.index,]
+
+#Keep only first visit
+data0712 = data0712[data0712$visit_no==1,]
+
+#Merge important information from morpho file with other data
+data0712 = merge(x = data0712, y = morpho[,c(1,2,3)], by = "site_id")
+
+#Fill depthmax when missing
+for(i in 1:length(data0712$depthmax_m)){
+  if(is.na(data0712$depthmax_m[i])) data0712$depthmax_m[i] = data0712$sampled_depthmax_m[i]
 }
-for(i in 1:length(allfiles12))
-{
-  data = read.csv(paste0("../data/Preprocessing/2012/",allfiles12[i]))
-  if(max(data$depth) >=2) deeplist12[[i]] = i
+
+#Manually fill the few remaining gaps by looking at the profiles
+#which(is.na(data0712$sampled_depthmax_m))
+#which(is.na(data0712$depthmax_m))
+data0712$depthmax_m[443] = 26.5
+data0712$depthmax_m[558] = 5.5
+data0712$depthmax_m[583] = 50.5
+data0712$depthmax_m[679] = 34
+data0712$depthmax_m[1112] = 4.5
+data0712$depthmax_m[1201] = 11.2
+data0712$depthmax_m[1230] = 13
+data0712$depthmax_m[1286] = 10.5
+data0712$depthmax_m[1294] = 6
+
+#Those that were still missing are removed
+data0712 = data0712[!is.na(data0712$depthmax_m),]
+
+#Remove those that have a max sampled depth of 0m
+data0712 = data0712[(data0712$sampled_depthmax_m)!=0,]
+
+#If sampled max depth = max depth, add 0.5m
+for(i in 1:length(data0712$depthmax_m)){
+  if(is.na(data0712$sampled_depthmax_m[i])) next
+  if(data0712$depthmax_m[i] == data0712$sampled_depthmax_m[i]) data0712$depthmax_m[i]  = data0712$depthmax_m[i] + 0.5
 }
-deep07 = allfiles07[unlist(deeplist07)] #962 lakes deeper than 2m
-deep12 = allfiles12[unlist(deeplist12)] #854 lakes deeper than 2m
+
+
+#Fill missing secchi data
+data0712$clear_to_bottom[which(is.na(data0712$clear_to_bottom))] = 0
+for(i in 1:length(data0712$secchi_m)){
+  if(is.na(data0712$secchi_m[i]) & data0712$clear_to_bottom[i]==1) data0712$secchi_m[i] = data0712$depthmax_m[i]
+}
 
 #Corriger la latitude en fonction de l'altitude Lewis 1983
-metadata0712$Corlat = metadata0712$lat + (0.006*metadata0712$lat+0.267)/100*metadata0712$elevation_m
+#Un graphique montrant le fitting est disponible dans LatitudeCorrection.R
+data0712$Corlat = CorLat.f(data0712$lat, data0712$elevation_m)
+
+#Fill remaining NA in the database with a missForest algorythm
+#Note. Some NA remains in site_id2012, but it doesn't matter
+id.backup = data0712$site_id
+forest0712 = missForest(data0712[,-c(1:4,10:14,36,37,40)]) #Remove categorical variables
+missdata0712 = cbind(data0712[,c(1:4, 10:14, 36, 37)],forest0712$ximp)
+
+#Make sure any secchi > maxdepth is brought back to. This was produced because missForest isn't a perfect tool
+for(i in 1:dim(missdata0712)[1]){
+  if(missdata0712$secchi_m[i] > missdata0712$depthmax_m[i]) missdata0712$secchi_m[i] = missdata0712$depthmax_m[i]
+}
+
+#Calculate useful variables (lake transparency, lake volume, lake dynamic ratio)
+missdata0712$Transp.index = missdata0712$secchi_m / missdata0712$depthmax_m #m/m
+
+LakeVol = vector(length = length(missdata0712$area_km2)) #m^3
+for(i in 1:length(LakeVol)){
+    temp = approx.bathy(Zmax = missdata0712$depthmax_m[i], lkeArea = missdata0712$area_km2[i]*1e6, Zmean = missdata0712$lMeanDepth[i], zinterval = 0.1, method = "voldev")
+    LakeVol[i] = Trunc.cone(temp) }
+missdata0712$LakeVol = LakeVol
+
+missdata0712$LakeDSR = sqrt(missdata0712$area_km2)/missdata0712$lMeanDepth #km/m
+missdata0712$LakeDR = missdata0712$lMeanDepth/missdata0712$depthmax_m #no units
+
+#Determine lake classification with mixing regime and climate
+# Fetch = read.csv("../data/fetch.csv") #m
+# GR = read.csv("../data/GR.csv") #W/m^2
+# U10 = read.csv("../data/Wind.csv") #m/s
+# missdata0712 = merge(x= missdata0712, y = Fetch, by=site_id)
+# missdata0712 = merge(x= missdata0712, y = GR, by=site_id)
+# missdata0712 = merge(x= missdata0712, y = U10, by = site_id)
+# missdata0712$MixingRegime = mixing(missdata0712$depthmax_m, missdata0712$secchi_m, missdata0712$Fetch, missdata0712$GR, missdata0712$U10)
+# boxplot(missdata0712$MixingRegime ~ missdata0712$year)
+
+# iflese(missdata0712$Corlat >= 40, missdata0712$TempClass = "Cold", missdata0712$Tempclass = "Warm")
+# missdata0712$MixingCat = paste(missdata0712$TempClass, missdata0712$MixingRegime)
+
+# hist(missdata0712$MixingCat)
+# boxplot(missdata0712$MixingCat ~ missdata0712$depthmax_m)
+# boxplot(missdata0712$MixingCat ~ missdata0712$nutrient_color)
+
+#Calculate and plot how many lakes will shift in their mixing regime
+# GR.proj <- read.csv("../data/GR.proj.csv") #W/m^2
+# Secchi.proj <- data.frame(secchi = missdata0712$secchi_m,
+#                           secchi.dim = missdata0712$secchi_m/1.25,
+#                           secchi.dark = missdata0712$secchi_m/1.5)
+# U10.proj = read.csv("../data/Wind.proj.csv") #m/s
+# proj.light <- proj.dim <- proj.dark <-as.data.frame(matrix(nrow=length(GR), ncol=dim(U10.proj)[2]))
+# for(i in 1:dim(Secchi.proj)[2]){
+#   for(j in 1:dim(U10.proj)[2]){
+#     if(i==1){
+#       proj.light[,j] = mixing(missdata0712$depthmax_m, Secchi.proj[,i], missdata0712$Fetch, GR.proj[,j], U10.proj[,j])
+#     }
+#     if(i==2){
+#       proj.dim[,j] = mixing(missdata0712$depthmax_m, Secchi.proj[,i], missdata0712$Fetch, GR.proj[,j], U10.proj[,j])
+#     }
+#     if(i==3){
+#       proj.dark[,j] = mixing(missdata0712$depthmax_m, Secchi.proj[,i], missdata0712$Fetch, GR.proj[,j], U10.proj[,j])
+#     }
+#   }
+# }
+
+#Merge current cold/warm with projected mixing regime
+# Mixing.light.proj = sapply(proj.light, function(x) paste(missdata0712$MixingCat,x))
+# Mixing.dim.proj = sapply(proj.dim, function(x) paste(missdata0712$MixingCat,x))
+# Mixing.dark.proj = sapply(proj.dark, function(x) paste(missdata0712$MixingCat,x))
+
+# Count.light.proj = apply(Mixing.light.proj, 2, function(x) table(x)/length(x))
+# Count.dim.proj = apply(Mixing.dim.proj, 2, function(x) table(x)/length(x))
+# Count.dark.proj = apply(Mixing.dark.proj, 2, function(x) table(x)/length(x))
+
+# plot(Count.dim.proj[1,],
+#      ylim = c(0,1),
+#      ylab = "Proportion of US lakes",
+#      col = "white", pch=16) #Create an empty graph with the right size
+# legend(x=2020, y = 1, legend = c("Cold monomictic", "Cold dimictic", "Hot monomictic", "Hot polymictic"), pch = 16, col = c("Dark blue", "Light blue", "Dark Red", "Light red"))
+# lines(Count.dim.proj[1,], col = "Dark blue")
+# lines(Count.light.proj[1,], col = "Dark blue", lty=2)
+# lines(Count.dark.proj[1,], col = "Dark blue", lty=2)
+# 
+# lines(Count.dim.proj[2,], col = "Light blue")
+# lines(Count.light.proj[2,], col = "Light blue", lty=2)
+# lines(Count.dark.proj[2,], col = "Light blue", lty=2)
+# 
+# lines(Count.dim.proj[3,], col = "Dark red")
+# lines(Count.light.proj[3,], col = "Dark red", lty=2)
+# lines(Count.dark.proj[3,], col = "Dark red", lty=2)
+# 
+# lines(Count.dim.proj[4,], col = "Light red")
+# lines(Count.light.proj[4,], col = "Light red", lty=2)
+# lines(Count.dark.proj[4,], col = "Light red", lty=2)
+
+#REDO ALL THESE STEPS FOR THE OTHER RCP scenario
+
+
+#Reorder database by year
+#Easier to read profile csv files, which are separated by years
+# missdata0712 = missdata0712[order(missdata0712$year),]
+
+#Determine lake stratification
+#calculate metalimnion strata for all lakes in 2007 and 2012
+# allfiles07 = list.files("../data/Preprocessing/2007")
+# allfiles12 = list.files("../data/Preprocessing/2012")
+# strata07 = home_strata_temp(allfiles07, 2007)
+# strata12 = home_strata_temp(allfiles12, 2012)
+# strata0712 = cbind(strata07, strata12)
+
+
+#Create a vector with hypolimnion top depth another with hypolimnion thickness
+#No hypolimnion = 0
+# HypoTop = ifelse(strata0712[3,] != -1 & strata0712[3,] != strata0712[4,],  strata0712[3,], 0) #m
+# HypoThick = ifelse(strata0712[3,] != -1 & strata0712[3,] != strata0712[4,],  strata0712[4,] - strata0712[3,], 0) #m
+# BinHypo = ifelse(unlist(lapply(X = HypoThick,FUN = function(X) X!=0)), 1, 0)
+# names(HypoTop) <- names(HypoThick <- names(BinHypo) <- colnames(strata0712)
+
+#Combine with main dataframe
+#Make sure all are in the same order
+# list.temp = list()
+# for(i in 1:length(HypoTop)){
+#   list.temp[[i]] = names(HypoTop)[i] == missdata0712$site_id[i]
+# }
+# unique(unlist(list.temp))
+
+# cbind(missdata0712, HypoTop, HypoThick, BinHypo)
+
+
+#Hypolimnion volume and dynamic ratio
+# HypoVol = matrix(nrow = length(missdata0712$area_km2), ncol=2)
+# for(i in 1:length(missdata0712$area_km2)){
+#    temp = approx.bathy(Zmax = missdata0712$depthmax_m[i],
+#                        lkeArea = missdata0712$area_km2[i]*1e6,
+#                        Zmean = missdata0712$lMeanDepth[i],
+#                        zinterval = 10^-decimalplaces(max(data$depth)),
+#                        method = "voldev")
+#    if(max(temp$depths) < missdata0712$HypoTop){
+#       HypoVol[i,1] = 0
+#       HypoVol[i,2] = 0
+#       next
+#     }
+#     temp = temp[which(temp$depths >= missdata0712$HypoTop),]
+#     HypoVol[i,1] = Trunc.cone(temp)
+#     HypoVol[i,2] = (sqrt(temp[1,2]/1000/1000) * temp[1,2]/HypoVol[i,1]) }
+# cbind(missdata0712, "HypoVol" = HypoVol[,1], "HypoDR" = HypoVol[,2])
+
+
+# index0712 = list()
+# for(i in 1:dim(missdata0712)[1])
+# {
+#   data = read.csv(paste0("../data/Preprocessing/",missdata0712$year[i],"/",missdata0712$site_id[i], ".csv"), row.names = 1)
+#   if(all(is.na(data$DO))) index0712[[i]] = i
+# }
+# 
+# index0712 = unlist(index0712)
+# 
+# #  index12 = list()
+# #  for(i in 1:dim(strata12)[2])
+# #  {
+# #    data = read.csv(paste0("../data/Preprocessing/2012/",colnames(strata12)[i], ".csv"), row.names = 1)
+# #    if(all(is.na(data$DO))) index12[[i]] = i
+# #  }
+# #  index12 = unlist(index12) + dim(strata07)[2]
+# #    #index12 = 214 #DO value only at the surface
+# #  index0712 = c(index07,index12)
+
+#  missdata0712 = missdata0712[-index0712,]
+
+
+
+#Create binary variable for hypoxia
+# BinHypox = vector(length(dim(missdata0712)[1]))
+# for(i in c(1:dim(missdata0712)[1]))
+# {
+#   data = read.csv(paste0("../data/Preprocessing/",missdata0712$year[i] ,"/", 
+#                          missdata0712$site_id[i], ".csv"), row.names = 1)
+#   if(min(data$DO, na.rm = T) <= 2) {BinHypox[i] = 1} else {BinHypox[i]=0}
+# }
+
+ # hypox12 = list()
+ # for(i in c(1:dim(hypo12)[2]))
+ # {
+ #   data = read.csv(paste0("../data/Preprocessing/2012/",
+ #                          colnames(hypo12)[i], ".csv"), row.names = 1)
+ #   if(min(data$DO, na.rm = T) <= 2) {hypox12[[i]] = 1} else {hypox12[[i]]=0}
+ # }
+
+# missdata0712 = cbind(missdata0712, BinHypox)
+
+# RHypox = rep(0, dim(missdata0712)[1])
+# RHypoxHypo = rep(0, length(RHypox))
+# for(i in 1:length(RHypox)){
+#   if(missdata0712$BinHypox[i] == 0) next
+#   data = read.csv(paste0("../data/Preprocessing/",missdata0712$year[i],"/",
+#                            missdata0712$site_id[i], ".csv"), row.names = 1)
+#     hypox.temp = na.omit((data$DO <= 2))
+#     if(length(which(hypox.temp==TRUE)) == length(data$DO))
+#     { RHypox[i] = 999
+#     next }
+#     if(!any(hypox.temp)) { RHypox[i]=0 } else{
+#         temp = approx.bathy(Zmax = missdata0712$depthmax_m[i],
+#                             lkeArea = missdata0712$area_km2[i]*1e6,
+#                             Zmean = missdata0712$lMeanDepth[i],
+#                             zinterval = 10^-decimalplaces(max(data$depth)),
+#                             method = "voldev")
+#         
+#         temp = temp[which(temp$depths >= min(data[hypox.temp,"depth"], na.rm = T)),]
+#         
+#         #if(nrow(temp)==1) next
+#         
+#         output.temp = Trunc.cone(temp)
+#         RHypox[i] = output.temp/missdata0712$LakeVol[i] #m^3/m^3
+#         RHypoxHypo[i] = output.temp/missdata0712$HypoVol[i]#m^3/m^3
+#         #Note. RHypoxHypo is not bound to 100% as hypoxia may propagate to the metalimnion
+#     }
+# }
+
+# missdata0712 = cbind(missdata0712, Rhypox, RhypoxHypo)
+
+
+
+
+
+
+
+######################SUPPRIMER EN DESSOUS QUAND ÇA FONCTIONNE#################
+
+# #Remove lakes with max depth less than 2m
+# deeplist07 = list()
+# deeplist12 = list()
+# for(i in 1:length(allfiles07))
+# {
+#   data = read.csv(paste0("../data/Preprocessing/2007/",allfiles07[i]))
+#   if(max(data$depth) >=2) deeplist07[[i]] = i
+# }
+# for(i in 1:length(allfiles12))
+# {
+#   data = read.csv(paste0("../data/Preprocessing/2012/",allfiles12[i]))
+#   if(max(data$depth) >=2) deeplist12[[i]] = i
+# }
+# deep07 = allfiles07[unlist(deeplist07)] #962 lakes deeper than 2m
+# deep12 = allfiles12[unlist(deeplist12)] #854 lakes deeper than 2m
+
+
+
+# plot(metadata0712$Corlat~metadata0712$lat,
+#      xlab = "Latitude", ylab = "Corrected latitude",
+#      pch = 16,
+#      las=1,
+#      col=ifelse(metadata0712$lat<40 & metadata0712$Corlat>=40, "blue", ifelse(metadata0712$lat>=40, "black", "red")))
+# abline(h=40, v=40)
+# legend(x = 25.2, y=60, legend = c("Potentially dimictic: altitude", "Potentially dimictic", "Potentially monomictic"),
+#        pch = 16, col = c("blue", "black", "red"), bty = "n")
 
 #Select lakes with corrected latitude >40°
-allmore40 = metadata0712[which(metadata0712$Corlat >= 40),]
-deep07.temp = unlist(strsplit(deep07, ".csv"))
-deep12.temp = unlist(strsplit(deep12, ".csv"))
-
-allmore4007 = allmore40[allmore40$year==2007,]
-metadata.more40deep07 = allmore4007[match(deep07.temp, allmore4007$site_id),]
-indexNA07 = list()
-for(i in 1:dim(metadata.more40deep07)[1])
-{
-  if(all(is.na(metadata.more40deep07[i,])))  indexNA07[[i]] = i
-}
-indexNA07 = unlist(indexNA07)
-metadata.more40deep07 = metadata.more40deep07[-indexNA07,]
-rm(allmore4007)
-
-allmore4012 = allmore40[allmore40$year!=2007,]
-metadata.more40deep12= allmore4012[match(deep12.temp, allmore4012$site_id),]
-indexNA12 = list()
-for(i in 1:dim(metadata.more40deep12)[1])
-{
-  if(all(is.na(metadata.more40deep12[i,])))  indexNA12[[i]] = i
-}
-indexNA12 = unlist(indexNA12)
-metadata.more40deep12 = metadata.more40deep12[-indexNA12,]
-rm(allmore4012)
-
-#Select correspoding filenames
-deeplat07 = deep07[match(metadata.more40deep07$site_id, deep07.temp)] #649 lakes deeper than 2m and >40°N
-deeplat12 = deep12[match(metadata.more40deep12$site_id, deep12.temp)] #599 lakes deeper than 2m and >40°N
-
-#remove temporary objects
-rm(deep07.temp)
-rm(deep12.temp)
-
-#Hypolimnion
-#calculate metalimnion strata for all lakes in 2007 and 2012
-strata07 = home_strata_temp(deeplat07, 2007)
-strata12 = home_strata_temp(deeplat12, 2012)
-
-#Select those that have a hypolimnion
-hypo07 = strata07[,which(strata07[3,] != -1 & strata07[3,] != strata07[4,])]
-hypo12 = strata12[,which(strata12[3,] != -1 & strata12[3,] != strata12[4,])]
-
-#Create binary response variable: w/ or w/o hypolimion
-Binhypo07 = strata07[1,]
-Binhypo12 = strata12[1,]
-for(i in 1:length(Binhypo07))
-{
-  Binhypo07[i] = ifelse(strata07[3,i] == -1 | strata07[3,i] == strata07[4,i], "0", "1")
-}
-for(i in 1:length(Binhypo12))
-{
-  Binhypo12[i] = ifelse(strata12[3,i] == -1 | strata12[3,i] == strata12[4,i], "0", "1")
-}
+# allmore40 = metadata0712[which(metadata0712$Corlat >= 40),]
+# deep07.temp = unlist(strsplit(deep07, ".csv"))
+# deep12.temp = unlist(strsplit(deep12, ".csv"))
+# 
+# allmore4007 = allmore40[allmore40$year==2007,]
+# metadata.more40deep07 = allmore4007[match(deep07.temp, allmore4007$site_id),]
+# indexNA07 = list()
+# for(i in 1:dim(metadata.more40deep07)[1])
+# {
+#   if(all(is.na(metadata.more40deep07[i,])))  indexNA07[[i]] = i
+# }
+# indexNA07 = unlist(indexNA07)
+# metadata.more40deep07 = metadata.more40deep07[-indexNA07,]
+# rm(allmore4007)
+# 
+# allmore4012 = allmore40[allmore40$year!=2007,]
+# metadata.more40deep12= allmore4012[match(deep12.temp, allmore4012$site_id),]
+# indexNA12 = list()
+# for(i in 1:dim(metadata.more40deep12)[1])
+# {
+#   if(all(is.na(metadata.more40deep12[i,])))  indexNA12[[i]] = i
+# }
+# indexNA12 = unlist(indexNA12)
+# metadata.more40deep12 = metadata.more40deep12[-indexNA12,]
+# rm(allmore4012)
+# 
+# #Select correspoding filenames
+# deeplat07 = deep07[match(metadata.more40deep07$site_id, deep07.temp)] #649 lakes deeper than 2m and >40°N
+# deeplat12 = deep12[match(metadata.more40deep12$site_id, deep12.temp)] #599 lakes deeper than 2m and >40°N
+# 
+# #remove temporary objects
+# rm(deep07.temp)
+# rm(deep12.temp)
+# 
+# #Hypolimnion
+# #calculate metalimnion strata for all lakes in 2007 and 2012
+# strata07 = home_strata_temp(deeplat07, 2007)
+# strata12 = home_strata_temp(deeplat12, 2012)
+# 
+# #Select those that have a hypolimnion
+# hypo07 = strata07[,which(strata07[3,] != -1 & strata07[3,] != strata07[4,])]
+# hypo12 = strata12[,which(strata12[3,] != -1 & strata12[3,] != strata12[4,])]
+# 
+# #Create binary response variable: w/ or w/o hypolimion
+# Binhypo07 = strata07[1,]
+# Binhypo12 = strata12[1,]
+# for(i in 1:length(Binhypo07))
+# {
+#   Binhypo07[i] = ifelse(strata07[3,i] == -1 | strata07[3,i] == strata07[4,i], "0", "1")
+# }
+# for(i in 1:length(Binhypo12))
+# {
+#   Binhypo12[i] = ifelse(strata12[3,i] == -1 | strata12[3,i] == strata12[4,i], "0", "1")
+# }
 
 #
 
@@ -189,34 +481,34 @@ for(i in 1:length(Binhypo12))
 #Remove lakes w/o hypolimnion
 # O2sat07 = O2sat07[which(strata07[3,] != -1 & strata07[3,] != strata07[4,])]
 # O2sat12 = O2sat12[which(strata12[3,] != -1 & strata12[3,] != strata12[4,])]
-metadata.hypo07 = metadata.more40deep07[which(strata07[3,] != -1 & strata07[3,] != strata07[4,]),]
-metadata.hypo12 = metadata.more40deep12[which(strata12[3,] != -1 & strata12[3,] != strata12[4,]),]
+# metadata.hypo07 = metadata.more40deep07[which(strata07[3,] != -1 & strata07[3,] != strata07[4,]),]
+# metadata.hypo12 = metadata.more40deep12[which(strata12[3,] != -1 & strata12[3,] != strata12[4,]),]
 
 #Remove lakes w/o DO measurements
-index07 = list()
-for(i in 1:dim(hypo07)[2])
-{
-  data = read.csv(paste0("../data/Preprocessing/2007/",colnames(hypo07)[i], ".csv"), row.names = 1)
-  if(all(is.na(data$DO))) index07[[i]] = i
-}
-
-index07 = unlist(index07)
-
-index12 = list()
-for(i in 1:dim(hypo12)[2])
-{
-  data = read.csv(paste0("../data/Preprocessing/2012/",colnames(hypo12)[i], ".csv"), row.names = 1)
-  if(all(is.na(data$DO))) index12[[i]] = i
-}
-index12 = 214 #DO value only at the surface
-
-#O2sat07 = O2sat07[-index07]
-hypo07 = hypo07[,-index07]
-metadata.hypo07 = metadata.hypo07[-index07,]
-
-# O2sat12 = O2sat12[-index12]
-hypo12 = hypo12[,-index12]
-metadata.hypo12 = metadata.hypo12[-index12,]
+# index07 = list()
+# for(i in 1:dim(hypo07)[2])
+# {
+#   data = read.csv(paste0("../data/Preprocessing/2007/",colnames(hypo07)[i], ".csv"), row.names = 1)
+#   if(all(is.na(data$DO))) index07[[i]] = i
+# }
+# 
+# index07 = unlist(index07)
+# 
+# index12 = list()
+# for(i in 1:dim(hypo12)[2])
+# {
+#   data = read.csv(paste0("../data/Preprocessing/2012/",colnames(hypo12)[i], ".csv"), row.names = 1)
+#   if(all(is.na(data$DO))) index12[[i]] = i
+# }
+# index12 = 214 #DO value only at the surface
+# 
+# #O2sat07 = O2sat07[-index07]
+# hypo07 = hypo07[,-index07]
+# metadata.hypo07 = metadata.hypo07[-index07,]
+# 
+# # O2sat12 = O2sat12[-index12]
+# hypo12 = hypo12[,-index12]
+# metadata.hypo12 = metadata.hypo12[-index12,]
 
 #Remove lakes where average hypo DO > saturation DO (Burns 1995)
 # index07 = list()
@@ -251,8 +543,8 @@ metadata.hypo12 = metadata.hypo12[-index12,]
 #AOU12 = AOU(hypo12, 2012, O2sat12)
 
 #Calculate volumetric AOU
-Area07 = metadata.hypo07$area_km2*1000*1000
-Area12 = metadata.hypo12$area_km2*1000*1000
+# Area07 = metadata.hypo07$area_km2*1000*1000
+# Area12 = metadata.hypo12$area_km2*1000*1000
 
 # VolAOU07 = VolumetricAOU(AOU07, Area07)
 # VolAOU12 = VolumetricAOU(AOU12, Area12)
@@ -274,54 +566,54 @@ Area12 = metadata.hypo12$area_km2*1000*1000
 # RelO212 = VolAOU12/VolSat12*100 #Range from -9% (sursaturated) to 100% 
 
 #Calculate hypolimnion temperature weighted mean
-VolT07 = VolTemp(hypo07, 2007, Area07)
-VolT12 = VolTemp(hypo12, 2012, Area12)
+# VolT07 = VolTemp(hypo07, 2007, Area07)
+# VolT12 = VolTemp(hypo12, 2012, Area12)
+# 
+# #Calculate sediment and volume to sediment ratio
+# SedVar07 = SedArea(hypo07, 2007, Area07)
+# SedVar12 = SedArea(hypo12, 2012, Area12)
 
-#Calculate sediment and volume to sediment ratio
-SedVar07 = SedArea(hypo07, 2007, Area07)
-SedVar12 = SedArea(hypo12, 2012, Area12)
+# #Create binary variable for hypoxia and anoxia
+# hypox07 = list()
+# for(i in c(1:dim(hypo07)[2]))
+# {
+#   data = read.csv(paste0("../data/Preprocessing/2007/", 
+#                          colnames(hypo07)[i], ".csv"), row.names = 1)
+#   if(min(data$DO, na.rm = T) <= 2) {hypox07[[i]] = 1} else {hypox07[[i]]=0}
+# }
+# 
+# anox07 = list()
+# for(i in c(1:dim(hypo07)[2]))
+# {
+#   data = read.csv(paste0("../data/Preprocessing/2007/",
+#                          colnames(hypo07)[i], ".csv"), row.names = 1)
+#   if(min(data$DO, na.rm = T) <= 0.5) {anox07[[i]] = 1} else {anox07[[i]]=0}
+# }
+# 
+# hypox12 = list()
+# for(i in c(1:dim(hypo12)[2]))
+# {
+#   data = read.csv(paste0("../data/Preprocessing/2012/",
+#                          colnames(hypo12)[i], ".csv"), row.names = 1)
+#   if(min(data$DO, na.rm = T) <= 2) {hypox12[[i]] = 1} else {hypox12[[i]]=0}
+# }
+# 
+# anox12 = list()
+# for(i in c(1:dim(hypo12)[2]))
+# {
+#   data = read.csv(paste0("../data/Preprocessing/2012/",
+#                          colnames(hypo12)[i], ".csv"), row.names = 1)
+#   if(min(data$DO, na.rm = T) <= 0.5) {anox12[[i]] = 1} else {anox12[[i]]=0}
+# }
+# 
+# hypox07 = as.factor(unlist(hypox07))
+# anox07 = as.factor(unlist(anox07))
+# hypox12 = as.factor(unlist(hypox12))
+# anox12 = as.factor(unlist(anox12))
 
-#Create binary variable for hypoxia and anoxia
-hypox07 = list()
-for(i in c(1:dim(hypo07)[2]))
-{
-  data = read.csv(paste0("../data/Preprocessing/2007/", 
-                         colnames(hypo07)[i], ".csv"), row.names = 1)
-  if(min(data$DO, na.rm = T) <= 2) {hypox07[[i]] = 1} else {hypox07[[i]]=0}
-}
-
-anox07 = list()
-for(i in c(1:dim(hypo07)[2]))
-{
-  data = read.csv(paste0("../data/Preprocessing/2007/",
-                         colnames(hypo07)[i], ".csv"), row.names = 1)
-  if(min(data$DO, na.rm = T) <= 0.5) {anox07[[i]] = 1} else {anox07[[i]]=0}
-}
-
-hypox12 = list()
-for(i in c(1:dim(hypo12)[2]))
-{
-  data = read.csv(paste0("../data/Preprocessing/2012/",
-                         colnames(hypo12)[i], ".csv"), row.names = 1)
-  if(min(data$DO, na.rm = T) <= 2) {hypox12[[i]] = 1} else {hypox12[[i]]=0}
-}
-
-anox12 = list()
-for(i in c(1:dim(hypo12)[2]))
-{
-  data = read.csv(paste0("../data/Preprocessing/2012/",
-                         colnames(hypo12)[i], ".csv"), row.names = 1)
-  if(min(data$DO, na.rm = T) <= 0.5) {anox12[[i]] = 1} else {anox12[[i]]=0}
-}
-
-hypox07 = as.factor(unlist(hypox07))
-anox07 = as.factor(unlist(anox07))
-hypox12 = as.factor(unlist(hypox12))
-anox12 = as.factor(unlist(anox12))
-
-#Combined dataframes
-metadata.hypo07 = cbind(metadata.hypo07, VolT=VolT07, SedVar07, hypox=hypox07, anox=anox07)#, RelO2=RelO207
-metadata.hypo12 = cbind(metadata.hypo12, VolT=VolT12, SedVar12, hypox=hypox12, anox=anox12)#, RelO2=RelO212
+# #Combined dataframes
+# metadata.hypo07 = cbind(metadata.hypo07, VolT=VolT07, SedVar07, hypox=hypox07, anox=anox07)#, RelO2=RelO207
+# metadata.hypo12 = cbind(metadata.hypo12, VolT=VolT12, SedVar12, hypox=hypox12, anox=anox12)#, RelO2=RelO212
 
 #######################
 #Thermocline
@@ -477,96 +769,101 @@ metadata.hypo12 = cbind(metadata.hypo12, VolT=VolT12, SedVar12, hypox=hypox12, a
 
 ```{r}
 #Cone vs Sed volu
-morpho = read.csv("../data/output_morpho.csv", row.names = 1)
-morpho.moredeep4007.index = morpho$NLA_ID %in% metadata.more40deep07$site_id
-morpho.moredeep4012.index = morpho$NLA_ID %in% metadata.more40deep12$site_id
-morphodeep07 = morpho[morpho.moredeep4007.index,]
-morphodeep12 = morpho[morpho.moredeep4012.index,]
+# morpho = read.csv("../data/output_morpho.csv", row.names = 1)
+# morpho.moredeep4007.index = morpho$NLA_ID %in% metadata.more40deep07$site_id
+# morpho.moredeep4012.index = morpho$NLA_ID %in% metadata.more40deep12$site_id
+# morphodeep07 = morpho[morpho.moredeep4007.index,]
+# morphodeep12 = morpho[morpho.moredeep4012.index,]
+# 
+# #Selectioner lacs avec hypolimnion
+# morphohypo07.index = morpho$NLA_ID %in% colnames(hypo07)
+# morphohypo12.index = morpho$NLA_ID %in% colnames(hypo12)
+# morphohypo07 = morpho[morphohypo07.index,]
+# morphohypo12 = morpho[morphohypo12.index,]
+# 
+# #Selectionner lac pour hypo oui/non
+# morpho07.index = morpho$NLA_ID %in% names(Binhypo07)
+# morpho12.index = morpho$NLA_ID %in% names(Binhypo12)
+# morpho07 = morpho[morpho07.index,]
+# morpho12 = morpho[morpho12.index,]
+# Binhypo12.in = names(Binhypo12) %in% morpho12$NLA_ID 
+# Binhypo12 = Binhypo12[Binhypo12.in]
+#   
+# colnames(morpho07)[1] = "site_id"
+# colnames(morpho12)[1] = "site_id"
+# colnames(morphohypo07)[1] = "site_id"
+# colnames(morphohypo12)[1] = "site_id"
+# 
+# #Fill depthmax_m for different dataframe
+# for(i in 1:length(metadata.more40deep07$depthmax_m)){
+#   if(metadata.more40deep07$depthmax_m[i] == metadata.more40deep07$sampled_depthmax_m[i]) metadata.more40deep07$depthmax_m = metadata.more40deep07$depthmax_m + 0.5
+# }
+# 
+# metadata.hypo12$depthmax_m = metadata.hypo12$sampled_depthmax_m
+# for(i in 1:length(metadata.hypo12$depthmax_m)){
+#   if(metadata.hypo12$depthmax_m[i] < morphohypo12$MaxDepth[i]) metadata.hypo12$depthmax_m[i]  = morphohypo12$MaxDepth[i]
+# }
+# for(i in 1:length(metadata.hypo12$depthmax_m)){
+#   if(metadata.hypo12$depthmax_m[i] == metadata.hypo12$sampled_depthmax_m[i]) metadata.hypo12$depthmax_m[i]  = metadata.hypo12$depthmax_m[i] + 0.5
+# }
+# 
+# metadata.more40deep12.index = metadata.more40deep12$site_id %in% morphodeep12$NLA_ID
+# metadata.more40deep12 = metadata.more40deep12[metadata.more40deep12.index,]
+# metadata.more40deep12$depthmax_m = metadata.more40deep12$sampled_depthmax_m + 0.5
+# for(i in 1:length(metadata.more40deep12$depthmax_m)){
+#   if(metadata.more40deep12$depthmax_m[i] < morphodeep12$MaxDepth[i]) metadata.more40deep12$depthmax_m[i]  = morphodeep12$MaxDepth[i]
+# }
+# 
+# #####We assume that if maxdepth = sampled_max_depth, we add 0.5m from the bottom to MaxDepth#####
+# for(i in 1:length(metadata.hypo07$depthmax_m)){
+#   if(metadata.hypo07$depthmax_m[i] == metadata.hypo07$sampled_depthmax_m[i]) metadata.hypo07$depthmax_m = metadata.hypo07$depthmax_m + 0.5
+# }
+# for(i in 1:length(metadata.hypo12$depthmax_m)){
+#   if(metadata.hypo12$depthmax_m[i] == metadata.hypo12$sampled_depthmax_m[i]) metadata.hypo12$depthmax_m = metadata.hypo12$depthmax_m + 0.5
+# }
+# 
+# #Fill secchi depth when missing but clear_to_bottom = 1
+# metadata.hypo07$clear_to_bottom[which(is.na(metadata.hypo07$clear_to_bottom))] = 0
+# for(i in 1:length(metadata.hypo07$secchi_m)){
+#   if(is.na(metadata.hypo07$secchi_m[i]) & metadata.hypo07$clear_to_bottom[i]==1) metadata.hypo07$secchi_m[i] = metadata.hypo07$depthmax_m[i]
+# }
+# 
+# metadata.hypo12$clear_to_bottom[which(is.na(metadata.hypo12$clear_to_bottom))] = 0
+# for(i in 1:length(metadata.hypo12$secchi_m)){
+#   if(is.na(metadata.hypo12$secchi_m[i]) & metadata.hypo12$clear_to_bottom[i]==1) metadata.hypo12$secchi_m[i] = metadata.hypo12$depthmax_m[i]
+# }
 
-#Selectioner lacs avec hypolimnion
-morphohypo07.index = morpho$NLA_ID %in% colnames(hypo07)
-morphohypo12.index = morpho$NLA_ID %in% colnames(hypo12)
-morphohypo07 = morpho[morphohypo07.index,]
-morphohypo12 = morpho[morphohypo12.index,]
+#Calculate lake volumes and hypolimnion dynamic ratio (DR)
+#DR = sqrt(surf[km²]) * surf[m²] / V[m³]
+# ConeVol07 = vector(length = length(Area07))
+# for(i in 1:length(Area07)){
+#   temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i], lkeArea = Area07[i], zinterval = 0.1)
+#   ConeVol07[i] = Trunc.cone(temp)
+# }
+# 
+# voldev07 = vector(length = length(Area07))
+# for(i in 1:length(Area07)){
+#   temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i], lkeArea = Area07[i], Zmean = morphohypo07$lMeanDepth[i], zinterval = 0.1, method = "voldev")
+#   voldev07[i] = Trunc.cone(temp) }
+# 
+# #Hypolimnion volumes
+# Conehypo07 = matrix(nrow = length(Area07),ncol=2)
+# colnames(Conehypo07) = c("Conehypo07", "DRhypo07")
+# for(i in 1:length(Area07)){
+#   temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i], lkeArea = Area07[i], zinterval = 0.1)
+#    temp = temp[which(temp$depths >= hypo07[3,i]),]
+#    Conehypo07[i,1] = Trunc.cone(temp) 
+#    Conehypo07[i,2] = (sqrt(temp[1,2]/1000/1000) * temp[1,2]/Conehypo07[i,1]) }
 
-#Selectionner lac pour hypo oui/non
-morpho07.index = morpho$NLA_ID %in% names(Binhypo07)
-morpho12.index = morpho$NLA_ID %in% names(Binhypo12)
-morpho07 = morpho[morpho07.index,]
-morpho12 = morpho[morpho12.index,]
-Binhypo12.in = names(Binhypo12) %in% morpho12$NLA_ID 
-Binhypo12 = Binhypo12[Binhypo12.in]
-  
-colnames(morpho07)[1] = "site_id"
-colnames(morpho12)[1] = "site_id"
-colnames(morphohypo07)[1] = "site_id"
-colnames(morphohypo12)[1] = "site_id"
+# Voldevhypo07 = matrix(nrow = length(Area07), ncol=2)
+# colnames(Voldevhypo07) = c("Voldevhypo07", "DRhypo07")
+# for(i in 1:length(Area07)){
+#   temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i], lkeArea = Area07[i], Zmean = morphohypo07$lMeanDepth[i], zinterval = 0.1, method = "voldev")
+#    temp = temp[which(temp$depths >= hypo07[3,i]),]
+#    Voldevhypo07[i,1] = Trunc.cone(temp)
+#    Voldevhypo07[i,2] = (sqrt(temp[1,2]/1000/1000) * temp[1,2]/Voldevhypo07[i,1]) }
 
-#Fill depthmax_m for different dataframe
-for(i in 1:length(metadata.more40deep07$depthmax_m)){
-  if(metadata.more40deep07$depthmax_m[i] == metadata.more40deep07$sampled_depthmax_m[i]) metadata.more40deep07$depthmax_m = metadata.more40deep07$depthmax_m + 0.5
-}
-
-metadata.hypo12$depthmax_m = metadata.hypo12$sampled_depthmax_m
-for(i in 1:length(metadata.hypo12$depthmax_m)){
-  if(metadata.hypo12$depthmax_m[i] < morphohypo12$MaxDepth[i]) metadata.hypo12$depthmax_m[i]  = morphohypo12$MaxDepth[i]
-}
-for(i in 1:length(metadata.hypo12$depthmax_m)){
-  if(metadata.hypo12$depthmax_m[i] == metadata.hypo12$sampled_depthmax_m[i]) metadata.hypo12$depthmax_m[i]  = metadata.hypo12$depthmax_m[i] + 0.5
-}
-
-metadata.more40deep12.index = metadata.more40deep12$site_id %in% morphodeep12$NLA_ID
-metadata.more40deep12 = metadata.more40deep12[metadata.more40deep12.index,]
-metadata.more40deep12$depthmax_m = metadata.more40deep12$sampled_depthmax_m + 0.5
-for(i in 1:length(metadata.more40deep12$depthmax_m)){
-  if(metadata.more40deep12$depthmax_m[i] < morphodeep12$MaxDepth[i]) metadata.more40deep12$depthmax_m[i]  = morphodeep12$MaxDepth[i]
-}
-
-#####We assume that if maxdepth = sampled_max_depth, we add 0.5m from the bottom to MaxDepth#####
-for(i in 1:length(metadata.hypo07$depthmax_m)){
-  if(metadata.hypo07$depthmax_m[i] == metadata.hypo07$sampled_depthmax_m[i]) metadata.hypo07$depthmax_m = metadata.hypo07$depthmax_m + 0.5
-}
-for(i in 1:length(metadata.hypo12$depthmax_m)){
-  if(metadata.hypo12$depthmax_m[i] == metadata.hypo12$sampled_depthmax_m[i]) metadata.hypo12$depthmax_m = metadata.hypo12$depthmax_m + 0.5
-}
-
-#Fill secchi depth when missing but clear_to_bottom = 1
-metadata.hypo07$clear_to_bottom[which(is.na(metadata.hypo07$clear_to_bottom))] = 0
-for(i in 1:length(metadata.hypo07$secchi_m)){
-  if(is.na(metadata.hypo07$secchi_m[i]) & metadata.hypo07$clear_to_bottom[i]==1) metadata.hypo07$secchi_m[i] = metadata.hypo07$depthmax_m[i]
-}
-
-metadata.hypo12$clear_to_bottom[which(is.na(metadata.hypo12$clear_to_bottom))] = 0
-for(i in 1:length(metadata.hypo12$secchi_m)){
-  if(is.na(metadata.hypo12$secchi_m[i]) & metadata.hypo12$clear_to_bottom[i]==1) metadata.hypo12$secchi_m[i] = metadata.hypo12$depthmax_m[i]
-}
-
-#Calculate lake volumes
-ConeVol07 = vector(length = length(Area07))
-for(i in 1:length(Area07)){
-  temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i], lkeArea = Area07[i], zinterval = 0.1)
-  ConeVol07[i] = Trunc.cone(temp)
-}
-
-voldev07 = vector(length = length(Area07))
-for(i in 1:length(Area07)){
-  temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i], lkeArea = Area07[i], Zmean = morphohypo07$lMeanDepth[i], zinterval = 0.1, method = "voldev")
-  voldev07[i] = Trunc.cone(temp) }
-
-#Hypolimnion volumes
-Conehypo07 = vector(length = length(Area07))
-for(i in 1:length(Area07)){
-  temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i], lkeArea = Area07[i], zinterval = 0.1)
-   temp = temp[which(temp$depths >= hypo07[3,i]),]
-   Conehypo07[i] = Trunc.cone(temp) }
-
-Voldevhypo07 = vector(length = length(Area07))
-for(i in 1:length(Area07)){
-  temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i], lkeArea = Area07[i], Zmean = morphohypo07$lMeanDepth[i], zinterval = 0.1, method = "voldev")
-   temp = temp[which(temp$depths >= hypo07[3,i]),]
-   Voldevhypo07[i] = Trunc.cone(temp) }
-
-par(mfrow = c(1,2))
+par(mfrow = c(1,3))
 plot(voldev07~ConeVol07,
      xlab = expression(Conical~volume~m^3),
      ylab = expression(Hypsometric~volume~m^3),
@@ -575,7 +872,7 @@ plot(voldev07~ConeVol07,
      main = "Whole lake volume")
 text(x = 1495000, y = 10000000000, labels = expression(Mean~ratio == 1.32))
 abline(0,1, lty = 2)
-plot(Voldevhypo07~Conehypo07,
+plot(Voldevhypo07[,1]~Conehypo07[,1],
      xlab = expression(Conical~volume~m^3),
      ylab = expression(Hypsometric~volume~m^3),
      log = "xy",
@@ -583,216 +880,233 @@ plot(Voldevhypo07~Conehypo07,
      main = "Hypolimnion volume")
 text(x = 5000, y = 5000000000, labels = expression(Mean~ratio == 1.48))
 abline(0,1, lty = 2)
+plot(Voldevhypo07[,2]~Conehypo07[,2],
+     xlab = expression(Conical~DR[hypo]),
+     ylab = expression(Hypsometric~DR[hypo]),
+     log = "xy",
+     las = 1,
+     main = "Hypolimnion Dynamic Ratio")
+text(x = 0.05, y = 7, labels = expression(R^2 == 0.95))
+abline(0,1, lty = 2)
 
-#Calculate anoxia/hypoxia relative volume in hypolimnion
-RAnox07 = vector(length = length(Area07))
-for(i in 1:length(Area07)){
-  data = read.csv(paste0("../data/Preprocessing/2007/",
-                         colnames(hypo07)[i], ".csv"), row.names = 1)
-  anox.temp = (data$DO < 0.5)
-  if(!any(anox.temp)) { RAnox07[i]=0 } else{
-    temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i],
-                        lkeArea = Area07[i], Zmean = morphohypo07$lMeanDepth[i],
-                        zinterval = 0.1, method = "voldev")
-    #temp = temp[which(temp$depths >= hypo07[3,i]),] #pour avoir en % de l'hypolimnion
-    Vol.tot = Trunc.cone(temp)
-    temp = temp[which(temp$depths >= min(data[anox.temp,"depth"], na.rm = T)),]
-  
-    if(nrow(temp) == 1) {
-      RAnox07[i ]= 0
-      next }
-   
-  output.temp = Trunc.cone(temp)
-  RAnox07[i] = output.temp/Vol.tot
-  }
-}
-
-RHypox07 = vector(length = length(Area07))
-for(i in 1:length(Area07)){
-  data = read.csv(paste0("../data/Preprocessing/2007/",
-                         colnames(hypo07)[i], ".csv"), row.names = 1)
-  hypox.temp = (data$DO < 2)
-  if(!any(hypox.temp)) { RHypox07[i]=0 } else{
-    temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i],
-                        lkeArea = Area07[i], Zmean = morphohypo07$lMeanDepth[i],
-                        zinterval = 0.1, method = "voldev")
-    #temp = temp[which(temp$depths >= hypo07[3,i]),]
-    Vol.tot = Trunc.cone(temp)
-    temp = temp[which(temp$depths >= min(data[hypox.temp,"depth"], na.rm = T)),]
-    if(nrow(temp)==1) {
-      RHypox07[i]=0
-      next}
-   
-    output.temp = Trunc.cone(temp)
-    RHypox07[i] = output.temp/Vol.tot
-  }
-}
-
-#Calculate anoxia/hypoxia relative volume
-RAnox07hypo = vector(length = length(Area07))
-for(i in 1:length(Area07)){
-  data = read.csv(paste0("../data/Preprocessing/2007/",
-                         colnames(hypo07)[i], ".csv"), row.names = 1)
-  
-  anox.temp = (data$DO < 0.5)
-  
-  if(!any(anox.temp)) { RAnox07[i]=0 } else{
-  
-    temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i],
-                        lkeArea = Area07[i], Zmean = morphohypo07$lMeanDepth[i],
-                        zinterval = 0.1, method = "voldev")
-    temp = temp[which(temp$depths >= hypo07[3,i]),]
-    Vol.tot = Trunc.cone(temp)
-    temp = temp[which(temp$depths >= min(data[anox.temp,"depth"], na.rm = T)),]
-  
-    if(nrow(temp) == 1) {
-      RAnox07hypo[i ]= 0
-      next }
-   
-  output.temp = Trunc.cone(temp)
-  RAnox07hypo[i] = (output.temp)/(Vol.tot)
-  }
-}
-
-RHypox07hypo = vector(length = length(Area07))
-for(i in 1:length(Area07)){
-  data = read.csv(paste0("../data/Preprocessing/2007/",
-                         colnames(hypo07)[i], ".csv"), row.names = 1)
-  hypox.temp = (data$DO < 2)
-  if(!any(hypox.temp)) { RHypox07[i]=0 } else{
-    temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i],
-                        lkeArea = Area07[i], Zmean = morphohypo07$lMeanDepth[i],
-                        zinterval = 0.1, method = "voldev")
-    temp = temp[which(temp$depths >= hypo07[3,i]),]
-    Vol.tot = Trunc.cone(temp)
-    temp = temp[which(temp$depths >= min(data[hypox.temp,"depth"], na.rm = T)),]
-    if(nrow(temp)==1) {
-      RHypox07lhypo[i]=0
-      next}
-   
-    output.temp = Trunc.cone(temp)
-    RHypox07hypo[i] = (output.temp)/(Vol.tot)
-  }
-}
-
-RAnox12 = vector(length = length(Area12))
+Voldevhypo12 = matrix(nrow = length(Area12), ncol=2)
+colnames(Voldevhypo12) = c("Voldevhypo12", "DRhypo12")
 for(i in 1:length(Area12)){
-  data = read.csv(paste0("../data/Preprocessing/2012/",
-                         colnames(hypo12)[i], ".csv"), row.names = 1)
-  anox.temp = na.omit((data$DO < 0.5))
-  if(!any(anox.temp)) { RAnox12[i]=0 } else{
-    temp = approx.bathy(Zmax = metadata.hypo12$depthmax_m[i],
-                        lkeArea = Area12[i], Zmean = morphohypo12$lMeanDepth[i],
-                        zinterval = 0.1, method = "voldev")
-    #temp = temp[which(temp$depths >= hypo12[3,i]),]
-    Vol.tot = Trunc.cone(temp)
-    temp = temp[which(temp$depths >= min(data[anox.temp,"depth"], na.rm = T)),]
-    
-    if(nrow(temp)==1) {
-      RAnox12[i]=0
-      next}
-    
-    output.temp = Trunc.cone(temp)
-    RAnox12[i] = output.temp/Vol.tot
-  }
-}
+  temp = approx.bathy(Zmax = metadata.hypo12$depthmax_m[i], lkeArea = Area12[i], Zmean = morphohypo12$lMeanDepth[i], zinterval = 0.1, method = "voldev")
+   temp = temp[which(temp$depths >= hypo12[3,i]),]
+   Voldevhypo12[i,1] = Trunc.cone(temp)
+   Voldevhypo12[i,2] = (sqrt(temp[1,2]/1000/1000) * temp[1,2]/Voldevhypo12[i,1]) }
 
-RHypox12 = vector(length = length(Area12))
-for(i in 1:length(Area12)){
-  data = read.csv(paste0("../data/Preprocessing/2012/",
-                         colnames(hypo12)[i], ".csv"), row.names = 1)
-  hypox.temp = na.omit((data$DO < 2))
-  if(length(which(hypox.temp==TRUE)) == length(data$DO))
-  { RHypox12[i] = 999
-    next }
-  if(!any(hypox.temp)) { RHypox12[i]=0 } else{
-    temp = approx.bathy(Zmax = metadata.hypo12$depthmax_m[i],
-                        lkeArea = Area12[i], Zmean = morphohypo12$lMeanDepth[i],
-                        zinterval = 0.05, method = "voldev")
-    #temp = temp[which(temp$depths >= hypo12[3,i]),]
-    Vol.tot = Trunc.cone(temp)
-    temp = temp[which(temp$depths >= min(data[hypox.temp,"depth"], na.rm = T)),]
-    
-    if(nrow(temp)==1) {
-      RHypox12[i]=0
-      next}
-    
-    output.temp = Trunc.cone(temp)
-    RHypox12[i] = output.temp/Vol.tot
-  }
-}
+# #Calculate anoxia/hypoxia relative volume in hypolimnion
+# RAnox07 = vector(length = length(Area07))
+# for(i in 1:length(Area07)){
+#   data = read.csv(paste0("../data/Preprocessing/2007/",
+#                          colnames(hypo07)[i], ".csv"), row.names = 1)
+#   anox.temp = (data$DO < 0.5)
+#   if(!any(anox.temp)) { RAnox07[i]=0 } else{
+#     temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i],
+#                         lkeArea = Area07[i], Zmean = morphohypo07$lMeanDepth[i],
+#                         zinterval = 0.1, method = "voldev")
+#     #temp = temp[which(temp$depths >= hypo07[3,i]),] #pour avoir en % de l'hypolimnion
+#     Vol.tot = Trunc.cone(temp)
+#     temp = temp[which(temp$depths >= min(data[anox.temp,"depth"], na.rm = T)),]
+#   
+#     if(nrow(temp) == 1) {
+#       RAnox07[i ]= 0
+#       next }
+#    
+#   output.temp = Trunc.cone(temp)
+#   RAnox07[i] = output.temp/Vol.tot
+#   }
+# }
+# 
+# RHypox07 = vector(length = length(Area07))
+# for(i in 1:length(Area07)){
+#   data = read.csv(paste0("../data/Preprocessing/2007/",
+#                          colnames(hypo07)[i], ".csv"), row.names = 1)
+#   hypox.temp = (data$DO < 2)
+#   if(!any(hypox.temp)) { RHypox07[i]=0 } else{
+#     temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i],
+#                         lkeArea = Area07[i], Zmean = morphohypo07$lMeanDepth[i],
+#                         zinterval = 0.1, method = "voldev")
+#     #temp = temp[which(temp$depths >= hypo07[3,i]),]
+#     Vol.tot = Trunc.cone(temp)
+#     temp = temp[which(temp$depths >= min(data[hypox.temp,"depth"], na.rm = T)),]
+#     if(nrow(temp)==1) {
+#       RHypox07[i]=0
+#       next}
+#    
+#     output.temp = Trunc.cone(temp)
+#     RHypox07[i] = output.temp/Vol.tot
+#   }
+# }
+# 
+# #Calculate anoxia/hypoxia relative volume
+# RAnox07hypo = vector(length = length(Area07))
+# for(i in 1:length(Area07)){
+#   data = read.csv(paste0("../data/Preprocessing/2007/",
+#                          colnames(hypo07)[i], ".csv"), row.names = 1)
+#   
+#   anox.temp = (data$DO < 0.5)
+#   
+#   if(!any(anox.temp)) { RAnox07[i]=0 } else{
+#   
+#     temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i],
+#                         lkeArea = Area07[i], Zmean = morphohypo07$lMeanDepth[i],
+#                         zinterval = 0.1, method = "voldev")
+#     temp = temp[which(temp$depths >= hypo07[3,i]),]
+#     Vol.tot = Trunc.cone(temp)
+#     temp = temp[which(temp$depths >= min(data[anox.temp,"depth"], na.rm = T)),]
+#   
+#     if(nrow(temp) == 1) {
+#       RAnox07hypo[i ]= 0
+#       next }
+#    
+#   output.temp = Trunc.cone(temp)
+#   RAnox07hypo[i] = (output.temp)/(Vol.tot)
+#   }
+# }
+# 
+# RHypox07hypo = vector(length = length(Area07))
+# for(i in 1:length(Area07)){
+#   data = read.csv(paste0("../data/Preprocessing/2007/",
+#                          colnames(hypo07)[i], ".csv"), row.names = 1)
+#   hypox.temp = (data$DO < 2)
+#   if(!any(hypox.temp)) { RHypox07[i]=0 } else{
+#     temp = approx.bathy(Zmax = metadata.hypo07$depthmax_m[i],
+#                         lkeArea = Area07[i], Zmean = morphohypo07$lMeanDepth[i],
+#                         zinterval = 0.1, method = "voldev")
+#     temp = temp[which(temp$depths >= hypo07[3,i]),]
+#     Vol.tot = Trunc.cone(temp)
+#     temp = temp[which(temp$depths >= min(data[hypox.temp,"depth"], na.rm = T)),]
+#     if(nrow(temp)==1) {
+#       RHypox07lhypo[i]=0
+#       next}
+#    
+#     output.temp = Trunc.cone(temp)
+#     RHypox07hypo[i] = (output.temp)/(Vol.tot)
+#   }
+# }
+# 
+# RAnox12 = vector(length = length(Area12))
+# for(i in 1:length(Area12)){
+#   data = read.csv(paste0("../data/Preprocessing/2012/",
+#                          colnames(hypo12)[i], ".csv"), row.names = 1)
+#   anox.temp = na.omit((data$DO < 0.5))
+#   if(!any(anox.temp)) { RAnox12[i]=0 } else{
+#     temp = approx.bathy(Zmax = metadata.hypo12$depthmax_m[i],
+#                         lkeArea = Area12[i], Zmean = morphohypo12$lMeanDepth[i],
+#                         zinterval = 0.1, method = "voldev")
+#     #temp = temp[which(temp$depths >= hypo12[3,i]),]
+#     Vol.tot = Trunc.cone(temp)
+#     temp = temp[which(temp$depths >= min(data[anox.temp,"depth"], na.rm = T)),]
+#     
+#     if(nrow(temp)==1) {
+#       RAnox12[i]=0
+#       next}
+#     
+#     output.temp = Trunc.cone(temp)
+#     RAnox12[i] = output.temp/Vol.tot
+#   }
+# }
+# 
+# RHypox12 = vector(length = length(Area12))
+# for(i in 1:length(Area12)){
+#   data = read.csv(paste0("../data/Preprocessing/2012/",
+#                          colnames(hypo12)[i], ".csv"), row.names = 1)
+#   hypox.temp = na.omit((data$DO < 2))
+#   if(length(which(hypox.temp==TRUE)) == length(data$DO))
+#   { RHypox12[i] = 999
+#     next }
+#   if(!any(hypox.temp)) { RHypox12[i]=0 } else{
+#     temp = approx.bathy(Zmax = metadata.hypo12$depthmax_m[i],
+#                         lkeArea = Area12[i], Zmean = morphohypo12$lMeanDepth[i],
+#                         zinterval = 0.05, method = "voldev")
+#     #temp = temp[which(temp$depths >= hypo12[3,i]),]
+#     Vol.tot = Trunc.cone(temp)
+#     temp = temp[which(temp$depths >= min(data[hypox.temp,"depth"], na.rm = T)),]
+#     
+#     if(nrow(temp)==1) {
+#       RHypox12[i]=0
+#       next}
+#     
+#     output.temp = Trunc.cone(temp)
+#     RHypox12[i] = output.temp/Vol.tot
+#   }
+# }
+# 
+# 
+# RAnox12hypo = vector(length = length(Area12))
+# for(i in 1:length(Area12)){
+#   data = read.csv(paste0("../data/Preprocessing/2012/",
+#                          colnames(hypo12)[i], ".csv"), row.names = 1)
+#   anox.temp = na.omit((data$DO < 0.5))
+#   if(!any(anox.temp)) { RAnox12[i]=0 } else{
+#     temp = approx.bathy(Zmax = metadata.hypo12$depthmax_m[i],
+#                         lkeArea = Area12[i], Zmean = morphohypo12$lMeanDepth[i],
+#                         zinterval = 0.1, method = "voldev")
+#     temp = temp[which(temp$depths >= hypo12[3,i]),]
+#     Vol.tot = Trunc.cone(temp)
+#     temp = temp[which(temp$depths >= min(data[anox.temp,"depth"], na.rm = T)),]
+#     
+#     if(nrow(temp)==1) {
+#       RAnox12hypo[i]=0
+#       next}
+#     
+#     output.temp = Trunc.cone(temp)
+#     RAnox12hypo[i] = (output.temp)/(Vol.tot)
+#   }
+# }
+# 
+# decimalplaces <- function(x) {
+#     if ((x %% 1) != 0) {
+#         nchar(strsplit(sub('0+$', '', as.character(x)), ".", fixed=TRUE)[[1]][[2]])
+#     } else {
+#         return(0)
+#     }
+# }
+# 
+# RHypox12hypo = vector(length = length(Area12))
+# for(i in 1:length(Area12)){
+#   data = read.csv(paste0("../data/Preprocessing/2012/",
+#                          colnames(hypo12)[i], ".csv"), row.names = 1)
+#   hypox.temp = na.omit((data$DO < 2))
+#   if(!any(hypox.temp)) { RHypox12[i]=0 } else{
+#     temp = approx.bathy(Zmax = metadata.hypo12$depthmax_m[i],
+#                         lkeArea = Area12[i], Zmean = morphohypo12$lMeanDepth[i],
+#                         zinterval = 10^-decimalplaces(max(data$depth)), method = "voldev")
+#     temp = temp[which(temp$depths >= hypo12[3,i]),]
+#     Vol.tot = Trunc.cone(temp)
+#     temp = temp[which(temp$depths >= min(data[hypox.temp,"depth"], na.rm = T)),]
+#     
+#     if(nrow(temp)==1) {
+#       RHypox12hypo[i]=0
+#       next}
+#     
+#     output.temp = Trunc.cone(temp)
+#     RHypox12hypo[i] = (output.temp)/(Vol.tot)
+#   }
+# }
 
-
-RAnox12hypo = vector(length = length(Area12))
-for(i in 1:length(Area12)){
-  data = read.csv(paste0("../data/Preprocessing/2012/",
-                         colnames(hypo12)[i], ".csv"), row.names = 1)
-  anox.temp = na.omit((data$DO < 0.5))
-  if(!any(anox.temp)) { RAnox12[i]=0 } else{
-    temp = approx.bathy(Zmax = metadata.hypo12$depthmax_m[i],
-                        lkeArea = Area12[i], Zmean = morphohypo12$lMeanDepth[i],
-                        zinterval = 0.1, method = "voldev")
-    temp = temp[which(temp$depths >= hypo12[3,i]),]
-    Vol.tot = Trunc.cone(temp)
-    temp = temp[which(temp$depths >= min(data[anox.temp,"depth"], na.rm = T)),]
-    
-    if(nrow(temp)==1) {
-      RAnox12hypo[i]=0
-      next}
-    
-    output.temp = Trunc.cone(temp)
-    RAnox12hypo[i] = (output.temp)/(Vol.tot)
-  }
-}
-
-decimalplaces <- function(x) {
-    if ((x %% 1) != 0) {
-        nchar(strsplit(sub('0+$', '', as.character(x)), ".", fixed=TRUE)[[1]][[2]])
-    } else {
-        return(0)
-    }
-}
-
-RHypox12hypo = vector(length = length(Area12))
-for(i in 1:length(Area12)){
-  data = read.csv(paste0("../data/Preprocessing/2012/",
-                         colnames(hypo12)[i], ".csv"), row.names = 1)
-  hypox.temp = na.omit((data$DO < 2))
-  if(!any(hypox.temp)) { RHypox12[i]=0 } else{
-    temp = approx.bathy(Zmax = metadata.hypo12$depthmax_m[i],
-                        lkeArea = Area12[i], Zmean = morphohypo12$lMeanDepth[i],
-                        zinterval = 10^-decimalplaces(max(data$depth)), method = "voldev")
-    temp = temp[which(temp$depths >= hypo12[3,i]),]
-    Vol.tot = Trunc.cone(temp)
-    temp = temp[which(temp$depths >= min(data[hypox.temp,"depth"], na.rm = T)),]
-    
-    if(nrow(temp)==1) {
-      RHypox12hypo[i]=0
-      next}
-    
-    output.temp = Trunc.cone(temp)
-    RHypox12hypo[i] = (output.temp)/(Vol.tot)
-  }
-}
-iciici
 #Foret aleatoire pour predire p/a hypolimnion
-Binforest07 = merge(x = metadata.more40deep07, y = morpho07, by = "site_id")
-Temp.id07 = Binforest07$site_id
-Binforest07 = missForest(Binforest07[,-c(1,2,3,10,11,12,13,14,36,37)])
-Binforest07 = Binforest07$ximp
-Binforest07[which(Binforest07$secchi_m > Binforest07$depthmax_m),"secchi_m"] = Binforest07[which(Binforest07$secchi_m > Binforest07$depthmax_m),"depthmax_m"]
-Binforest07$Transp.index = Binforest07$secchi_m / Binforest07$depthmax_m
-Binforest07$Binhypo = Binhypo07
-Binforest07$site_id = Temp.id07
-
-Binforest12 = merge(x = metadata.more40deep12, y = morpho12, by = "site_id")
-Temp.id12 = Binforest12$site_id
-Binforest12 = missForest(Binforest12[,-c(1,2,3,10,11,12,13,14,36,37)])
-Binforest12 = Binforest12$ximp
-Binforest12[which(Binforest12$secchi_m > Binforest12$depthmax_m),"secchi_m"] = Binforest12[which(Binforest12$secchi_m > Binforest12$depthmax_m),"depthmax_m"]
-Binforest12$Transp.index = Binforest12$secchi_m / Binforest12$depthmax_m
-Binforest12$Binhypo = Binhypo12
-Binforest12$site_id = Temp.id12
+# Binforest07 = merge(x = metadata.more40deep07, y = morpho07, by = "site_id")
+# Temp.id07 = Binforest07$site_id
+# Binforest07 = missForest(Binforest07[,-c(1,2,3,10,11,12,13,14,36,37)])
+# Binforest07 = Binforest07$ximp
+# Binforest07[which(Binforest07$secchi_m > Binforest07$depthmax_m),"secchi_m"] = Binforest07[which(Binforest07$secchi_m > Binforest07$depthmax_m),"depthmax_m"]
+# Binforest07$Transp.index = Binforest07$secchi_m / Binforest07$depthmax_m
+# Binforest07$Binhypo = Binhypo07
+# Binforest07$site_id = Temp.id07
+# 
+# 
+# Binforest12 = merge(x = metadata.more40deep12, y = morpho12, by = "site_id")
+# Temp.id12 = Binforest12$site_id
+# Binforest12 = missForest(Binforest12[,-c(1,2,3,10,11,12,13,14,36,37)])
+# Binforest12 = Binforest12$ximp
+# Binforest12[which(Binforest12$secchi_m > Binforest12$depthmax_m),"secchi_m"] = Binforest12[which(Binforest12$secchi_m > Binforest12$depthmax_m),"depthmax_m"]
+# Binforest12$Transp.index = Binforest12$secchi_m / Binforest12$depthmax_m
+# Binforest12$Binhypo = Binhypo12
+# Binforest12$site_id = Temp.id12
 
 #Calculer la difference de temperature entre la surface et le fond
 deltaT07 = deltaT(Binforest07, 2007)
@@ -801,7 +1115,7 @@ deltaT0712 = c(deltaT07, deltaT12)
 
 Bin0712 = cbind(rbind(Binforest07, Binforest12), deltaT=deltaT0712)
 
-deltaTpred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_ugL", "PTL_ugL", "DOC_mgL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lMinorAxisLength", "lFetch", "depthmax_m","Julian.day", "deltaT")
+deltaTpred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_ugL", "PTL_ugL", "DOC_mgL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lShorelineDevelopment", "depthmax_m","Julian.day", "deltaT")#"lMinorAxisLength", "lFetch", les valeurs sont aberantes
 
 TF0712 = Bin0712[,deltaTpred]
 TF0712 = TF0712[TF0712$deltaT>=0,]
@@ -817,7 +1131,7 @@ test0712 = which(!1:nrow(TF0712) %in% train0712)
 # rownames(out.mat) = c("All", colnames(TF0712)[-length(colnames(TF0712))])
 
 #Random Forest on all variables
-rf.th0712 = randomForest(deltaT~., data=TF0712, subset = train0712, localImp = TRUE)
+rf.th0712 = randomForest(deltaT~., data=TF0712, subset = train0712, localImp = TRUE, ntree=1000)
 rf.tt0712 = predict(rf.th0712, newdata = TF0712[test0712,])
 # out.mat[1,1] = mean(abs(as.numeric(TF0712[test0712,"deltaT"]) - as.numeric(rf.bt0712)))
 # for(i in 1:(dim(TF0712)[2]-1))
@@ -844,7 +1158,7 @@ plot(rtparty0712)
 explain_forest(rf.th0712, interactions = TRUE, data = TF0712[train0712,])
 
 
-Binhypopred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_ugL", "PTL_ugL", "DOC_mgL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lMinorAxisLength", "lFetch", "depthmax_m","Julian.day", "Binhypo")
+Binhypopred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_ugL", "PTL_ugL", "DOC_mgL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lShorelineDevelopment", "depthmax_m","Julian.day", "Binhypo")#lMinorAxisLength", "lFetch
 
 BF0712 = Bin0712[,Binhypopred]
 BF0712$Binhypo = as.factor(BF0712$Binhypo)
@@ -860,7 +1174,7 @@ test0712 = which(!1:nrow(BF0712) %in% train0712)
 # rownames(out.mat) = c("All", colnames(BF0712)[-length(colnames(BF0712))])
 
 #Random Forest on all variables
-rf.bh0712 = randomForest(Binhypo~., data=BF0712, subset = train0712, localImp = TRUE)
+rf.bh0712 = randomForest(Binhypo~., data=BF0712, subset = train0712, localImp = TRUE, ntree=1000)
 rf.bt0712 = predict(rf.bh0712, newdata = BF0712[test0712,])
 # out.mat[1,1] = mean(abs(as.numeric(BF0712[test0712,"Binhypo"]) - as.numeric(rf.bt0712)))
 # for(i in 1:(dim(BF0712)[2]-1))
@@ -910,6 +1224,7 @@ HT07$Transp.index = HT07$secchi_m / HT07$depthmax_m
 HT07$NTL_umolL = HT07$NTL_ugL/14.0067 #Transform into umol
 HT07$PTL_umolL = HT07$PTL_ugL/30.973762 #Transform into umol
 HT07$DOC_umolL = HT07$DOC_mgL/12.0107*1000 #Transform into umol
+HT07$DRhypo = Voldevhypo07[,2]
 
 HT12 = merge(x = metadata.hypo12, y = morphohypo12, by = "site_id")
 HT12 = missForest(HT12[,-c(1,2,3,10,11,12,13,14,36,37)])
@@ -919,10 +1234,11 @@ HT12$Transp.index = HT12$secchi_m / HT12$depthmax_m
 HT12$NTL_umolL = HT12$NTL_ugL/14.0067 #Transform into umol
 HT12$PTL_umolL = HT12$PTL_ugL/30.973762 #Transform into umol
 HT12$DOC_umolL = HT12$DOC_mgL/12.0107*1000 #Transform into umol
+HT12$DRhypo = Voldevhypo12[,2]
 
 HT0712 = rbind(HT07, HT12) #"RelO212" "VolT12"  "hypox12" "anox12" 
 
-HTpred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lMinorAxisLength", "lFetch", "depthmax_m","Julian.day", "HypoThick")
+HTpred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lShorelineDevelopment", "depthmax_m","Julian.day","DRhypo", "HypoThick")#lMinorAxisLength", "lFetch
 
 HTF0712 = HT0712[,HTpred]
 HTF0712$Dynamic = sqrt(HTF0712$area_km2)/HTF0712$lMeanDepth
@@ -937,7 +1253,7 @@ test0712 = which(!1:nrow(HTF0712) %in% train0712)
 # rownames(out.mat) = c("All", colnames(HTF0712)[-length(colnames(HTF0712))])
 
 #Random Forest on all variables
-rf.HTF0712 = randomForest(HypoThick~., data=HTF0712, subset = train0712, localImp = TRUE)
+rf.HTF0712 = randomForest(HypoThick~., data=HTF0712, subset = train0712, localImp = TRUE,  ntree=1000)
 rf.HTFt0712 = predict(rf.HTF0712, newdata = HTF0712[test0712,])
 # out.mat[1,1] = mean(abs(HTF0712[test0712,"HypoThick"] - rf.HTFt0712))
 # for(i in 1:(dim(HTF0712)[2]-1))
@@ -975,7 +1291,7 @@ plot(rtparty.HT0712)
 RHTF0712 = HTF0712
 RHTF0712$HypoProp = HTF0712$HypoThick/HTF0712$depthmax_m
 #RHTF0712$HypoProplog = log(HTF0712$HypoThick)/log(HTF0712$sampled_depthmax_m)
-RHTF0712 = RHTF0712[,-c(22)]
+RHTF0712 = RHTF0712[,-which(colnames(RHTF0712)=="HypoThick")]
 
 #51-73
 
@@ -989,7 +1305,7 @@ test0712 = which(!1:nrow(RHTF0712) %in% train0712)
 # rownames(out.mat) = c("All", colnames(RHTF0712)[-length(colnames(RHTF0712))])
 
 #Random Forest on all variables
-rf.RHTF0712 = randomForest(HypoProp~., data=RHTF0712, subset = train0712, localImp = TRUE)
+rf.RHTF0712 = randomForest(HypoProp~., data=RHTF0712, subset = train0712, localImp = TRUE, ntree=1000)
 rf.RHTFt0712 = predict(rf.RHTF0712, newdata = RHTF0712[test0712,])
 # out.mat[1,1] = mean(abs(RHTF0712[test0712,"HypoProp"] - rf.RHTFt0712))
 # for(i in 1:(dim(RHTF0712)[2]-1))
@@ -1089,9 +1405,9 @@ RAnox0712hypo = c(RAnox07hypo, RAnox12hypo)
 RHypox0712hypo = c(RHypox07hypo, RHypox12hypo)
 
 #####################################BIN ANOX######################
-BA0712 = rbind(HT07, HT12[-78,]) #78 est le lac défectueux
+BA0712 = rbind(HT07, HT12[-75,]) #75 est le lac défectueux
 
-BApred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lMinorAxisLength", "lFetch", "depthmax_m","Julian.day", "anox")
+BApred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lShorelineDevelopment", "depthmax_m","Julian.day", "DRhypo", "anox")#lMinorAxisLength", "lFetch
 
 BAF0712 = BA0712[,BApred] #BinAnoxForest BAF
 
@@ -1106,7 +1422,7 @@ test0712 = which(!1:nrow(BAF0712) %in% train0712)
 # rownames(out.mat) = c("All", colnames(BAF0712)[-length(colnames(BAF0712))])
 
 #Random Forest on all variables
-rf.BAF0712 = randomForest(anox~., data=BAF0712, subset = train0712, localImp = TRUE)
+rf.BAF0712 = randomForest(anox~., data=BAF0712, subset = train0712, localImp = TRUE, ntree=1000)
 rf.BAFt0712 = predict(rf.BAF0712, newdata = BAF0712[test0712,])
 # out.mat[1,1] = mean(abs(BAF0712[test0712,"RAnox0712"] - rf.BAFt0712))
 # for(i in 1:(dim(BAF0712)[2]-1))
@@ -1132,7 +1448,7 @@ plot(rtparty.HT0712)
 
 ##############################Bin hypoxia#####################
 
-BHpred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lMinorAxisLength", "lFetch", "depthmax_m","Julian.day", "hypox")
+BHpred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lShorelineDevelopment", "depthmax_m","Julian.day","DRhypo", "hypox")#lMinorAxisLength", "lFetch
 
 BHF0712 = BA0712[,BHpred] #BinHypoxForest BAF
 BHF0712$Dynamic = sqrt(BHF0712$area_km2)/BHF0712$lMeanDepth
@@ -1196,7 +1512,7 @@ explain_forest(rf.BHF0712.test, interactions = TRUE, data = BHF0712.test[test071
 ######################Rel Anox#####################
 
 
-RA0712 = rbind(HT07, HT12[-78,]) #78 est le lac défectueux
+RA0712 = rbind(HT07, HT12[-75,]) #75 est le lac défectueux
 RA0712 = cbind(RA0712,RAnox0712)
 
 RApred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lMinorAxisLength", "lFetch", "depthmax_m","Julian.day", "RAnox0712")
@@ -1239,10 +1555,10 @@ plot(rtparty.HT0712)
 # explain_forest(rf.RAF0712, interactions = TRUE, data = RAF0712[test0712,])
 
 ####################################Hypoxie############################
-RH0712 = rbind(HT07, HT12[-78,]) 
+RH0712 = rbind(HT07, HT12[-75,]) 
 RH0712 = cbind(RH0712,RHypox0712)
 
-RHpred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lMinorAxisLength", "lFetch", "depthmax_m","Julian.day", "RHypox0712")
+RHpred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lShorelineDevelopment", "depthmax_m","Julian.day", "DRhypo" , "RHypox0712")#lMinorAxisLength", "lFetch
 
 RHF0712 = RH0712[,RHpred]
 RHF0712$Dynamic = sqrt(RHF0712$area_km2)/RHF0712$lMeanDepth
@@ -1328,7 +1644,7 @@ plot(rtparty.HT0712)
 explain_forest(rf.RAposF0712, interactions = TRUE, data = RAposF0712[test0712,])
 
 #######################Rel Hypoxia w/o "zeros"################
-RHpospred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "lMeanDepth","lMinorAxisLength", "lFetch", "depthmax_m","Julian.day", "RHypox0712")
+RHpospred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "lMeanDepth","lShorelineDevelopment", "depthmax_m","Julian.day","DRhypo" , "RHypox0712")#lMinorAxisLength", "lFetch
 
 RHposF0712 = RH0712[,RHpospred]
 
@@ -1375,10 +1691,10 @@ explain_forest(rf.RHposF0712, interactions = TRUE, data = RHposF0712[test0712,])
 
 
 #########Hypoxic proportion of hypolimnion only
-RH0712 = rbind(HT07, HT12[-78,]) 
+RH0712 = rbind(HT07, HT12[-75,]) 
 RHhypo0712 = cbind(RH0712,RHypox0712hypo)
 
-RHhypopred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lMinorAxisLength", "lFetch", "depthmax_m","Julian.day", "RHypox0712hypo")
+RHhypopred = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "Transp.index", "lMeanDepth","lShorelineDevelopment", "depthmax_m","Julian.day","DRhypo", "RHypox0712hypo")#lMinorAxisLength", "lFetch
 
 RHhypoF0712 = RHhypo0712[,RHhypopred]
 
@@ -1425,7 +1741,7 @@ plot(rtparty.HT0712hypo)
 # explain_forest(rf.RHhypoF0712, interactions = TRUE, data = RHhypoF0712)
 
 
-RHpospredhypo = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "lMeanDepth","lMinorAxisLength", "lFetch", "depthmax_m","Julian.day", "RHypox0712hypo")
+RHpospredhypo = c("lat", "lon","area_km2", "elevation_m", "basinarea_km2", "chla_ugL", "NTL_umolL", "PTL_umolL", "DOC_umolL", "secchi_m", "color_PCU","WALA_ratio", "pct_forest", "pct_agric",  "nutrient_color", "lMeanDepth","lMinorAxisLength", "lFetch", "depthmax_m","Julian.day","DRhypo", "RHypox0712hypo")
 
 RHposF0712hypo = RHhypo0712[,RHpospredhypo]
 
@@ -1510,7 +1826,54 @@ plot(BF0712$Dynamic ~ BF0712$nutrient_color,
      log = "y",
         las = 1,
         main = "")
+par(mfrow=c(1,2))
+plot(BF0712$secchi_m ~ BF0712$nutrient_color,
+        xlab = "Nutrient color",
+        ylab = "Secchi",
+     log = "y",
+        las = 1,
+        main = "")
+plot(BF0712$Transp.index ~ BF0712$nutrient_color,
+        xlab = "Nutrient color",
+        ylab = "Transparency index",
+     #log = "y",
+        las = 1,
+        main = "")
 
+#Secchi ~ Zmax and color
+par(mfrow =c(2,2))
+plot(BF0712$secchi_m[BF0712$nutrient_color == "blue"] ~ BF0712$depthmax_m[BF0712$nutrient_color == "blue"],
+     xlab = "Zmax",
+     ylab = "Secchi",
+     log = "xy",
+     las = 1,
+     main = "Blue")
+abline(0,1)
+
+plot(BF0712$secchi_m[BF0712$nutrient_color == "brown"] ~ BF0712$depthmax_m[BF0712$nutrient_color == "brown"],
+     xlab = "Zmax",
+     ylab = "Secchi",
+     log = "xy",
+     las = 1,
+     main = "Brown")
+abline(0,1)
+
+plot(BF0712$secchi_m[BF0712$nutrient_color == "green"] ~ BF0712$depthmax_m[BF0712$nutrient_color == "green"],
+     xlab = "Zmax",
+     ylab = "Secchi",
+     log = "xy",
+     las = 1,
+     main = "Green")
+abline(0,1)
+
+plot(BF0712$secchi_m[BF0712$nutrient_color == "murky"] ~ BF0712$depthmax_m[BF0712$nutrient_color == "murky"],
+     xlab = "Zmax",
+     ylab = "Secchi",
+     log = "xy",
+     las = 1,
+     main = "Murky")
+abline(0,1)
+####
 plot(BF0712$WALA_ratio ~ BF0712$nutrient_color,
         xlab = "Nutrient color",
         ylab = "Drainage ratio",
@@ -1642,8 +2005,30 @@ plot(log(BF0712$PTL_ugL/30.973762) ~ BF0712$nutrient_color,
      las = 1,
      main = "")
 
+par(mfrow=c(1,3))
+plot(BF0712$Dynamic ~ BF0712$nutrient_color,
+        xlab = "Nutrient color",
+        ylab = "Dynamic ratio",
+     ylim=c(0.02,15),
+     log = "y",
+        las = 1,
+        main = "All lakes")
+boxplot(HTF0712$Dynamic ~ HTF0712$nutrient_color,
+        xlab = "Nutrient color",
+        ylab = expression(Dynamic~Ratio[Lake]),
+     ylim=c(0.02,15),
+        las = 1,
+        log = "y",
+        main = "Lake w/ hypolimnion")
+boxplot(HTF0712$DRhypo ~ HTF0712$nutrient_color,
+        xlab = "Nutrient color",
+        ylab = expression(Dynamic~Ratio[Hypolimnion]),
+     ylim=c(0.02,15),
+        las = 1,
+        log = "y",
+        main = "Hypolimnion")
 
-
+par(mfrow=c(1,1))
 boxplot(HTF0712$HypoThick ~ HTF0712$nutrient_color,
         xlab = "Nutrient color",
         ylab = "Hypolimnion thickness",
@@ -1695,6 +2080,9 @@ plot(RHposF0712$RHypox0712 ~ RHposF0712$nutrient_color,
      ylab = "",
      las = 1,
      main = "Hypoxia relative volume")
+
+
+
 
 
 ancova.pente = aov(RHposF0712$RHypox0712 ~ RHposF0712$depthmax_m * RHposF0712$nutrient_color)
