@@ -17,6 +17,7 @@ library(caret)
 library(car)
 library(randomForestExplainer)
 library(dplyr)
+library(stringr)
 
 
 # home_strata_fct <- function(FileList, Year)
@@ -142,12 +143,33 @@ data0712 = data0712[!is.na(data0712$depthmax_m),]
 #Remove those that have a max sampled depth of 0m
 data0712 = data0712[(data0712$sampled_depthmax_m)!=0,]
 
+#Remove empty lines
+data0712 = data0712[!is.na(data0712$site_id),]
+
 #If sampled max depth = max depth, add 0.5m
 for(i in 1:length(data0712$depthmax_m)){
   if(is.na(data0712$sampled_depthmax_m[i])) next
   if(data0712$depthmax_m[i] == data0712$sampled_depthmax_m[i]) data0712$depthmax_m[i]  = data0712$depthmax_m[i] + 0.5
 }
 
+#Remove 2 lakes that were sampled twice in 2007 that were still in the database
+data0712 = data0712[-c(59,67),]
+
+#Remove 2012 lakes that were resampled at surface only
+list12 = list()
+data0712[order(data0712[,"site_id"], data0712[,"year"]), ]
+for(i in 2:dim(data0712)[1]){
+  if(data0712$site_id[i] != data0712$site_id[i-1]) next
+  
+  if( abs(data0712$sampled_depthmax_m[i]-data0712$sampled_depthmax_m[i-1]) >= 5) list12[[i]]=i
+}
+
+#Manually select the lakes to remove when sampling was obviously badly done
+# View(data0712[c(unlist(list12),unlist(list12)-1),]) #Copy-pasted in Excel for easier read
+#Lines to remove
+L.rm = c(182,203,233,273,345,353,419,514,527,580,605,637,687,797,923,939,942,957,979, 991, 1040, 1051,1309,1352)
+
+data0712 = data0712[-L.rm,]
 
 #Fill missing secchi data
 data0712$clear_to_bottom[which(is.na(data0712$clear_to_bottom))] = 0
@@ -253,36 +275,50 @@ missdata0712$LakeDR = missdata0712$lMeanDepth/missdata0712$depthmax_m #no units
 #REDO ALL THESE STEPS FOR THE OTHER RCP scenario
 
 
-#Reorder database by year
-#Easier to read profile csv files, which are separated by years
-# missdata0712 = missdata0712[order(missdata0712$year),]
-
 #Determine lake stratification
 #calculate metalimnion strata for all lakes in 2007 and 2012
-# allfiles07 = list.files("../data/Preprocessing/2007")
-# allfiles12 = list.files("../data/Preprocessing/2012")
-# strata07 = home_strata_temp(allfiles07, 2007)
-# strata12 = home_strata_temp(allfiles12, 2012)
-# strata0712 = cbind(strata07, strata12)
+allfiles07 = list.files("../data/Preprocessing/2007")
+allfiles12 = list.files("../data/Preprocessing/2012")
+strata07 = home_strata_temp(allfiles07, 2007)
+strata12 = home_strata_temp(allfiles12, 2012)
+
 
 
 #Create a vector with hypolimnion top depth another with hypolimnion thickness
 #No hypolimnion = 0
-# HypoTop = ifelse(strata0712[3,] != -1 & strata0712[3,] != strata0712[4,],  strata0712[3,], 0) #m
-# HypoThick = ifelse(strata0712[3,] != -1 & strata0712[3,] != strata0712[4,],  strata0712[4,] - strata0712[3,], 0) #m
-# BinHypo = ifelse(unlist(lapply(X = HypoThick,FUN = function(X) X!=0)), 1, 0)
-# names(HypoTop) <- names(HypoThick <- names(BinHypo) <- colnames(strata0712)
+HypoTop07 = ifelse(strata07[3,] != -1 & strata07[3,] != strata07[4,],  strata07[3,], 0) #m
+HypoThick07 = ifelse(strata07[3,] != -1 & strata07[3,] != strata07[4,],  strata07[4,] - strata07[3,], 0) #m
+BinHypo07 = ifelse(unlist(lapply(X = HypoThick07,FUN = function(X) X!=0)), 1, 0)
+names(HypoTop07) <- names(HypoThick07) <- names(BinHypo07) <- colnames(strata07)
 
-#Combine with main dataframe
-#Make sure all are in the same order
-# list.temp = list()
-# for(i in 1:length(HypoTop)){
-#   list.temp[[i]] = names(HypoTop)[i] == missdata0712$site_id[i]
-# }
-# unique(unlist(list.temp))
+HypoTop12 = ifelse(strata12[3,] != -1 & strata12[3,] != strata12[4,],  strata12[3,], 0) #m
+HypoThick12 = ifelse(strata12[3,] != -1 & strata12[3,] != strata12[4,],  strata12[4,] - strata12[3,], 0) #m
+BinHypo12 = ifelse(unlist(lapply(X = HypoThick12,FUN = function(X) X!=0)), 1, 0)
+names(HypoTop12) <- names(HypoThick12) <- names(BinHypo12) <- colnames(strata12)
 
-# cbind(missdata0712, HypoTop, HypoThick, BinHypo)
+Hypo.df07 <- data.frame(HypoTop = HypoTop07,
+                        HypoThick = HypoThick07,
+                        BinHypo = BinHypo07)
+Hypo.df07$site_id = rownames(Hypo.df07)
+Hypo.df12 <- data.frame(HypoTop = HypoTop12,
+                        HypoThick = HypoThick12,
+                        BinHypo = BinHypo12)
+Hypo.df12$site_id = rownames(Hypo.df12)
 
+#Combine with main dataframe by year
+Hypo.df07$site_id = str_replace(string = Hypo.df07$site_id, pattern = "\\.", replacement = "-")
+Hypo.df12$site_id = str_replace(string = Hypo.df12$site_id, pattern = "\\.", replacement = "-")
+
+missdata07 = missdata0712[missdata0712$year=="2007",]
+missdata12 = missdata0712[missdata0712$year=="2012",]
+
+missdata07 = merge(missdata07, Hypo.df07, by = "site_id")
+missdata12 = merge(missdata12, Hypo.df12, by = "site_id")
+
+missdata0712 = rbind(missdata07,missdata12)
+rm(missdata07)
+rm(missdata12)
+missdata0712$HypoProp = missdata0712$HypoThick / missdata0712$depthmax_m
 
 #Hypolimnion volume and dynamic ratio
 # HypoVol = matrix(nrow = length(missdata0712$area_km2), ncol=2)
